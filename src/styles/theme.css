@@ -50,6 +50,25 @@
   --blotch: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='520' height='520'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.011' numOctaves='4' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .55 0 0 0 0 .36 0 0 0 0 .14 0 0 0 .75 -.36'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   --dust: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 .85 0 0 0 0 .6 0 0 0 .35 -.1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 
+  /* Кожа переплёта: поры + крупная «мятость» + тёмные пятна + свет сверху */
+  --pores: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='turbulence' baseFrequency='1.4' numOctaves='1' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .04 0 0 0 0 .025 0 0 0 0 .015 2.6 0 0 0 -1.35'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --crinkle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='turbulence' baseFrequency='.11' numOctaves='2' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .02 0 0 0 0 .01 0 0 0 0 .005 -1.9 0 0 0 .44'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --mottle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.008' numOctaves='3' seed='5' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .06 0 0 0 0 .035 0 0 0 0 .02 1.1 0 0 0 -.38'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --leather:
+    var(--pores),
+    var(--crinkle),
+    var(--mottle),
+    radial-gradient(ellipse 120% 80% at 50% 0%, #4b3427 0%, #33241c 50%, #241812 100%);
+  --leather-size: 140px 140px, 300px 300px, 600px 600px, 100% 100%;
+  --leather-shadow:
+    inset 0 1px 0 rgba(255, 215, 165, 0.12),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.55),
+    inset 0 0 36px rgba(0, 0, 0, 0.5);
+  --stitch: rgba(214, 170, 110, 0.32);
+
+  /* Тиснение ромбами — тонкие золотистые линии, почти невидимые */
+  --lattice: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cpath d='M32 0L64 32L32 64L0 32Z' fill='none' stroke='%23d6aa6e' stroke-opacity='.045' stroke-width='1'/%3E%3Ccircle cx='32' cy='32' r='1.4' fill='%23d6aa6e' fill-opacity='.07'/%3E%3C/svg%3E");
+
   --paper: var(--grain), var(--blotch), linear-gradient(175deg, #efe2c6 0%, var(--parch) 45%, #dcc8a3 100%);
   --shadow-card:
     inset 0 0 0 1px rgba(150, 112, 62, 0.55),
@@ -70,7 +89,17 @@
   color: inherit;
 }
 
-/* Тёплое «свечение свечи» и зерно поверх всего фона */
+/* Фон — тёмная кожа переплёта: мягкие пятна, еле заметное тиснение ромбами, свет свечи, виньетка */
+body {
+  background-color: #150f0c;
+  background-image:
+    var(--lattice),
+    radial-gradient(ellipse 45% 35% at 25% 30%, rgba(60, 38, 24, 0.35), transparent 70%),
+    radial-gradient(ellipse 40% 40% at 75% 70%, rgba(55, 34, 20, 0.3), transparent 70%),
+    radial-gradient(ellipse 140% 100% at 60% 0%, #22170f 0%, #170f0b 55%, #0e0907 100%);
+  background-size: 64px 64px, 100% 100%, 100% 100%, 100% 100%;
+  background-attachment: fixed;
+}
 body::before {
   content: '';
   position: fixed;
@@ -78,9 +107,9 @@ body::before {
   pointer-events: none;
   z-index: 0;
   background:
-    radial-gradient(ellipse 70% 50% at 82% -8%, rgba(232, 116, 59, 0.16), transparent 70%),
-    radial-gradient(ellipse 60% 45% at -5% 105%, rgba(160, 90, 35, 0.18), transparent 70%),
-    radial-gradient(ellipse 120% 90% at 50% 40%, transparent 55%, rgba(0, 0, 0, 0.45) 100%);
+    radial-gradient(ellipse 60% 50% at 88% -8%, rgba(240, 130, 60, 0.16), transparent 70%),
+    radial-gradient(ellipse 55% 45% at -5% 108%, rgba(160, 90, 35, 0.12), transparent 70%),
+    radial-gradient(ellipse 125% 100% at 55% 40%, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
 }
 body::after {
   content: '';
@@ -89,7 +118,7 @@ body::after {
   pointer-events: none;
   z-index: 0;
   background-image: var(--dust);
-  opacity: 0.09;
+  opacity: 0.07;
   mix-blend-mode: overlay;
 }
 #app {
@@ -106,7 +135,6 @@ html,
 body {
   margin: 0;
   height: 100%;
-  background: var(--bg);
   color: var(--text);
   font-family: var(--font-sans);
   font-size: 15px;
@@ -114,6 +142,9 @@ body {
   overscroll-behavior: none;
 }
 
+html {
+  background: var(--bg);
+}
 #app {
   height: 100%;
 }
@@ -171,16 +202,22 @@ h3 {
 }
 .panel {
   position: relative;
-  background:
-    var(--grain),
-    linear-gradient(180deg, #261d18, var(--bg2) 60%, #1d1612);
-  background-size: 180px 180px, 100% 100%;
-  border: 1px solid var(--line);
+  background: var(--leather);
+  background-size: var(--leather-size);
   border-radius: var(--r);
   padding: 12px 14px;
   box-shadow:
-    inset 0 1px 0 rgba(255, 220, 170, 0.05),
-    0 10px 24px -12px rgba(0, 0, 0, 0.7);
+    var(--leather-shadow),
+    0 10px 24px -12px rgba(0, 0, 0, 0.8);
+}
+/* строчка по краю, как на кожаном переплёте */
+.panel::after {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border-radius: calc(var(--r) - 5px);
+  border: 1.5px dashed var(--stitch);
+  pointer-events: none;
 }
 .card-title {
   display: flex;
@@ -272,6 +309,7 @@ h3 {
   background: linear-gradient(180deg, #f08a50, var(--ember) 55%, #d9652e);
   color: var(--ember-ink);
   box-shadow:
+    inset 0 0 0 1px rgba(120, 40, 10, 0.35),
     inset 0 1px 0 rgba(255, 220, 190, 0.55),
     inset 0 -2px 0 rgba(120, 40, 10, 0.25),
     0 6px 18px -6px var(--ember-glow);
@@ -283,20 +321,32 @@ h3 {
     0 0 26px var(--ember-glow);
 }
 .btn-ink {
-  background: linear-gradient(180deg, #3a2b20, var(--ink));
+  background: var(--pores), linear-gradient(180deg, #46332620, transparent), linear-gradient(180deg, #3d2c21, #241812);
+  background-size: 140px 140px, 100% 100%, 100% 100%;
   color: var(--parch);
   box-shadow:
-    inset 0 1px 0 rgba(255, 230, 200, 0.12),
-    0 4px 10px -4px rgba(0, 0, 0, 0.5);
+    inset 0 0 0 1px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 215, 165, 0.16),
+    0 4px 10px -4px rgba(40, 20, 5, 0.6);
 }
+/* «тиснёная» кнопка: тёмная кожа с золотистым кантом */
 .btn-outline {
-  border: 1.5px solid var(--line2);
-  color: var(--text);
-  background: rgba(255, 230, 200, 0.02);
+  border: 1px solid rgba(201, 160, 100, 0.35);
+  color: var(--parch);
+  background: linear-gradient(180deg, rgba(255, 220, 170, 0.06), rgba(0, 0, 0, 0.15));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 220, 170, 0.08),
+    0 2px 6px -2px rgba(0, 0, 0, 0.6);
 }
+/* на пергаменте — вдавленная рамка, как оттиск */
 .card .btn-outline {
-  border-color: var(--ink);
+  border: 1px solid rgba(110, 78, 40, 0.55);
   color: var(--ink);
+  background: linear-gradient(180deg, rgba(255, 250, 235, 0.55), rgba(255, 250, 235, 0.15));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 252, 240, 0.8),
+    inset 0 -1px 0 rgba(120, 80, 30, 0.12),
+    0 1px 2px rgba(80, 50, 20, 0.2);
 }
 .btn-danger {
   background: linear-gradient(180deg, #cf6450, var(--bad));

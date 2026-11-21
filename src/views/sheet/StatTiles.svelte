@@ -15,7 +15,7 @@
   const open = (kind: 'ac' | 'init' | 'speed' | 'prof') => ui.openSheet(TileSheet, { kind });
 
   function rollInit() {
-    dice.rollCheck({ kind: 'init', label: t('sheet.tile.init'), bonus: initiative(c) });
+    dice.askCheck({ kind: 'init', label: t('sheet.tile.init'), bonus: initiative(c) });
   }
 </script>
 
@@ -23,7 +23,7 @@
   <!-- КО -->
   {#if ui.editing}
     <div class="tile t-ac">
-      <span class="ic"><Icon name="shield" size={20} /></span><span class="wm" aria-hidden="true"><Icon name="shield" size={86} stroke={1.4} /></span>
+      <span class="ic"><Icon name="shield" size={18} stroke={2.2} /></span><span class="wm" aria-hidden="true"><Icon name="shield" size={86} stroke={1.4} /></span>
       <div class="k">{t('sheet.tile.ac')}</div>
       <div class="inline">
         <NumberField bind:value={c.ac} min={0} max={50} />
@@ -32,7 +32,7 @@
     </div>
   {:else}
     <button class="tile t-ac" use:press={{ onLong: () => open('ac') }}>
-      <span class="ic"><Icon name="shield" size={20} /></span><span class="wm" aria-hidden="true"><Icon name="shield" size={86} stroke={1.4} /></span>
+      <span class="ic"><Icon name="shield" size={18} stroke={2.2} /></span><span class="wm" aria-hidden="true"><Icon name="shield" size={86} stroke={1.4} /></span>
       <div class="k">{t('sheet.tile.ac')}</div>
       <div class="v">{c.ac}</div>
       <div class="s">{c.acNote || ' '}</div>
@@ -44,7 +44,7 @@
     class="tile t-init"
     use:press={{ onTap: () => (ui.editing ? open('init') : rollInit()), onLong: () => open('init') }}
   >
-    <span class="ic"><Icon name="bolt" size={20} /></span><span class="wm" aria-hidden="true"><Icon name="bolt" size={86} stroke={1.4} /></span>
+    <span class="ic"><Icon name="bolt" size={18} stroke={2.2} /></span><span class="wm" aria-hidden="true"><Icon name="bolt" size={86} stroke={1.4} /></span>
     <div class="k">{t('sheet.tile.init')}</div>
     <div class="v">{fmt(initiative(c))}</div>
     <div class="s">{ui.editing ? t('sheet.tile.tapEdit') : t('sheet.tile.tapRoll')}</div>
@@ -53,7 +53,7 @@
   <!-- Швидкість -->
   {#if ui.editing}
     <div class="tile t-speed">
-      <span class="ic"><Icon name="boot" size={20} /></span><span class="wm" aria-hidden="true"><Icon name="boot" size={86} stroke={1.4} /></span>
+      <span class="ic"><Icon name="boot" size={18} stroke={2.2} /></span><span class="wm" aria-hidden="true"><Icon name="boot" size={86} stroke={1.4} /></span>
       <div class="k">{t('sheet.tile.speed')}</div>
       <div class="inline">
         <input class="field speed" type="text" inputmode="text" placeholder={t('sheet.speedPh')} bind:value={c.speed} enterkeyhint="done" />
@@ -62,7 +62,7 @@
     </div>
   {:else}
     <button class="tile t-speed" use:press={{ onLong: () => open('speed') }}>
-      <span class="ic"><Icon name="boot" size={20} /></span><span class="wm" aria-hidden="true"><Icon name="boot" size={86} stroke={1.4} /></span>
+      <span class="ic"><Icon name="boot" size={18} stroke={2.2} /></span><span class="wm" aria-hidden="true"><Icon name="boot" size={86} stroke={1.4} /></span>
       <div class="k">{t('sheet.tile.speed')}</div>
       <div class="v" class:long={c.speed.length > 4}>{c.speed || '—'}</div>
       <div class="s">{t('sheet.tile.feet')}</div>
@@ -71,7 +71,7 @@
 
   <!-- Бонус майстерності -->
   <button class="tile t-prof" use:press={{ onTap: () => ui.editing && open('prof'), onLong: () => open('prof') }}>
-    <span class="ic"><Icon name="clock" size={20} /></span><span class="wm" aria-hidden="true"><Icon name="clock" size={86} stroke={1.4} /></span>
+    <span class="ic"><Icon name="clock" size={18} stroke={2.2} /></span><span class="wm" aria-hidden="true"><Icon name="clock" size={86} stroke={1.4} /></span>
     <div class="k">{t('sheet.tile.prof')}</div>
     <div class="v">{fmt(profBonus(c))}</div>
     <div class="s">
@@ -91,85 +91,108 @@
       grid-template-columns: 1fr 1fr;
     }
   }
+  /* Кожаная пластина со строчкой; цвет — только акцент (медальон, подпись, свечение). */
   .tile {
     position: relative;
     border-radius: var(--r);
-    padding: 10px 14px;
-    min-height: 92px;
+    padding: 11px 14px 11px;
+    min-height: 108px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     gap: 2px;
-    color: var(--parch3);
+    color: var(--parch);
     text-align: left;
     overflow: hidden;
     user-select: none;
     isolation: isolate;
+    background: var(--leather);
+    background-size: var(--leather-size);
     box-shadow:
-      inset 0 1px 0 rgba(255, 235, 210, 0.28),
-      inset 0 -2px 0 rgba(0, 0, 0, 0.18),
-      inset 0 0 0 1px rgba(0, 0, 0, 0.12),
-      0 10px 22px -10px rgba(0, 0, 0, 0.8);
-    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+      var(--leather-shadow),
+      inset 0 -3px 0 -1px var(--acc),
+      0 10px 22px -10px rgba(0, 0, 0, 0.85);
     transition:
       transform 0.12s var(--ease),
       filter 0.15s;
   }
-  /* зерно + блик сверху */
+  /* строчка */
+  .tile::after {
+    content: '';
+    position: absolute;
+    inset: 5px 5px 7px;
+    border-radius: calc(var(--r) - 5px);
+    border: 1.5px dashed var(--stitch);
+    pointer-events: none;
+  }
+  /* отсвет акцентного цвета из-за медальона */
   .tile::before {
     content: '';
     position: absolute;
     inset: 0;
     z-index: -1;
-    background:
-      var(--dust),
-      radial-gradient(ellipse 90% 70% at 20% 0%, rgba(255, 240, 220, 0.22), transparent 60%);
-    background-size: 240px 240px, 100% 100%;
-    mix-blend-mode: soft-light;
+    background: radial-gradient(ellipse 70% 90% at 0% 0%, color-mix(in srgb, var(--acc) 30%, transparent), transparent 65%);
     pointer-events: none;
   }
-  /* крупный «водяной знак» иконки */
+  button.tile:active {
+    transform: scale(0.98);
+    filter: brightness(1.12);
+  }
+  .t-ac {
+    --acc: #e0703f;
+  }
+  .t-init {
+    --acc: #d9a63c;
+  }
+  .t-speed {
+    --acc: #c45876;
+  }
+  .t-prof {
+    --acc: #5aa0ab;
+  }
+  /* крупный «водяной знак» иконки в цвете акцента */
   .wm {
     position: absolute;
     right: -10px;
     bottom: -14px;
     z-index: -1;
-    opacity: 0.13;
+    color: var(--acc);
+    opacity: 0.12;
     display: flex;
     pointer-events: none;
   }
-  button.tile:active {
-    transform: scale(0.98);
-    filter: brightness(1.08);
-  }
-  .t-ac {
-    background: linear-gradient(155deg, #d8693c, #b9532c 55%, #9c4222);
-  }
-  .t-init {
-    background: linear-gradient(155deg, #c0952f, #9c7420 55%, #80601a);
-  }
-  .t-speed {
-    background: linear-gradient(155deg, #a04460, #7a2e45 55%, #5f2235);
-  }
-  .t-prof {
-    background: linear-gradient(155deg, #3f7983, #2d5961 55%, #22464d);
-  }
+  /* медальон-печать */
   .ic {
     position: absolute;
     left: 12px;
-    top: 10px;
-    opacity: 0.9;
+    top: 11px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
     display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1a0f08;
+    background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--acc) 55%, white), var(--acc) 55%, color-mix(in srgb, var(--acc) 70%, black));
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.35),
+      inset 0 -2px 3px rgba(0, 0, 0, 0.3),
+      0 0 0 2px rgba(0, 0, 0, 0.35),
+      0 0 14px color-mix(in srgb, var(--acc) 45%, transparent);
   }
   .k {
     font-size: 10.5px;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.12em;
     font-weight: 700;
-    opacity: 0.88;
+    color: color-mix(in srgb, var(--acc) 70%, var(--parch));
     text-align: right;
     text-transform: uppercase;
-    padding-left: 28px;
-    line-height: 1.25;
+    padding-left: 40px;
+    line-height: 1.2;
+    min-height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
   }
   .v {
     font-family: var(--font-serif);
@@ -180,13 +203,15 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    color: var(--parch);
+    text-shadow: 0 2px 0 rgba(0, 0, 0, 0.5), 0 0 18px color-mix(in srgb, var(--acc) 30%, transparent);
   }
   .v.long {
     font-size: 24px;
   }
   .s {
     font-size: 11.5px;
-    opacity: 0.8;
+    color: var(--muted);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -198,12 +223,12 @@
     margin-top: 4px;
   }
   .tile :global(.field) {
-    background: color-mix(in srgb, var(--bg) 25%, transparent);
-    border-color: color-mix(in srgb, var(--parch3) 45%, transparent);
+    background: rgba(0, 0, 0, 0.3);
+    border-color: color-mix(in srgb, var(--acc) 45%, transparent);
     color: var(--parch3);
   }
   .tile :global(.field:focus) {
-    border-color: var(--parch3);
+    border-color: var(--acc);
   }
   .tile :global(.field::placeholder) {
     color: color-mix(in srgb, var(--parch3) 55%, transparent);

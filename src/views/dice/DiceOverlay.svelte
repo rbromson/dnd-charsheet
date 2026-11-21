@@ -367,13 +367,15 @@
     overflow-x: hidden;
     overflow-y: auto;
     overscroll-behavior: contain;
-    background: linear-gradient(180deg, #2a201a, #1d1612);
-    border: 1px solid #4a3828;
+    background: var(--leather);
+    background-size: var(--leather-size);
+    border: 1px solid #0a0605;
     border-radius: 24px;
     padding: 22px 22px 20px;
     color: var(--parch);
     text-align: center;
     box-shadow:
+      var(--leather-shadow),
       0 0 70px var(--ember-glow),
       0 20px 50px rgba(0, 0, 0, 0.55);
     animation: card-in 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;

@@ -31,6 +31,34 @@ class DiceStore {
   overlayOpen = $state(false);
   /** увеличивается на каждый бросок — для перезапуска анимации */
   seq = $state(0);
+  /**
+   * Бросок, который ждёт подтверждения: тап по стату открывает «подготовку» —
+   * там выбирается перевага/перешкода, и кость бросается вторым нажатием.
+   */
+  pending = $state<{ req: CheckRequest; after?: (e: RollEntry) => void } | null>(null);
+
+  /** Подготовить бросок d20 (с листа персонажа): режим сбрасывается в «звичайний». */
+  askCheck(req: CheckRequest, after?: (e: RollEntry) => void) {
+    this.mode = 'normal';
+    this.overlayOpen = false;
+    this.pending = { req, after };
+    buzz(8);
+  }
+
+  /** Бросить подготовленный бросок с выбранным режимом. */
+  confirmPending(): RollEntry | null {
+    const p = this.pending;
+    if (!p) return null;
+    this.pending = null;
+    const e = this.rollCheck(p.req);
+    p.after?.(e);
+    return e;
+  }
+
+  cancelPending() {
+    this.pending = null;
+    this.mode = 'normal';
+  }
 
   #push(e: RollEntry) {
     this.last = e;
@@ -100,10 +128,13 @@ class DiceStore {
     return true;
   }
 
-  /** Спасбросок от смерти: 1 — два провала, 20 — 1 хит и сброс, ≥10 — успех. */
-  rollDeathSave(label: string): RollEntry {
-    const e = this.rollCheck({ label, bonus: 0, kind: 'death' });
-    if (e.type !== 'd20') return e;
+  /** Спасбросок от смерти: 1 — два провала, 20 — 1 хит и сброс, ≥10 — успех. Бросается после подтверждения. */
+  rollDeathSave(label: string) {
+    this.askCheck({ label, bonus: 0, kind: 'death' }, (e) => this.applyDeathSave(e, label));
+  }
+
+  applyDeathSave(e: RollEntry, label: string) {
+    if (e.type !== 'd20') return;
     const nat = e.roll.natural;
     charStore.update(
       (c) => {
@@ -116,7 +147,6 @@ class DiceStore {
       },
       { undo: label },
     );
-    return e;
   }
 
   close() {

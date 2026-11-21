@@ -7,6 +7,7 @@
   import QuickNote from './components/QuickNote.svelte';
   import DiceOverlay from './views/dice/DiceOverlay.svelte';
   import DiceTray from './views/dice/DiceTray.svelte';
+  import RollPrompt from './views/dice/RollPrompt.svelte';
   import SheetView from './views/sheet/SheetView.svelte';
   import CombatView from './views/combat/CombatView.svelte';
   import SpellsView from './views/spells/SpellsView.svelte';
@@ -69,6 +70,7 @@
 <DiceTray />
 <QuickNote />
 <SheetHost />
+<RollPrompt />
 <DiceOverlay />
 <Confirm />
 <Toasts />
@@ -77,9 +79,6 @@
   .shell {
     display: flex;
     height: 100dvh;
-    background-image:
-      radial-gradient(ellipse at 75% -15%, rgba(232, 116, 59, 0.11), transparent 55%),
-      radial-gradient(ellipse at 0% 115%, rgba(120, 70, 30, 0.2), transparent 50%);
   }
   main {
     flex: 1;

@@ -13,7 +13,7 @@
 
   const open = (a: Ability) => ui.openSheet(AbilitySheet, { ability: a });
   function roll(a: Ability) {
-    dice.rollCheck({ kind: 'ability', label: t('sheet.checkLabel', { ability: t(`ability.${a}`) }), bonus: abilityMod(c.abilities[a]) });
+    dice.askCheck({ kind: 'ability', label: t('sheet.checkLabel', { ability: t(`ability.${a}`) }), bonus: abilityMod(c.abilities[a]) });
   }
 </script>
 

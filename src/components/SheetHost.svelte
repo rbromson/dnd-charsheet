@@ -72,15 +72,12 @@
     border-color: var(--ink);
   }
   .sheet :global(.btn-outline) {
-    border-color: var(--ink);
+    border: 1px solid rgba(110, 78, 40, 0.55);
     color: var(--ink);
-  }
-  .sheet :global(.seg) {
-    background: rgba(42, 31, 23, 0.08);
-  }
-  .sheet :global(.seg button.on) {
-    background: var(--ink);
-    color: var(--parch);
+    background: linear-gradient(180deg, rgba(255, 250, 235, 0.55), rgba(255, 250, 235, 0.15));
+    box-shadow:
+      inset 0 1px 0 rgba(255, 252, 240, 0.8),
+      0 1px 2px rgba(80, 50, 20, 0.2);
   }
   .sheet :global(.muted) {
     color: var(--ink2);

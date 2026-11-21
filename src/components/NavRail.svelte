@@ -46,13 +46,15 @@
     height: 100%;
     position: relative;
     background:
-      var(--grain),
-      linear-gradient(180deg, #1a130f 0%, var(--rail) 40%, #0d0907 100%);
-    background-size: 180px 180px, 100% 100%;
-    border-right: 1px solid #2a1f19;
+      var(--pores),
+      var(--crinkle),
+      linear-gradient(180deg, #2c1f18 0%, #1f1611 45%, #150e0b 100%);
+    background-size: 140px 140px, 300px 300px, 100% 100%;
+    border-right: 1px solid #0a0605;
     box-shadow:
-      inset -1px 0 0 rgba(255, 210, 160, 0.04),
-      8px 0 24px -12px rgba(0, 0, 0, 0.8);
+      inset -1px 0 0 rgba(255, 210, 160, 0.07),
+      inset -7px 0 0 -6px var(--stitch),
+      8px 0 24px -12px rgba(0, 0, 0, 0.85);
     display: flex;
     flex-direction: column;
     align-items: center;

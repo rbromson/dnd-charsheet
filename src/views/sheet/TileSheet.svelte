@@ -25,7 +25,7 @@
   );
 
   function rollInit() {
-    dice.rollCheck({ kind: 'init', label: t('sheet.tile.init'), bonus: initiative(c) });
+    dice.askCheck({ kind: 'init', label: t('sheet.tile.init'), bonus: initiative(c) });
     ui.closeSheet();
   }
 </script>

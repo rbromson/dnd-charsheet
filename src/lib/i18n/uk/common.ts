@@ -105,6 +105,12 @@ export default {
   'roll.adv': 'Перевага',
   'roll.normal': 'Звичайний',
   'roll.dis': 'Перешкода',
+  'roll.prompt.kicker': 'Кидок d20',
+  'roll.prompt.tap': 'Торкніться кубика',
+  'roll.prompt.mode': 'Режим кидка',
+  'roll.prompt.cancel': 'Скасувати',
+  'roll.prompt.min': 'мінімум {n} на d20',
+  'roll.prompt.reroll': 'одиниці перекидаються',
 
   'dictation.start': 'Голосом',
   'dictation.stop': 'Стоп',

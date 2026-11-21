@@ -1,6 +1,5 @@
 <script lang="ts">
   import TopBar from '../../components/TopBar.svelte';
-  import RollModeToggle from '../../components/RollModeToggle.svelte';
   import TextField from '../../components/TextField.svelte';
   import SheetHeader from './SheetHeader.svelte';
   import StatTiles from './StatTiles.svelte';
@@ -22,7 +21,7 @@
   const openPassive = () => ui.openSheet(PassiveSheet, {});
 </script>
 
-<TopBar title={t('nav.sheet')}><RollModeToggle /></TopBar>
+<TopBar title={t('nav.sheet')} />
 <div class="view">
   <SheetHeader />
   <StatTiles />

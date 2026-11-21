@@ -15,7 +15,7 @@
   const sc = $derived(c.spellcasting);
 
   function rollAttack() {
-    dice.rollCheck({ kind: 'attack', label: t('spells.attackRoll'), bonus: spellAttack(c) });
+    dice.askCheck({ kind: 'attack', label: t('spells.attackRoll'), bonus: spellAttack(c) });
   }
 </script>
 

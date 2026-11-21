@@ -24,7 +24,7 @@
   function rollAttack() {
     if (!atk) return;
     const damage = atk.damage.trim() ? resolveDamageFormula(c, atk) : undefined;
-    dice.rollCheck({
+    dice.askCheck({
       kind: 'attack',
       attackId: atk.id,
       label: atk.name,

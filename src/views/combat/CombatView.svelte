@@ -1,6 +1,5 @@
 <script lang="ts">
   import TopBar from '../../components/TopBar.svelte';
-  import RollModeToggle from '../../components/RollModeToggle.svelte';
   import StatTiles from '../sheet/StatTiles.svelte';
   import HpCard from './HpCard.svelte';
   import DeathSaves from './DeathSaves.svelte';
@@ -14,7 +13,7 @@
   const down = $derived(!!charStore.current && charStore.current.hp.current === 0 && charStore.current.hp.max > 0);
 </script>
 
-<TopBar title={t('nav.combat')}><RollModeToggle /></TopBar>
+<TopBar title={t('nav.combat')} />
 <div class="view">
   <StatTiles />
 

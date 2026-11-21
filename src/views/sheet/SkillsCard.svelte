@@ -17,7 +17,7 @@
   const open = (key: SkillKey) => ui.openSheet(SkillSheet, { skill: key });
   function roll(key: SkillKey) {
     const s = c.skills[key];
-    dice.rollCheck({ kind: 'skill', label: t(`skill.${key}`), bonus: skillBonus(c, key), minD20: s.minD20 });
+    dice.askCheck({ kind: 'skill', label: t(`skill.${key}`), bonus: skillBonus(c, key), minD20: s.minD20 });
   }
   const openPassive = () => ui.openSheet(PassiveSheet, {});
 </script>

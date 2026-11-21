@@ -240,6 +240,10 @@
   }
   .amount.empty {
     color: color-mix(in srgb, var(--ink2) 35%, transparent);
+    font-family: var(--font-sans);
+    font-style: normal;
+    font-size: 56px;
+    padding: 12px 0 10px;
   }
   .explain {
     text-align: center;

@@ -106,10 +106,9 @@
     bottom: 0;
     width: min(400px, calc(100vw - 96px));
     background:
-      var(--grain),
       radial-gradient(ellipse 90% 40% at 30% 0%, rgba(232, 116, 59, 0.12), transparent 70%),
-      linear-gradient(180deg, #211813, #16100d);
-    background-size: 180px 180px, 100% 100%, 100% 100%;
+      var(--leather);
+    background-size: 100% 100%, var(--leather-size);
     border-right: 1px solid var(--line);
     box-shadow: 20px 0 40px rgba(0, 0, 0, 0.5);
     z-index: 31;

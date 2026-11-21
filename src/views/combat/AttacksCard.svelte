@@ -24,7 +24,7 @@
   }
 
   function rollAttack(a: Attack) {
-    dice.rollCheck({
+    dice.askCheck({
       kind: 'attack',
       attackId: a.id,
       label: a.name,

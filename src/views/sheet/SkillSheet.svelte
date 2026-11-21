@@ -29,7 +29,7 @@
   ];
 
   function roll() {
-    dice.rollCheck({ kind: 'skill', label: name, bonus: skillBonus(c, skill), minD20: s.minD20 });
+    dice.askCheck({ kind: 'skill', label: name, bonus: skillBonus(c, skill), minD20: s.minD20 });
     ui.closeSheet();
   }
 </script>

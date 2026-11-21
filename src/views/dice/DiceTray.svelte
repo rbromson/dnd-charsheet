@@ -186,14 +186,13 @@
     display: flex;
     flex-direction: column;
     background:
-      var(--grain),
-      radial-gradient(circle at 50% 52%, rgba(232, 116, 59, 0.12), transparent 45%),
-      radial-gradient(circle at 50% 52%, #3a2a1f, #1d1612 72%);
-    background-size: 180px 180px, 100% 100%, 100% 100%;
-    border: 1px solid var(--line);
+      radial-gradient(circle at 50% 55%, rgba(232, 116, 59, 0.14), transparent 45%),
+      var(--leather);
+    background-size: 100% 100%, var(--leather-size);
+    border: 1px solid #0a0605;
     border-radius: 20px;
     box-shadow:
-      inset 0 1px 0 rgba(255, 220, 180, 0.07),
+      var(--leather-shadow),
       var(--shadow-pop);
     overflow: hidden;
     animation: tray-in 0.22s cubic-bezier(0.2, 0.9, 0.3, 1) both;
