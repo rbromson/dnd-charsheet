@@ -30,6 +30,14 @@ export default defineConfig({
         globIgnores: ['**/transformers*', '**/ort*', '**/*.wasm', '**/whisper.worker*'],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
         navigateFallback: 'index.html',
+        // Whisper: код воркера кэшируется при первом использовании (модель и wasm кэширует сама transformers.js)
+        runtimeCaching: [
+          {
+            urlPattern: /\/assets\/(whisper\.worker|transformers)[^/]*\.js$/,
+            handler: 'CacheFirst',
+            options: { cacheName: 'whisper-js' },
+          },
+        ],
       },
     }),
   ],
