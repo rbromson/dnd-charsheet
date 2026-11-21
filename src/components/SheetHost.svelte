@@ -1,13 +1,19 @@
 <script lang="ts">
   import { ui } from '../lib/stores/ui.svelte';
   import { fly, fade } from 'svelte/transition';
+
+  // Последнее открытое значение: пока карточка анимированно закрывается, ui.sheet уже null.
+  let shown = $state(ui.sheet);
+  $effect(() => {
+    if (ui.sheet) shown = ui.sheet;
+  });
 </script>
 
-{#if ui.sheet}
-  {@const C = ui.sheet.component}
+{#if ui.sheet && shown}
+  {@const C = shown.component}
   <div class="scrim" role="presentation" transition:fade={{ duration: 150 }} onclick={() => ui.closeSheet()}></div>
   <aside class="sheet" transition:fly={{ x: 80, duration: 200 }}>
-    <C {...ui.sheet.props} />
+    <C {...shown.props} />
   </aside>
 {/if}
 

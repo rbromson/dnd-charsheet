@@ -6,6 +6,8 @@ export interface ToastItem {
   id: number;
   message: string;
   undo?: () => void;
+  /** Подпись кнопки действия (по умолчанию «Скасувати») */
+  actionLabel?: string;
 }
 
 export interface ConfirmState {
@@ -36,8 +38,8 @@ class UiStore {
     return this.mode === 'edit';
   }
 
-  toast(message: string, undo?: () => void, ms = 5000) {
-    const item = { id: ++toastSeq, message, undo };
+  toast(message: string, undo?: () => void, ms = 5000, actionLabel?: string) {
+    const item = { id: ++toastSeq, message, undo, actionLabel };
     this.toasts = [...this.toasts.slice(-2), item];
     setTimeout(() => this.dismiss(item.id), ms);
   }

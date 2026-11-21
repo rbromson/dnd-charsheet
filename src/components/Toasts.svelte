@@ -14,7 +14,7 @@
           onclick={() => {
             toast.undo?.();
             ui.dismiss(toast.id);
-          }}>{t('common.undo')}</button
+          }}>{toast.actionLabel ?? t('common.undo')}</button
         >
       {/if}
     </div>

@@ -51,6 +51,7 @@
     claude: 'M12 3v18 M3 12h18 M5.6 5.6l12.8 12.8 M18.4 5.6L5.6 18.4',
     cards: 'M7 3h10v14H7z M4 6v14h10',
     wave: 'M3 12h2 M7 8v8 M11 5v14 M15 9v6 M19 11v2',
+    back: 'M15 5l-7 7 7 7',
   };
 </script>
 
