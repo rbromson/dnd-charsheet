@@ -33,7 +33,7 @@
   }
   button {
     flex: 1;
-    min-height: 44px;
+    min-height: var(--tap);
     padding: 0 10px;
     border-radius: 10px;
     font-weight: 600;
