@@ -157,6 +157,9 @@
     gap: 10px;
     flex-wrap: wrap;
   }
+  .compact > .grow {
+    min-width: 160px;
+  }
   .n {
     font-weight: 600;
     font-size: 15px;

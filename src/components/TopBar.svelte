@@ -12,7 +12,7 @@
   <h1 class="sc">{title}</h1>
   {#if ui.editing}<span class="hint"><Icon name="edit" size={16} />{t('mode.editHint')}</span>{/if}
   <div class="grow"></div>
-  {#if children}{@render children()}{/if}
+  {#if children}<div class="extra">{@render children()}</div>{/if}
   <div class="mode">
     <Segmented
       bind:value={ui.mode}
@@ -55,9 +55,23 @@
   .mode {
     width: 210px;
   }
-  @media (max-width: 700px) {
+  .extra {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  @media (max-width: 1000px) {
+    .top {
+      flex-wrap: wrap;
+      row-gap: 8px;
+    }
     .hint {
       display: none;
+    }
+    .extra {
+      order: 3;
+      width: 100%;
+      justify-content: flex-start;
     }
   }
 </style>

@@ -18,7 +18,7 @@
 
 <style>
   .rm {
-    width: 300px;
+    width: min(340px, 100%);
   }
   @media (max-width: 900px) {
     .rm {
