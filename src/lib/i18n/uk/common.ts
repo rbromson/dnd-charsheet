@@ -106,6 +106,16 @@ export default {
   'roll.normal': 'Звичайний',
   'roll.dis': 'Перешкода',
 
+  'dictation.start': 'Голосом',
+  'dictation.stop': 'Стоп',
+  'dictation.listening': 'Слухаю… говоріть',
+  'dictation.error.unsupported': 'Цей браузер не вміє голосовий ввід. Відкрийте застосунок у Chrome.',
+  'dictation.error.busy': 'Зараз іде запис сесії через Chrome — він уже слухає мікрофон. Зупиніть запис або змініть рушій на Whisper.',
+  'dictation.error.denied': 'Немає доступу до мікрофона. Дозвольте його в налаштуваннях сайту в Chrome.',
+  'dictation.error.network': 'Голосовий ввід Chrome потребує інтернету.',
+  'dictation.error.nospeech': 'Нічого не почуто.',
+  'dictation.error.other': 'Голосовий ввід не запустився. Спробуйте ще раз.',
+
   'toast.saved': 'Збережено',
   'storage.notPersistent': 'Браузер може очистити дані. Робіть експорт час від часу.',
 } satisfies Record<string, string>;

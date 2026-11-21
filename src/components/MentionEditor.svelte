@@ -7,6 +7,9 @@
   import { onMount, tick } from 'svelte';
   import { codex, CODEX_KINDS } from '../lib/stores/codex.svelte';
   import { findMentionQuery, insertMention, sanitizeMentionName } from '../lib/mentions';
+  import { dictation, insertDictated } from '../lib/dictation.svelte';
+  import { uid } from '../lib/model/ids';
+  import Icon from './Icon.svelte';
   import type { CodexEntry, CodexKind } from '../lib/model/types';
   import { t } from '../lib/i18n';
 
@@ -192,6 +195,38 @@
     forced = true;
   }
 
+  // ---- голосовой ввод ----
+  const dictId = uid();
+  const listening = $derived(dictation.owner === dictId);
+  let mine = $state(false);
+  const dictErr = $derived(mine && !listening && dictation.error ? t(`dictation.error.${dictation.error}`) : null);
+  $effect(() => {
+    if (dictation.owner && dictation.owner !== dictId) mine = false;
+  });
+
+  function micButton() {
+    mine = true;
+    if (listening) {
+      dictation.stop();
+      return;
+    }
+    dictation.start(dictId, (phrase) => {
+      const el = ta;
+      const s = el ? (el.selectionStart ?? value.length) : value.length;
+      const e = el ? (el.selectionEnd ?? s) : s;
+      const r = insertDictated(value, s, e, phrase);
+      value = r.text;
+      tick().then(() => {
+        if (!ta) return;
+        ta.setSelectionRange(r.caret, r.caret);
+        grow();
+      });
+    });
+  }
+  $effect(() => () => {
+    if (dictation.owner === dictId) dictation.stop();
+  });
+
   function onkeydown(e: KeyboardEvent) {
     if (open && optionCount > 0) {
       if (e.key === 'ArrowDown') {
@@ -262,7 +297,28 @@
     {onblur}
     enterkeyhint="enter"
   ></textarea>
+  {#if listening}
+    <div class="dict" aria-live="polite">
+      <span class="pulse"></span>
+      <span class="grow">{dictation.interim || t('dictation.listening')}</span>
+    </div>
+  {:else if dictErr}
+    <div class="dict err">{dictErr}</div>
+  {/if}
   <div class="tools">
+    {#if dictation.supported()}
+      <button
+        type="button"
+        class="btn btn-ghost mic"
+        class:on={listening}
+        onmousedown={keepFocus}
+        onclick={micButton}
+        aria-pressed={listening}
+        aria-label={listening ? t('dictation.stop') : t('dictation.start')}
+      >
+        <Icon name={listening ? 'stop' : 'mic'} size={20} /><span class="lbl">{listening ? t('dictation.stop') : t('dictation.start')}</span>
+      </button>
+    {/if}
     <button type="button" class="btn btn-ghost at" onmousedown={keepFocus} onclick={atButton} aria-label={t('journal.mention.button')}>
       <span class="sym">@</span><span class="lbl">{t('journal.mention.button')}</span>
     </button>
@@ -323,6 +379,47 @@
     display: flex;
     justify-content: flex-end;
     margin-top: 2px;
+  }
+  .mic {
+    min-height: var(--tap);
+    padding: 0 12px;
+    gap: 6px;
+    font-size: 14px;
+    opacity: 0.85;
+  }
+  .mic.on {
+    opacity: 1;
+    color: #fff;
+    background: var(--bad);
+  }
+  .dict {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 6px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: rgba(192, 83, 63, 0.12);
+    font-size: 14px;
+    font-style: italic;
+  }
+  .dict.err {
+    font-style: normal;
+    color: var(--bad);
+  }
+  .pulse {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--bad);
+    flex-shrink: 0;
+    animation: pulse 1s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    50% {
+      opacity: 0.3;
+      transform: scale(0.8);
+    }
   }
   .at {
     min-height: var(--tap);
