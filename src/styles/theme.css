@@ -1,0 +1,345 @@
+/* ===== Тема «Таверна / пергамент» ===== */
+:root {
+  --bg: #17110e;
+  --bg2: #211915;
+  --bg3: #2b211b;
+  --rail: #120d0b;
+  --line: #3a2c22;
+  --line2: #5a4533;
+
+  --parch: #eadcc0;
+  --parch2: #e0cfae;
+  --parch3: #f5ecda; /* поля ввода на пергаменте */
+  --edge: #c9b38a;
+  --ink: #2a1f17;
+  --ink2: #6b5a48;
+  --text: #e9dcc6; /* текст на тёмном */
+  --muted: #a8957c;
+
+  --ember: #e8743b;
+  --ember-ink: #1a0f08;
+  --ember-glow: rgba(232, 116, 59, 0.45);
+  --ember-soft: rgba(232, 116, 59, 0.14);
+  --gold: #e6b450;
+  --gold-glow: rgba(230, 180, 80, 0.55);
+
+  --t-ember: linear-gradient(160deg, #c95c33, #b9532c);
+  --t-ochre: linear-gradient(160deg, #b08628, #9c7420);
+  --t-wine: linear-gradient(160deg, #8f3a53, #7a2e45);
+  --t-teal: linear-gradient(160deg, #366a73, #2d5961);
+  --wine: #7a2e45;
+  --teal: #2d5961;
+  --ochre: #9c7420;
+
+  --good: #7fa36b;
+  --bad: #c0533f;
+  --temp: #4f7390;
+  --swap: #a3401c; /* навык через другую характеристику */
+
+  --tap: 48px;
+  --r: 14px;
+  --r-sm: 10px;
+
+  --font-serif: 'Alegreya', Georgia, serif;
+  --font-sc: 'Alegreya SC', 'Alegreya', Georgia, serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-hand: 'Marck Script', cursive;
+
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.45;
+  overscroll-behavior: none;
+}
+
+#app {
+  height: 100%;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-weight: 700;
+}
+
+/* ===== Поверхности ===== */
+.card {
+  background: linear-gradient(180deg, var(--parch), var(--parch2));
+  color: var(--ink);
+  border-radius: var(--r);
+  padding: 12px 14px;
+  box-shadow:
+    inset 0 0 0 1px var(--edge),
+    inset 0 0 30px rgba(120, 80, 30, 0.18),
+    0 2px 8px rgba(0, 0, 0, 0.4);
+}
+.panel {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 12px 14px;
+}
+.card-title {
+  font-family: var(--font-sc);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--ink2);
+  margin: 0 0 8px;
+  text-transform: uppercase;
+}
+.panel .card-title {
+  color: var(--muted);
+}
+.serif {
+  font-family: var(--font-serif);
+}
+.sc {
+  font-family: var(--font-sc);
+}
+.muted {
+  color: var(--muted);
+}
+.card .muted {
+  color: var(--ink2);
+}
+.num {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===== Кнопки ===== */
+.btn {
+  min-height: var(--tap);
+  min-width: var(--tap);
+  padding: 0 16px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 15px;
+  user-select: none;
+  transition: transform 0.08s, filter 0.15s;
+}
+.btn:active {
+  transform: scale(0.97);
+}
+.btn-primary {
+  background: var(--ember);
+  color: var(--ember-ink);
+}
+.btn-ink {
+  background: var(--ink);
+  color: var(--parch);
+}
+.btn-outline {
+  border: 1.5px solid var(--line2);
+  color: var(--text);
+}
+.card .btn-outline {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+.btn-danger {
+  background: var(--bad);
+  color: #fff;
+}
+.btn-good {
+  background: var(--good);
+  color: #fff;
+}
+.btn-ghost {
+  color: inherit;
+}
+.btn[disabled] {
+  opacity: 0.4;
+  pointer-events: none;
+}
+.tap {
+  min-width: var(--tap);
+  min-height: var(--tap);
+}
+
+/* ===== Поля ввода ===== */
+.field {
+  width: 100%;
+  min-height: var(--tap);
+  border-radius: 12px;
+  border: 1.5px solid var(--line2);
+  background: var(--bg3);
+  padding: 10px 12px;
+  outline: none;
+}
+.field:focus {
+  border-color: var(--ember);
+}
+.card .field {
+  background: var(--parch3);
+  border-color: var(--edge);
+  color: var(--ink);
+}
+.card .field:focus {
+  border-color: var(--ember);
+}
+textarea.field {
+  resize: vertical;
+  line-height: 1.5;
+}
+.label {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 4px;
+}
+.card .label {
+  color: var(--ink2);
+}
+
+/* ===== Раскладка: колонки по ширине контента ===== */
+.view {
+  container-type: inline-size;
+  padding: 16px 20px 96px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 100%;
+}
+.cols {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 1fr;
+  align-items: start;
+}
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+@container (min-width: 760px) {
+  .cols-2,
+  .cols-3 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@container (min-width: 1040px) {
+  .cols-3 {
+    grid-template-columns: 1fr 1.25fr 1fr;
+  }
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.grow {
+  flex: 1;
+  min-width: 0;
+}
+.divider {
+  height: 1px;
+  background: rgba(107, 90, 72, 0.25);
+  margin: 8px 0;
+}
+
+/* ===== Мелочи ===== */
+.chip {
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 20px;
+  border: 1px solid #4a3828;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #d9c7aa;
+  font-size: 14px;
+  font-weight: 500;
+  background: #1f1713;
+}
+.chip.on {
+  border-color: var(--ember);
+  color: var(--ember);
+  background: var(--ember-soft);
+}
+.card .chip {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--edge);
+}
+.card .chip.on {
+  background: var(--ink);
+  color: var(--parch);
+  border-color: var(--ink);
+}
+.tag {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: var(--ink);
+  color: var(--parch);
+  white-space: nowrap;
+}
+.empty {
+  padding: 18px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+}
+.card .empty {
+  color: var(--ink2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #3a2c22;
+  border-radius: 4px;
+}
