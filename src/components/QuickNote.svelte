@@ -143,4 +143,12 @@
       display: none;
     }
   }
+  @media (max-width: 640px) {
+    .qn {
+      left: 8px;
+      right: 8px;
+      bottom: 8px;
+      padding: 12px 14px 14px;
+    }
+  }
 </style>

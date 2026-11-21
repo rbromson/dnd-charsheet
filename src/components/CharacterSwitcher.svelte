@@ -58,7 +58,10 @@
 {#if ui.switcherOpen}
   <div class="scrim" role="presentation" transition:fade={{ duration: 120 }} onclick={() => (ui.switcherOpen = false)}></div>
   <aside class="sw" transition:fly={{ x: -60, duration: 180 }}>
-    <h2 class="sc">{t('chars.title')}</h2>
+    <div class="head">
+      <h2 class="sc">{t('chars.title')}</h2>
+      <button class="btn btn-ghost" aria-label={t('common.close')} onclick={() => (ui.switcherOpen = false)}><Icon name="close" /></button>
+    </div>
     <div class="list">
       {#each charStore.list as c (c.id)}
         <div class="ch" class:on={c.id === charStore.current?.id}>
@@ -111,6 +114,11 @@
     flex-direction: column;
     gap: 12px;
     overflow-y: auto;
+  }
+  .head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
   h2 {
     font-size: 22px;
@@ -187,5 +195,15 @@
     font-size: 12px;
     color: var(--muted);
     margin: 0;
+  }
+  @media (max-width: 640px) {
+    .scrim {
+      inset: 0;
+    }
+    .sw {
+      left: 0;
+      width: 100vw;
+      padding-bottom: calc(20px + env(safe-area-inset-bottom));
+    }
   }
 </style>

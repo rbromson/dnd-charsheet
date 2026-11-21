@@ -88,4 +88,13 @@
     overflow-x: hidden;
     padding-right: env(safe-area-inset-right);
   }
+  @media (max-width: 640px) {
+    .shell {
+      display: block;
+    }
+    main {
+      height: 100dvh;
+      padding-bottom: calc(64px + env(safe-area-inset-bottom));
+    }
+  }
 </style>

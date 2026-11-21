@@ -217,6 +217,14 @@
     text-align: center;
     color: var(--ink);
   }
+  @media (max-width: 640px) {
+    .amount {
+      font-size: 54px;
+    }
+    .divider {
+      margin: 8px 0;
+    }
+  }
   .amount.empty {
     color: color-mix(in srgb, var(--ink2) 45%, transparent);
   }

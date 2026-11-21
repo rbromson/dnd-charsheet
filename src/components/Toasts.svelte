@@ -50,4 +50,10 @@
   .undo {
     color: var(--ember);
   }
+  @media (max-width: 640px) {
+    .toasts {
+      width: calc(100vw - 24px);
+      bottom: calc(76px + env(safe-area-inset-bottom));
+    }
+  }
 </style>

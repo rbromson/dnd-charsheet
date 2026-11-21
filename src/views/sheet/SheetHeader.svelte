@@ -210,4 +210,25 @@
     margin: 0;
     font-size: 12.5px;
   }
+  /* Телефон: без шестиугольника, чипы в один ряд */
+  @media (max-width: 640px) {
+    .right > :global(svg),
+    .right > :global(.radar) {
+      display: none;
+    }
+    .right {
+      width: 100%;
+    }
+    .chips {
+      flex-direction: row;
+      width: 100%;
+    }
+    .chips .chip {
+      flex: 1;
+      justify-content: center;
+    }
+    .nm {
+      font-size: 28px;
+    }
+  }
 </style>

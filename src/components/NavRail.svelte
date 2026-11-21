@@ -30,7 +30,7 @@
     {/each}
   </div>
   <div class="sp"></div>
-  <button class="it" class:on={ui.diceTrayOpen} onclick={() => (ui.diceTrayOpen = !ui.diceTrayOpen)}>
+  <button class="it dice" class:on={ui.diceTrayOpen} onclick={() => (ui.diceTrayOpen = !ui.diceTrayOpen)}>
     <span class="pl"><Icon name="dice" /></span>
     <span class="lb">{t('nav.dice')}</span>
   </button>
@@ -109,5 +109,51 @@
   }
   .fab:active {
     transform: scale(0.95);
+  }
+
+  /* ===== Телефон: нижняя панель + плавающие кнопки ===== */
+  @media (max-width: 640px) {
+    .rail {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: auto;
+      height: calc(64px + env(safe-area-inset-bottom));
+      flex-direction: row;
+      align-items: stretch;
+      padding: 0 2px env(safe-area-inset-bottom);
+      gap: 0;
+      border-right: none;
+      border-top: 1px solid #2a1f19;
+      overflow: visible;
+      z-index: 20;
+    }
+    .who,
+    .sp {
+      display: none;
+    }
+    .items {
+      display: contents;
+    }
+    .it {
+      flex: 1;
+      width: auto;
+      min-width: 0;
+      min-height: 60px;
+      font-size: 10px;
+      gap: 2px;
+    }
+    .lb {
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .pl {
+      padding: 4px 12px;
+    }
+    .fab {
+      display: none;
+    }
   }
 </style>

@@ -46,7 +46,7 @@
     grid-template-columns: 1fr 1fr;
     gap: 8px;
   }
-  @container (min-width: 400px) {
+  @container (min-width: 300px) {
     .shields {
       grid-template-columns: repeat(3, 1fr);
     }

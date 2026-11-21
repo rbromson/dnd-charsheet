@@ -83,15 +83,15 @@
 
 <style>
   .abs {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 5px;
   }
   .abs .chip {
     min-height: var(--tap);
-    min-width: 52px;
+    min-width: 0;
     justify-content: center;
-    padding: 0 12px;
+    padding: 0 2px;
     font-weight: 600;
   }
   .two {

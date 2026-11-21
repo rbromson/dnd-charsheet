@@ -88,15 +88,15 @@
 
 <style>
   .abs {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 6px;
-    flex-wrap: wrap;
   }
   .abs .chip {
     min-height: var(--tap);
-    min-width: 56px;
+    min-width: 0;
     justify-content: center;
-    padding: 0 12px;
+    padding: 0 4px;
     font-weight: 600;
   }
   .swap {

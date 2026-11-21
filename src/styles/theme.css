@@ -253,6 +253,16 @@ textarea.field {
   gap: 12px;
   min-width: 0;
 }
+@media (max-width: 640px) {
+  .view {
+    padding: 12px 12px 160px;
+    gap: 12px;
+  }
+  .card,
+  .panel {
+    padding: 12px;
+  }
+}
 @container (min-width: 760px) {
   .cols-2,
   .cols-3 {

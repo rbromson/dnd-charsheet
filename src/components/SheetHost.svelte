@@ -4,14 +4,23 @@
 
   // Последнее открытое значение: пока карточка анимированно закрывается, ui.sheet уже null.
   let shown = $state(ui.sheet);
+  let openedAt = 0;
   $effect(() => {
-    if (ui.sheet) shown = ui.sheet;
+    if (ui.sheet) {
+      if (ui.sheet !== shown) openedAt = performance.now();
+      shown = ui.sheet;
+    }
   });
+  /** Защита от «призрачного» клика сразу после открытия. */
+  function scrimClick() {
+    if (performance.now() - openedAt < 400) return;
+    ui.closeSheet();
+  }
 </script>
 
 {#if ui.sheet && shown}
   {@const C = shown.component}
-  <div class="scrim" role="presentation" transition:fade={{ duration: 150 }} onclick={() => ui.closeSheet()}></div>
+  <div class="scrim" role="presentation" transition:fade={{ duration: 150 }} onclick={scrimClick}></div>
   <aside class="sheet" transition:fly={{ x: 80, duration: 200 }}>
     <C {...shown.props} />
   </aside>
@@ -68,5 +77,20 @@
   }
   .sheet :global(.muted) {
     color: var(--ink2);
+  }
+  @media (max-width: 640px) {
+    .sheet {
+      left: 0;
+      right: 0;
+      bottom: 0;
+      top: 6dvh;
+      width: auto;
+      border-radius: 22px 22px 0 0;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .sheet :global(.chip) {
+      padding: 0 9px;
+      gap: 4px;
+    }
   }
 </style>

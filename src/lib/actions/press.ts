@@ -19,6 +19,7 @@ export const press: Action<HTMLElement, PressOptions> = (node, initial) => {
   let startY = 0;
   let longFired = false;
   let active = false;
+  let tapOk = false;
 
   const clear = () => {
     if (timer) clearTimeout(timer);
@@ -51,12 +52,32 @@ export const press: Action<HTMLElement, PressOptions> = (node, initial) => {
       clear();
     }
   }
-  function up(e: PointerEvent) {
+  function up() {
     clear();
-    if (active && !longFired) opts.onTap?.(e);
+    // Тап обрабатываем в click: если открыть карточку здесь, браузер следом пришлёт
+    // click в ту же точку — уже по затемнению, и карточка сразу закроется.
+    tapOk = active && !longFired;
     active = false;
   }
+  function click(e: MouseEvent) {
+    // клик с клавиатуры (Enter/Space) приходит без pointer-событий — тоже тап
+    const fromKeyboard = e.detail === 0;
+    if (longFired) {
+      e.preventDefault();
+      e.stopPropagation();
+      longFired = false;
+      return;
+    }
+    if (tapOk || fromKeyboard) opts.onTap?.(e as PointerEvent);
+    tapOk = false;
+  }
   function cancel() {
+    clear();
+    active = false;
+    tapOk = false;
+  }
+  /** На тач-экране pointerleave приходит сразу после pointerup — тап при этом не отменяем. */
+  function leave() {
     clear();
     active = false;
   }
@@ -68,8 +89,9 @@ export const press: Action<HTMLElement, PressOptions> = (node, initial) => {
   node.addEventListener('pointermove', move);
   node.addEventListener('pointerup', up);
   node.addEventListener('pointercancel', cancel);
-  node.addEventListener('pointerleave', cancel);
+  node.addEventListener('pointerleave', leave);
   node.addEventListener('contextmenu', context);
+  node.addEventListener('click', click);
 
   return {
     update(o) {
@@ -81,8 +103,9 @@ export const press: Action<HTMLElement, PressOptions> = (node, initial) => {
       node.removeEventListener('pointermove', move);
       node.removeEventListener('pointerup', up);
       node.removeEventListener('pointercancel', cancel);
-      node.removeEventListener('pointerleave', cancel);
+      node.removeEventListener('pointerleave', leave);
       node.removeEventListener('contextmenu', context);
+      node.removeEventListener('click', click);
     },
   };
 };
