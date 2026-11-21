@@ -91,6 +91,21 @@ export default {
   'chars.importError': 'Не вдалося прочитати файл',
   'chars.backupReminder': 'Давно не було резервної копії. Зробити експорт?',
 
+
+  'secret.label': 'Секрет',
+  'secret.title': 'Секрет',
+  'secret.hold': 'затисни, щоб прочитати',
+  'secret.placeholder': 'Те, чого не мають бачити інші гравці',
+
+  'gallery.add': 'Додати',
+  'gallery.deleteConfirm': 'Видалити картинку? Це не можна скасувати.',
+  'gallery.setPortrait': 'Зробити портретом',
+  'gallery.portraitSet': 'Портрет оновлено',
+
+  'roll.adv': 'Перевага',
+  'roll.normal': 'Звичайний',
+  'roll.dis': 'Перешкода',
+
   'toast.saved': 'Збережено',
   'storage.notPersistent': 'Браузер може очистити дані. Робіть експорт час від часу.',
 } satisfies Record<string, string>;
