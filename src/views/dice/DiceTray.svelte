@@ -185,10 +185,16 @@
     z-index: 35;
     display: flex;
     flex-direction: column;
-    background: radial-gradient(circle at 50% 52%, #3a2a1f, #1d1612 72%);
+    background:
+      var(--grain),
+      radial-gradient(circle at 50% 52%, rgba(232, 116, 59, 0.12), transparent 45%),
+      radial-gradient(circle at 50% 52%, #3a2a1f, #1d1612 72%);
+    background-size: 180px 180px, 100% 100%, 100% 100%;
     border: 1px solid var(--line);
     border-radius: 20px;
-    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 220, 180, 0.07),
+      var(--shadow-pop);
     overflow: hidden;
     animation: tray-in 0.22s cubic-bezier(0.2, 0.9, 0.3, 1) both;
   }
@@ -199,8 +205,10 @@
   }
   h2 {
     flex: 1;
-    font-size: 18px;
+    font-size: 19px;
+    letter-spacing: 0.03em;
     color: var(--parch);
+    text-shadow: 0 0 20px rgba(232, 116, 59, 0.25);
   }
   .icon-btn {
     width: var(--tap);
@@ -233,7 +241,7 @@
   .die-btn {
     position: relative;
     height: var(--tap);
-    min-width: 46px;
+    min-width: 40px;
     flex: 1 1 0;
     max-width: 64px;
     padding: 0 4px;

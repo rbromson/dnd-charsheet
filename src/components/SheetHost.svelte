@@ -30,7 +30,9 @@
   .scrim {
     position: fixed;
     inset: 0;
-    background: rgba(8, 5, 4, 0.5);
+    background: radial-gradient(ellipse at 70% 50%, rgba(8, 5, 4, 0.45), rgba(8, 5, 4, 0.7));
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
     z-index: 40;
   }
   .sheet {
@@ -39,9 +41,14 @@
     top: 12px;
     bottom: 12px;
     width: min(560px, calc(100vw - 24px));
-    background: linear-gradient(180deg, #f1e6cf, #e6d6b6);
+    background: var(--grain), var(--blotch), linear-gradient(180deg, #f3e8d2, #ead9b9 60%, #e0cba5);
+    background-size: 180px 180px, 520px 520px, 100% 100%;
     border-radius: 22px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    box-shadow:
+      inset 0 0 0 1px rgba(150, 112, 62, 0.5),
+      inset 0 1px 0 rgba(255, 252, 240, 0.7),
+      inset 0 0 50px rgba(122, 72, 24, 0.22),
+      var(--shadow-pop);
     z-index: 41;
     overflow: hidden;
     /* карточки внутри используют стили .card */
@@ -87,6 +94,19 @@
       width: auto;
       border-radius: 22px 22px 0 0;
       padding-bottom: env(safe-area-inset-bottom);
+    }
+    /* «ручка» нижнего листа */
+    .sheet::before {
+      content: '';
+      position: absolute;
+      top: 7px;
+      left: 50%;
+      width: 40px;
+      height: 4px;
+      margin-left: -20px;
+      border-radius: 2px;
+      background: rgba(107, 90, 72, 0.35);
+      z-index: 1;
     }
     .sheet :global(.chip) {
       padding: 0 9px;

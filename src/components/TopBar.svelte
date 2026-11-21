@@ -48,16 +48,43 @@
     gap: 12px;
     padding: 10px 20px;
     min-height: 68px;
-    background: rgba(23, 17, 14, 0.92);
-    backdrop-filter: blur(8px);
-    border-bottom: 1px solid transparent;
+    background: linear-gradient(180deg, rgba(23, 17, 14, 0.94), rgba(23, 17, 14, 0.82));
+    backdrop-filter: blur(14px) saturate(1.2);
+    -webkit-backdrop-filter: blur(14px) saturate(1.2);
   }
-  .top.editing {
-    border-bottom-color: var(--ember);
+  /* нижняя «золотая нить»; в режиме правки — горит угольком */
+  .top::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(201, 179, 138, 0.28) 20%, rgba(201, 179, 138, 0.28) 80%, transparent);
+    transition: background 0.3s;
+  }
+  .top.editing::after {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--ember) 15%, var(--ember) 85%, transparent);
+    box-shadow: 0 0 12px var(--ember-glow);
   }
   h1 {
-    font-size: 22px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 24px;
+    letter-spacing: 0.02em;
     color: var(--parch);
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6), 0 0 24px rgba(232, 116, 59, 0.18);
+  }
+  h1::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    flex-shrink: 0;
+    transform: rotate(45deg);
+    background: linear-gradient(135deg, var(--gold), var(--ember));
+    box-shadow: 0 0 10px var(--ember-glow);
   }
   .hint {
     display: inline-flex;
@@ -100,13 +127,24 @@
     justify-content: center;
     flex-shrink: 0;
     color: var(--text);
-    background: var(--bg3);
+    background: linear-gradient(180deg, #33271f, var(--bg3));
     border: 1px solid var(--line2);
+    box-shadow: inset 0 1px 0 rgba(255, 220, 180, 0.06);
+    transition:
+      transform 0.15s var(--ease-spring),
+      background 0.2s,
+      color 0.2s;
+  }
+  .ib:active {
+    transform: scale(0.9);
   }
   .ib.qn {
-    background: var(--ember);
+    background: linear-gradient(160deg, #f39a62, var(--ember) 50%, #c9562a);
     color: var(--ember-ink);
     border-color: var(--ember);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 225, 200, 0.55),
+      0 4px 14px -4px var(--ember-glow);
   }
   .ib.dice.on,
   .ib.pen.on {
@@ -123,9 +161,15 @@
     .who {
       display: flex;
       border-radius: 50%;
+      padding: 2px;
+      background: conic-gradient(from 200deg, #6b4a2c, #e6b450, #8a5a30, #e8743b, #6b4a2c);
+    }
+    h1::before {
+      display: none;
     }
     h1 {
-      font-size: 19px;
+      display: block;
+      font-size: 20px;
       flex: 1;
       min-width: 0;
       white-space: nowrap;

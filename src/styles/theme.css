@@ -45,7 +45,56 @@
   --font-sans: 'Inter', system-ui, sans-serif;
   --font-hand: 'Marck Script', cursive;
 
+  /* Фактуры: мелкое зерно и крупные пятна старой бумаги */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .27 0 0 0 0 .12 0 0 0 .5 -.12'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --blotch: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='520' height='520'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.011' numOctaves='4' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .55 0 0 0 0 .36 0 0 0 0 .14 0 0 0 .75 -.36'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --dust: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 .85 0 0 0 0 .6 0 0 0 .35 -.1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+
+  --paper: var(--grain), var(--blotch), linear-gradient(175deg, #efe2c6 0%, var(--parch) 45%, #dcc8a3 100%);
+  --shadow-card:
+    inset 0 0 0 1px rgba(150, 112, 62, 0.55),
+    inset 0 1px 0 rgba(255, 250, 235, 0.55),
+    inset 0 0 34px rgba(122, 72, 24, 0.26),
+    0 1px 0 rgba(0, 0, 0, 0.45),
+    0 10px 24px -10px rgba(0, 0, 0, 0.75);
+  --shadow-pop: 0 24px 60px -12px rgba(0, 0, 0, 0.75), 0 2px 0 rgba(0, 0, 0, 0.3);
+
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
   color-scheme: dark;
+}
+
+::selection {
+  background: var(--ember-glow);
+  color: inherit;
+}
+
+/* Тёплое «свечение свечи» и зерно поверх всего фона */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 82% -8%, rgba(232, 116, 59, 0.16), transparent 70%),
+    radial-gradient(ellipse 60% 45% at -5% 105%, rgba(160, 90, 35, 0.18), transparent 70%),
+    radial-gradient(ellipse 120% 90% at 50% 40%, transparent 55%, rgba(0, 0, 0, 0.45) 100%);
+}
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: var(--dust);
+  opacity: 0.09;
+  mix-blend-mode: overlay;
+}
+#app {
+  position: relative;
+  z-index: 1;
 }
 
 * {
@@ -67,6 +116,14 @@ body {
 
 #app {
   height: 100%;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ember);
+  outline-offset: 2px;
+}
+:focus:not(:focus-visible) {
+  outline: none;
 }
 
 button {
@@ -95,32 +152,81 @@ h3 {
 
 /* ===== Поверхности ===== */
 .card {
-  background: linear-gradient(180deg, var(--parch), var(--parch2));
+  position: relative;
+  background: var(--paper);
+  background-size: 180px 180px, 520px 520px, 100% 100%;
   color: var(--ink);
   border-radius: var(--r);
   padding: 12px 14px;
-  box-shadow:
-    inset 0 0 0 1px var(--edge),
-    inset 0 0 30px rgba(120, 80, 30, 0.18),
-    0 2px 8px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-card);
+}
+/* тонкая внутренняя рамка, как оттиск на бумаге */
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: calc(var(--r) - 4px);
+  border: 1px solid rgba(140, 100, 55, 0.22);
+  pointer-events: none;
 }
 .panel {
-  background: var(--bg2);
+  position: relative;
+  background:
+    var(--grain),
+    linear-gradient(180deg, #261d18, var(--bg2) 60%, #1d1612);
+  background-size: 180px 180px, 100% 100%;
   border: 1px solid var(--line);
   border-radius: var(--r);
   padding: 12px 14px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 220, 170, 0.05),
+    0 10px 24px -12px rgba(0, 0, 0, 0.7);
 }
 .card-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-family: var(--font-sc);
   font-weight: 700;
   font-size: 13px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   color: var(--ink2);
   margin: 0 0 8px;
   text-transform: uppercase;
 }
+/* ромбик-маркер и затухающая линия — орнамент заголовка */
+.card-title::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  transform: rotate(45deg);
+  background: var(--ember);
+  box-shadow: 0 0 0 2px rgba(232, 116, 59, 0.18);
+}
+.card-title::after {
+  content: '';
+  flex: 1;
+  min-width: 12px;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(107, 90, 72, 0.45), transparent);
+}
+.card-title.c {
+  justify-content: center;
+}
+.card-title.c::before {
+  transform: none;
+  width: auto;
+  height: 1px;
+  flex: 1;
+  background: linear-gradient(270deg, rgba(107, 90, 72, 0.45), transparent);
+  box-shadow: none;
+}
 .panel .card-title {
   color: var(--muted);
+}
+.panel .card-title::after {
+  background: linear-gradient(90deg, rgba(168, 149, 124, 0.3), transparent);
 }
 .serif {
   font-family: var(--font-serif);
@@ -153,34 +259,54 @@ h3 {
   font-weight: 600;
   font-size: 15px;
   user-select: none;
-  transition: transform 0.08s, filter 0.15s;
+  transition:
+    transform 0.12s var(--ease),
+    filter 0.15s,
+    box-shadow 0.2s,
+    background-color 0.2s;
 }
 .btn:active {
-  transform: scale(0.97);
+  transform: scale(0.96);
 }
 .btn-primary {
-  background: var(--ember);
+  background: linear-gradient(180deg, #f08a50, var(--ember) 55%, #d9652e);
   color: var(--ember-ink);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 220, 190, 0.55),
+    inset 0 -2px 0 rgba(120, 40, 10, 0.25),
+    0 6px 18px -6px var(--ember-glow);
+}
+.btn-primary:active {
+  filter: brightness(1.08);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 220, 190, 0.4),
+    0 0 26px var(--ember-glow);
 }
 .btn-ink {
-  background: var(--ink);
+  background: linear-gradient(180deg, #3a2b20, var(--ink));
   color: var(--parch);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 230, 200, 0.12),
+    0 4px 10px -4px rgba(0, 0, 0, 0.5);
 }
 .btn-outline {
   border: 1.5px solid var(--line2);
   color: var(--text);
+  background: rgba(255, 230, 200, 0.02);
 }
 .card .btn-outline {
   border-color: var(--ink);
   color: var(--ink);
 }
 .btn-danger {
-  background: var(--bad);
+  background: linear-gradient(180deg, #cf6450, var(--bad));
   color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 210, 200, 0.35), 0 6px 16px -8px rgba(192, 83, 63, 0.7);
 }
 .btn-good {
-  background: var(--good);
+  background: linear-gradient(180deg, #8db27a, var(--good));
   color: #fff;
+  box-shadow: inset 0 1px 0 rgba(230, 255, 210, 0.35), 0 6px 16px -8px rgba(127, 163, 107, 0.7);
 }
 .btn-ghost {
   color: inherit;
@@ -188,6 +314,8 @@ h3 {
 .btn[disabled] {
   opacity: 0.4;
   pointer-events: none;
+  box-shadow: none;
+  filter: saturate(0.6);
 }
 .tap {
   min-width: var(--tap);
@@ -203,14 +331,22 @@ h3 {
   background: var(--bg3);
   padding: 10px 12px;
   outline: none;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.25);
+  transition:
+    border-color 0.15s,
+    box-shadow 0.2s;
 }
 .field:focus {
   border-color: var(--ember);
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.2),
+    0 0 0 3px var(--ember-soft);
 }
 .card .field {
   background: var(--parch3);
   border-color: var(--edge);
   color: var(--ink);
+  box-shadow: inset 0 2px 4px rgba(120, 80, 30, 0.12);
 }
 .card .field:focus {
   border-color: var(--ember);
@@ -303,6 +439,14 @@ textarea.field {
   font-size: 14px;
   font-weight: 500;
   background: #1f1713;
+  transition:
+    background-color 0.15s,
+    color 0.15s,
+    border-color 0.15s,
+    transform 0.12s var(--ease);
+}
+.chip:active {
+  transform: scale(0.95);
 }
 .chip.on {
   border-color: var(--ember);
@@ -318,6 +462,7 @@ textarea.field {
   background: var(--ink);
   color: var(--parch);
   border-color: var(--ink);
+  box-shadow: inset 0 1px 0 rgba(255, 230, 200, 0.12);
 }
 .tag {
   font-size: 10.5px;
@@ -333,9 +478,43 @@ textarea.field {
   text-align: center;
   color: var(--muted);
   font-size: 14px;
+  font-family: var(--font-serif);
+  font-style: italic;
 }
 .card .empty {
   color: var(--ink2);
+}
+
+/* ===== Появление экрана: карточки «ложатся на стол» по очереди ===== */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.view > *,
+.view .cols > *,
+.view .stack > * {
+  animation: rise 0.42s var(--ease) both;
+}
+.view > *:nth-child(2),
+.view .cols > *:nth-child(2),
+.view .stack > *:nth-child(2) {
+  animation-delay: 0.05s;
+}
+.view > *:nth-child(3),
+.view .cols > *:nth-child(3),
+.view .stack > *:nth-child(3) {
+  animation-delay: 0.1s;
+}
+.view > *:nth-child(n + 4),
+.view .cols > *:nth-child(n + 4),
+.view .stack > *:nth-child(n + 4) {
+  animation-delay: 0.15s;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -348,6 +527,9 @@ textarea.field {
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
   background: #3a2c22;

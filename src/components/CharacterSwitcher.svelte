@@ -105,7 +105,11 @@
     top: 0;
     bottom: 0;
     width: min(400px, calc(100vw - 96px));
-    background: #1c1512;
+    background:
+      var(--grain),
+      radial-gradient(ellipse 90% 40% at 30% 0%, rgba(232, 116, 59, 0.12), transparent 70%),
+      linear-gradient(180deg, #211813, #16100d);
+    background-size: 180px 180px, 100% 100%, 100% 100%;
     border-right: 1px solid var(--line);
     box-shadow: 20px 0 40px rgba(0, 0, 0, 0.5);
     z-index: 31;
@@ -121,8 +125,9 @@
     justify-content: space-between;
   }
   h2 {
-    font-size: 22px;
+    font-size: 24px;
     color: var(--parch);
+    text-shadow: 0 0 24px rgba(232, 116, 59, 0.2);
   }
   .list {
     display: flex;
@@ -137,8 +142,9 @@
     padding: 6px;
   }
   .ch.on {
-    background: var(--ember-soft);
+    background: linear-gradient(100deg, rgba(232, 116, 59, 0.2), rgba(232, 116, 59, 0.06));
     border-color: var(--ember);
+    box-shadow: 0 0 22px -6px var(--ember-glow);
   }
   .main {
     flex: 1;

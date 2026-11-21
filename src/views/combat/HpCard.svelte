@@ -211,22 +211,35 @@
   .divider {
     margin: 12px 0;
   }
+  /* «окошко» ввода, вдавленное в пергамент */
   .amount {
-    font-size: 72px;
+    font-family: var(--font-sans);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    font-size: 56px;
     line-height: 1;
     text-align: center;
     color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    padding: 12px 0 10px;
+    border-radius: 16px;
+    background: linear-gradient(180deg, rgba(42, 31, 23, 0.1), rgba(42, 31, 23, 0.03));
+    box-shadow:
+      inset 0 2px 6px rgba(80, 50, 20, 0.22),
+      inset 0 0 0 1px rgba(150, 112, 62, 0.35),
+      0 1px 0 rgba(255, 250, 235, 0.6);
+    transition: color 0.15s;
   }
   @media (max-width: 640px) {
     .amount {
-      font-size: 54px;
+      font-size: 46px;
     }
     .divider {
       margin: 8px 0;
     }
   }
   .amount.empty {
-    color: color-mix(in srgb, var(--ink2) 45%, transparent);
+    color: color-mix(in srgb, var(--ink2) 35%, transparent);
   }
   .explain {
     text-align: center;
@@ -243,15 +256,23 @@
   .key {
     height: 56px;
     border-radius: 12px;
-    background: var(--parch3);
-    box-shadow: inset 0 0 0 1px var(--edge);
+    background: linear-gradient(180deg, #fbf4e6, var(--parch3));
+    box-shadow:
+      inset 0 0 0 1px var(--edge),
+      inset 0 -2px 0 rgba(150, 112, 62, 0.25),
+      0 2px 3px -1px rgba(80, 50, 20, 0.25);
     font-size: 22px;
     font-weight: 600;
     color: var(--ink);
     user-select: none;
+    transition:
+      transform 0.08s,
+      background 0.12s;
   }
   .key:active {
+    transform: translateY(1px) scale(0.97);
     background: var(--edge);
+    box-shadow: inset 0 0 0 1px var(--edge);
   }
   .key.fn {
     font-size: 18px;
@@ -275,7 +296,8 @@
     grid-column: span 2;
     min-height: var(--tap);
     font-size: 14.5px;
-    background: var(--temp);
+    background: linear-gradient(180deg, #5d84a3, var(--temp));
     color: var(--parch3);
+    box-shadow: inset 0 1px 0 rgba(220, 240, 255, 0.3), 0 6px 16px -8px rgba(79, 115, 144, 0.7);
   }
 </style>

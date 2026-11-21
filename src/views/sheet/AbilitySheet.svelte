@@ -75,6 +75,11 @@
     line-height: 56px;
   }
   .card-title {
+    display: block;
     margin: 0;
+  }
+  .card-title::before,
+  .card-title::after {
+    display: none;
   }
 </style>

@@ -38,26 +38,52 @@
     color: var(--ink);
   }
   header {
+    position: relative;
     display: flex;
     align-items: flex-start;
     gap: 12px;
-    padding: 18px 16px 8px 22px;
+    padding: 20px 16px 14px 22px;
+  }
+  /* орнаментальная линия под заголовком */
+  header::after {
+    content: '';
+    position: absolute;
+    left: 22px;
+    right: 22px;
+    bottom: 3px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(107, 90, 72, 0.45) 15%, rgba(107, 90, 72, 0.45) calc(50% - 12px), transparent calc(50% - 12px), transparent calc(50% + 12px), rgba(107, 90, 72, 0.45) calc(50% + 12px), rgba(107, 90, 72, 0.45) 85%, transparent);
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 7px;
+    height: 7px;
+    margin-left: -3.5px;
+    transform: rotate(45deg);
+    background: var(--ember);
   }
   .kicker {
     font-size: 10.5px;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.18em;
     font-weight: 700;
-    color: var(--ink2);
+    color: var(--ember);
     text-transform: uppercase;
+    filter: saturate(0.85) brightness(0.85);
   }
   h2 {
-    font-size: 28px;
+    font-size: 30px;
     line-height: 1.1;
   }
   .value {
-    font-size: 38px;
+    font-size: 40px;
     line-height: 1;
-    padding-top: 6px;
+    padding: 6px 12px 4px;
+    border-radius: 14px;
+    background: rgba(42, 31, 23, 0.06);
+    box-shadow: inset 0 0 0 1px rgba(150, 112, 62, 0.35);
   }
   .close {
     margin-top: -4px;
@@ -65,7 +91,7 @@
   .body {
     flex: 1;
     overflow: auto;
-    padding: 8px 22px 22px;
+    padding: 14px 22px 22px;
     display: flex;
     flex-direction: column;
     gap: 14px;

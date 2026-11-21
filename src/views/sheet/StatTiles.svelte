@@ -23,7 +23,7 @@
   <!-- КО -->
   {#if ui.editing}
     <div class="tile t-ac">
-      <span class="ic"><Icon name="shield" size={20} /></span>
+      <span class="ic"><Icon name="shield" size={20} /></span><span class="wm" aria-hidden="true"><Icon name="shield" size={86} stroke={1.4} /></span>
       <div class="k">{t('sheet.tile.ac')}</div>
       <div class="inline">
         <NumberField bind:value={c.ac} min={0} max={50} />
@@ -32,7 +32,7 @@
     </div>
   {:else}
     <button class="tile t-ac" use:press={{ onLong: () => open('ac') }}>
-      <span class="ic"><Icon name="shield" size={20} /></span>
+      <span class="ic"><Icon name="shield" size={20} /></span><span class="wm" aria-hidden="true"><Icon name="shield" size={86} stroke={1.4} /></span>
       <div class="k">{t('sheet.tile.ac')}</div>
       <div class="v">{c.ac}</div>
       <div class="s">{c.acNote || ' '}</div>
@@ -44,7 +44,7 @@
     class="tile t-init"
     use:press={{ onTap: () => (ui.editing ? open('init') : rollInit()), onLong: () => open('init') }}
   >
-    <span class="ic"><Icon name="bolt" size={20} /></span>
+    <span class="ic"><Icon name="bolt" size={20} /></span><span class="wm" aria-hidden="true"><Icon name="bolt" size={86} stroke={1.4} /></span>
     <div class="k">{t('sheet.tile.init')}</div>
     <div class="v">{fmt(initiative(c))}</div>
     <div class="s">{ui.editing ? t('sheet.tile.tapEdit') : t('sheet.tile.tapRoll')}</div>
@@ -53,7 +53,7 @@
   <!-- Швидкість -->
   {#if ui.editing}
     <div class="tile t-speed">
-      <span class="ic"><Icon name="boot" size={20} /></span>
+      <span class="ic"><Icon name="boot" size={20} /></span><span class="wm" aria-hidden="true"><Icon name="boot" size={86} stroke={1.4} /></span>
       <div class="k">{t('sheet.tile.speed')}</div>
       <div class="inline">
         <input class="field speed" type="text" inputmode="text" placeholder={t('sheet.speedPh')} bind:value={c.speed} enterkeyhint="done" />
@@ -62,7 +62,7 @@
     </div>
   {:else}
     <button class="tile t-speed" use:press={{ onLong: () => open('speed') }}>
-      <span class="ic"><Icon name="boot" size={20} /></span>
+      <span class="ic"><Icon name="boot" size={20} /></span><span class="wm" aria-hidden="true"><Icon name="boot" size={86} stroke={1.4} /></span>
       <div class="k">{t('sheet.tile.speed')}</div>
       <div class="v" class:long={c.speed.length > 4}>{c.speed || '—'}</div>
       <div class="s">{t('sheet.tile.feet')}</div>
@@ -71,7 +71,7 @@
 
   <!-- Бонус майстерності -->
   <button class="tile t-prof" use:press={{ onTap: () => ui.editing && open('prof'), onLong: () => open('prof') }}>
-    <span class="ic"><Icon name="clock" size={20} /></span>
+    <span class="ic"><Icon name="clock" size={20} /></span><span class="wm" aria-hidden="true"><Icon name="clock" size={86} stroke={1.4} /></span>
     <div class="k">{t('sheet.tile.prof')}</div>
     <div class="v">{fmt(profBonus(c))}</div>
     <div class="s">
@@ -104,26 +104,55 @@
     text-align: left;
     overflow: hidden;
     user-select: none;
-    box-shadow: 0 2px 8px color-mix(in srgb, var(--bg) 70%, transparent);
+    isolation: isolate;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 235, 210, 0.28),
+      inset 0 -2px 0 rgba(0, 0, 0, 0.18),
+      inset 0 0 0 1px rgba(0, 0, 0, 0.12),
+      0 10px 22px -10px rgba(0, 0, 0, 0.8);
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
     transition:
-      transform 0.08s,
+      transform 0.12s var(--ease),
       filter 0.15s;
+  }
+  /* зерно + блик сверху */
+  .tile::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      var(--dust),
+      radial-gradient(ellipse 90% 70% at 20% 0%, rgba(255, 240, 220, 0.22), transparent 60%);
+    background-size: 240px 240px, 100% 100%;
+    mix-blend-mode: soft-light;
+    pointer-events: none;
+  }
+  /* крупный «водяной знак» иконки */
+  .wm {
+    position: absolute;
+    right: -10px;
+    bottom: -14px;
+    z-index: -1;
+    opacity: 0.13;
+    display: flex;
+    pointer-events: none;
   }
   button.tile:active {
     transform: scale(0.98);
     filter: brightness(1.08);
   }
   .t-ac {
-    background: var(--t-ember);
+    background: linear-gradient(155deg, #d8693c, #b9532c 55%, #9c4222);
   }
   .t-init {
-    background: var(--t-ochre);
+    background: linear-gradient(155deg, #c0952f, #9c7420 55%, #80601a);
   }
   .t-speed {
-    background: var(--t-wine);
+    background: linear-gradient(155deg, #a04460, #7a2e45 55%, #5f2235);
   }
   .t-prof {
-    background: var(--t-teal);
+    background: linear-gradient(155deg, #3f7983, #2d5961 55%, #22464d);
   }
   .ic {
     position: absolute;
