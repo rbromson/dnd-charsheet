@@ -61,6 +61,10 @@ export interface Attack extends Tweak {
   note: string;
   /** Если атака создана из предмета снаряжения (оружие) — его id; имя синхронизируется с предметом */
   itemId: string | null;
+  /** Вместо кидка атаки цель кидает рятунок этой характеристики (напр. «Злісна насмішка»); null — обычная атака */
+  save: Ability | null;
+  /** СК рятунку вручную; null — 8 + бонус майстерності + модифікатор характеристики атаки */
+  saveDc: number | null;
 }
 
 export type Recharge = 'short' | 'long' | 'manual';

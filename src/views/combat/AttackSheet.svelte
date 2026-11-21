@@ -11,7 +11,8 @@
   import { charStore } from '../../lib/stores/characters.svelte';
   import { dice } from '../../lib/stores/dice.svelte';
   import { ui } from '../../lib/stores/ui.svelte';
-  import { attackAuto, attackBonus, fmt, resolveDamageFormula } from '../../lib/rules/calc';
+  import { attackAuto, attackBonus, attackSaveDc, fmt, resolveDamageFormula } from '../../lib/rules/calc';
+  import Segmented from '../../components/Segmented.svelte';
   import { t } from '../../lib/i18n';
 
   let { id }: { id: string } = $props();
@@ -42,8 +43,35 @@
 </script>
 
 {#if atk}
-  <SheetFrame kicker={t('combat.atkKicker')} title={atk.name || t('combat.atkNew')} value={fmt(attackBonus(c, atk))}>
+  <SheetFrame
+    kicker={t('combat.atkKicker')}
+    title={atk.name || t('combat.atkNew')}
+    value={atk.save ? t('combat.atkDc', { dc: attackSaveDc(c, atk) }) : fmt(attackBonus(c, atk))}
+  >
     <TextField label={t('combat.atkName')} bind:value={atk.name} serif />
+
+    <div>
+      <span class="label">{t('combat.atkMode')}</span>
+      <Segmented
+        value={atk.save ? 'save' : 'roll'}
+        options={[
+          { value: 'roll', label: t('combat.atkModeRoll') },
+          { value: 'save', label: t('combat.atkModeSave') },
+        ]}
+        onchange={(v) => (atk.save = v === 'save' ? (atk.save ?? 'wis') : null)}
+      />
+    </div>
+    {#if atk.save}
+      <div>
+        <span class="label">{t('combat.atkSaveAbility')}</span>
+        <div class="abs six">
+          {#each ABILITIES as a (a)}
+            <button class="chip" class:on={atk.save === a} aria-pressed={atk.save === a} onclick={() => (atk.save = a)}>{t(`abilityShort.${a}`)}</button>
+          {/each}
+        </div>
+        <div class="hint">{t('combat.atkSaveHint')} = <b>{attackSaveDc(c, atk)}</b></div>
+      </div>
+    {/if}
 
     <div>
       <span class="label">{t('combat.atkAbility')}</span>
@@ -56,9 +84,11 @@
       </div>
     </div>
 
-    <Toggle label={t('combat.atkProf')} bind:checked={atk.prof} />
-    <TweakEditor bind:tweak={c.attacks[idx]} auto={attackAuto(c, atk)} />
-    <CalcLine parts={attackParts(c, atk)} total={attackAuto(c, atk)} override={atk.override} />
+    {#if !atk.save}
+      <Toggle label={t('combat.atkProf')} bind:checked={atk.prof} />
+      <TweakEditor bind:tweak={c.attacks[idx]} auto={attackAuto(c, atk)} />
+      <CalcLine parts={attackParts(c, atk)} total={attackAuto(c, atk)} override={atk.override} />
+    {/if}
 
     <div class="two">
       <div>
@@ -73,7 +103,9 @@
     <TextField label={t('combat.atkNote')} bind:value={atk.note} multiline rows={2} />
 
     {#snippet footer()}
-      <button class="btn btn-ink grow" onclick={rollAttack}><Icon name="combat" size={20} />{t('combat.atkRoll')} {fmt(attackBonus(c, atk!))}</button>
+      {#if !atk!.save}
+        <button class="btn btn-ink grow" onclick={rollAttack}><Icon name="combat" size={20} />{t('combat.atkRoll')} {fmt(attackBonus(c, atk!))}</button>
+      {/if}
       {#if atk!.damage.trim()}
         <button class="btn btn-outline grow" onclick={rollDamage}><Icon name="dice" size={20} />{resolveDamageFormula(c, atk!)}</button>
       {/if}
@@ -86,6 +118,9 @@
     display: grid;
     grid-template-columns: repeat(7, minmax(0, 1fr));
     gap: 5px;
+  }
+  .abs.six {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
   }
   .abs .chip {
     min-height: var(--tap);

@@ -8,7 +8,7 @@
   import { charStore } from '../../lib/stores/characters.svelte';
   import { dice } from '../../lib/stores/dice.svelte';
   import { ui } from '../../lib/stores/ui.svelte';
-  import { attackBonus, fmt, resolveDamageFormula } from '../../lib/rules/calc';
+  import { attackBonus, attackSaveDc, fmt, resolveDamageFormula } from '../../lib/rules/calc';
   import { uid } from '../../lib/model/ids';
   import { move } from '../../lib/list';
   import { t } from '../../lib/i18n';
@@ -18,6 +18,7 @@
   const open = (id: string) => ui.openSheet(AttackSheet, { id });
 
   function sub(a: Attack): string {
+    if (a.save) return [t('combat.atkSaveShort', { ability: t(`abilityShort.${a.save}`) }), a.damageType.trim() || null].filter(Boolean).join(' · ');
     return [a.ability ? t(`abilityShort.${a.ability}`) : t('combat.atkNoAbility'), a.prof ? t('combat.atkProfShort') : null, a.damageType.trim() || null]
       .filter(Boolean)
       .join(' · ');
@@ -39,7 +40,7 @@
 
   function add() {
     const id = uid();
-    c.attacks.push({ id, name: t('combat.atkNew'), ability: 'str', prof: true, bonus: 0, override: null, damage: '1d6+МОД', damageType: '', note: '', itemId: null });
+    c.attacks.push({ id, name: t('combat.atkNew'), ability: 'str', prof: true, bonus: 0, override: null, damage: '1d6+МОД', damageType: '', note: '', itemId: null, save: null, saveDc: null });
     open(id);
   }
 
@@ -79,7 +80,15 @@
         />
       {:else}
         <div class="btns">
-          <button class="btn btn-ink hit" onclick={() => rollAttack(a)}><Icon name="combat" size={18} />{fmt(attackBonus(c, a))}</button>
+          {#if a.save}
+            <button
+              class="btn btn-ink hit"
+              onclick={() => ui.toast(t('combat.atkSaveToast', { ability: t(`ability.${a.save}`), dc: attackSaveDc(c, a) }))}
+              ><Icon name="shield" size={18} />{t('combat.atkDc', { dc: attackSaveDc(c, a) })}</button
+            >
+          {:else}
+            <button class="btn btn-ink hit" onclick={() => rollAttack(a)}><Icon name="combat" size={18} />{fmt(attackBonus(c, a))}</button>
+          {/if}
           {#if a.damage.trim()}
             <button class="btn btn-outline dmg" onclick={() => rollDamage(a)}>{resolveDamageFormula(c, a)}</button>
           {/if}

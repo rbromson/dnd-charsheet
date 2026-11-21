@@ -28,6 +28,8 @@ export function addWeaponAttack(c: Character, item: Item): Attack {
     damageType: '',
     note: '',
     itemId: item.id,
+    save: null,
+    saveDc: null,
   };
   c.attacks.push(atk);
   return c.attacks[c.attacks.length - 1];

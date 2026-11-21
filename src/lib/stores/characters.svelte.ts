@@ -1,7 +1,7 @@
 import type { Character, CharacterSummary } from '../model/types';
 import { newCharacter } from '../model/defaults';
 import { normalizeCharacter } from '../model/normalize';
-import { fridoSeed } from '../model/seed-frido';
+import { ensureDefaultCharacters } from './seed';
 import { uid, nowIso } from '../model/ids';
 import { allCharacters, putCharacter, deleteCharacterCascade, getMeta, setMeta, byCharacter, putMediaRecord, db } from '../db';
 import { ui } from './ui.svelte';
@@ -71,14 +71,15 @@ class CharStore {
   }
 
   async load() {
+    const seeded = await ensureDefaultCharacters();
     let chars = await allCharacters();
     if (chars.length === 0) {
-      const { character } = fridoSeed();
-      await putCharacter(character);
-      chars = [character];
+      const c = newCharacter();
+      await putCharacter(c);
+      chars = [c];
     }
     this.list = chars.map(summary).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
-    const lastId = await getMeta<string | null>('currentId', null);
+    const lastId = seeded ?? (await getMeta<string | null>('currentId', null));
     const id = chars.some((c) => c.id === lastId) ? lastId! : this.list[0].id;
     await this.select(id);
     this.ready = true;

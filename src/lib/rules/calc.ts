@@ -35,6 +35,10 @@ export function attackAuto(c: Character, atk: Attack): number {
 }
 export const attackBonus = (c: Character, atk: Attack): number => atk.override ?? attackAuto(c, atk);
 
+/** СК рятунку для атак-«рятунків»: 8 + бонус майстерності + модифікатор характеристики атаки. */
+export const attackSaveDc = (c: Character, atk: Attack): number =>
+  atk.saveDc ?? 8 + profBonus(c) + (atk.ability ? mod(c, atk.ability) : 0);
+
 /** Подставляет модификатор характеристики атаки вместо МОД/MOD и нормализует запись. */
 export function resolveDamageFormula(c: Character, atk: Attack): string {
   const m = atk.ability ? mod(c, atk.ability) : 0;

@@ -59,12 +59,13 @@
       </div>
     </div>
     <div class="tile wine">
+      <span class="ic"><Icon name="shield" size={18} stroke={2.2} /></span>
       <span class="k">{t('spells.dc')}</span>
       <span class="v num">{spellDC(c)}</span>
       <span class="s">{sc.dcOverride != null ? t('common.manual') : t('common.auto')}</span>
     </div>
     <button class="tile ember" onclick={rollAttack}>
-      <Icon name="dice" size={20} />
+      <span class="ic"><Icon name="dice" size={18} stroke={2.2} /></span>
       <span class="k">{t('spells.attack')}</span>
       <span class="v num">{fmt(spellAttack(c))}</span>
       <span class="s">{t('spells.tapToRoll')}</span>
@@ -131,10 +132,12 @@
     align-items: center;
     justify-content: center;
   }
+  /* Кожаные пластины, как плитки на «Аркуші»: цвет — только акцент */
   .tile {
     position: relative;
+    isolation: isolate;
     border-radius: var(--r);
-    padding: 10px 14px;
+    padding: 11px 14px;
     min-height: 92px;
     display: flex;
     flex-direction: column;
@@ -143,38 +146,72 @@
     color: var(--parch);
     text-align: right;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    background: var(--leather);
+    background-size: var(--leather-size);
+    box-shadow:
+      var(--leather-shadow),
+      inset 0 -3px 0 -1px var(--acc),
+      0 10px 22px -10px rgba(0, 0, 0, 0.85);
+    transition: transform 0.12s var(--ease);
   }
-  .tile :global(svg) {
+  .tile::after {
+    content: '';
     position: absolute;
-    left: 12px;
-    top: 10px;
-    opacity: 0.9;
+    inset: 5px 5px 7px;
+    border-radius: calc(var(--r) - 5px);
+    border: 1.5px dashed var(--stitch);
+    pointer-events: none;
+  }
+  .tile::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(ellipse 70% 90% at 0% 0%, color-mix(in srgb, var(--acc) 30%, transparent), transparent 65%);
   }
   .wine {
-    background: var(--t-wine);
+    --acc: #c45876;
   }
   .ember {
-    background: var(--t-ember);
+    --acc: #e0703f;
   }
   button.tile:active {
     transform: scale(0.98);
   }
+  .ic {
+    position: absolute;
+    left: 12px;
+    top: 11px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1a0f08;
+    background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--acc) 55%, white), var(--acc) 55%, color-mix(in srgb, var(--acc) 70%, black));
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.35),
+      inset 0 -2px 3px rgba(0, 0, 0, 0.3),
+      0 0 0 2px rgba(0, 0, 0, 0.35),
+      0 0 14px color-mix(in srgb, var(--acc) 45%, transparent);
+  }
   .k {
     font-size: 10.5px;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.12em;
     font-weight: 700;
     text-transform: uppercase;
-    opacity: 0.9;
-    padding-left: 28px;
+    color: color-mix(in srgb, var(--acc) 70%, var(--parch));
+    padding-left: 40px;
     line-height: 1.2;
   }
   .v {
     font-size: 40px;
     line-height: 1;
+    text-shadow: 0 2px 0 rgba(0, 0, 0, 0.5), 0 0 18px color-mix(in srgb, var(--acc) 30%, transparent);
   }
   .s {
     font-size: 11px;
-    opacity: 0.8;
+    color: var(--muted);
   }
 </style>
