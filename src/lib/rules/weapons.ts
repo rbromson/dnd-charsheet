@@ -1,5 +1,6 @@
 import type { Attack, Character, Item } from '../model/types';
 import { uid } from '../model/ids';
+import { mod } from './calc';
 
 /** Атака, связанная с предметом (оружием). */
 export function linkedAttack(c: Character, itemId: string): Attack | undefined {
@@ -17,16 +18,23 @@ export function addWeaponAttack(c: Character, item: Item): Attack {
     same.itemId = item.id;
     return same;
   }
+  const w = item.weapon;
+  const ability = !w ? 'str' : w.ranged ? 'dex' : w.finesse && mod(c, 'dex') >= mod(c, 'str') ? 'dex' : 'str';
+  const note = w
+    ? [...w.props.map((p) => (p === 'універсальна' && w.versatile ? `${p} (${w.versatile.replace('d', 'к')})` : p)), w.range ? `${w.range} фт` : '']
+        .filter(Boolean)
+        .join(', ')
+    : '';
   const atk: Attack = {
     id: uid(),
     name: item.name,
-    ability: 'str',
+    ability,
     prof: true,
-    bonus: 0,
+    bonus: item.bonus,
     override: null,
-    damage: '1d6+МОД',
-    damageType: '',
-    note: '',
+    damage: w?.dice ? `${w.dice}+МОД${item.bonus ? `+${item.bonus}` : ''}` : '1d6+МОД',
+    damageType: w?.type ?? '',
+    note,
     itemId: item.id,
     save: null,
     saveDc: null,
@@ -42,6 +50,8 @@ export function removeWeaponAttack(c: Character, itemId: string): void {
 
 /** Удалить предмет вместе со связанной атакой. */
 export function removeItem(c: Character, itemId: string): void {
+  const it = c.equipment.find((x) => x.id === itemId);
+  if (it?.resourceId) c.resources = c.resources.filter((r) => r.id !== it.resourceId);
   c.equipment = c.equipment.filter((x) => x.id !== itemId);
   removeWeaponAttack(c, itemId);
 }

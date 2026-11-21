@@ -1,5 +1,5 @@
 import type { Character, CodexEntry } from './types';
-import { newCharacter } from './defaults';
+import { newCharacter, newItem } from './defaults';
 import { uid, nowIso } from './ids';
 
 /** Тестовый персонаж пользователя. Цифры предварительные. */
@@ -44,8 +44,8 @@ export function fridoSeed(): { character: Character; codex: Omit<CodexEntry, 'ch
     { id: uid(), name: 'Везіння напіврослика', text: 'Коли на d20 випадає 1, перекидає кубик і використовує новий результат.' },
   ];
   c.equipment = [
-    { id: uid(), name: 'Колода ілюзій', qty: 1, text: 'Магічний предмет. Карти можна вести як колоду на цій же вкладці.', magic: true },
-    { id: panId, name: 'Сковорідка', qty: 1, text: '', magic: false },
+    newItem({ name: 'Колода ілюзій', text: 'Магічний предмет. Карти можна вести як колоду на цій же вкладці.', magic: true }),
+    newItem({ id: panId, name: 'Сковорідка' }),
   ];
   c.decks = [{ id: uid(), name: 'Колода ілюзій', cards: [], drawn: [] }];
   c.proficiencies = 'Мови: загальна, мова напіврослих.';

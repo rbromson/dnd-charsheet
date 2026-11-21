@@ -95,12 +95,63 @@ export interface Spell {
   text: string;
 }
 
+export interface WeaponStats {
+  /** кубик шкоди, напр. '1d8' */
+  dice: string;
+  /** тип шкоди українською */
+  type: string;
+  /** властивості українською: легка, фехтувальна… */
+  props: string[];
+  finesse: boolean;
+  ranged: boolean;
+  /** кубик дворучного хвата (універсальна), '' — нет */
+  versatile: string;
+  /** дальність '80/320' или досяжність '10'; '' — нет */
+  range: string;
+  martial: boolean;
+}
+
+export type ArmorKind = 'light' | 'medium' | 'heavy' | 'shield';
+export interface ArmorStats {
+  kind: ArmorKind;
+  /** базовый КО (у щита — +2) */
+  base: number;
+  /** предел бонуса Вправності: null — без предела, 0 — не добавляется */
+  dexMax: number | null;
+  strMin: number;
+  stealthDis: boolean;
+}
+
 export interface Item {
   id: string;
   name: string;
   qty: number;
   text: string;
   magic: boolean;
+  /** id записи библиотеки SRD, из которой создан предмет; null — свой предмет */
+  ref: string | null;
+  /** надето / в руках — только тогда действуют КО, бонусы и «значення стає N» */
+  equipped: boolean;
+  /** требует налаштування */
+  attune: boolean;
+  attuned: boolean;
+  /** редкость: common | uncommon | rare | veryRare | legendary | artifact | varies | '' */
+  rarity: string;
+  weapon: WeaponStats | null;
+  armor: ArmorStats | null;
+  /** магический +N: к атаке и шкоде оружия или к КО доспеха/щита */
+  bonus: number;
+  /** +КО от не-доспеха (перстень захисту…) */
+  acBonus: number;
+  /** +к рятункам */
+  saveBonus: number;
+  /** «твоя Сила дорівнює 19» */
+  setAbility: Ability | null;
+  setValue: number;
+  /** acBonus действует только без доспеха и щита (наручі захисту) */
+  noArmor: boolean;
+  /** ресурс с зарядами предмета */
+  resourceId: string | null;
 }
 
 export interface Feature {
@@ -154,6 +205,8 @@ export interface Character {
   // бой
   ac: number;
   acNote: string;
+  /** КО считается от надетого снаряжения (иначе — число ac вручную) */
+  acAuto: boolean;
   initiative: Tweak;
   speed: string;
   hp: { max: number; current: number; temp: number };

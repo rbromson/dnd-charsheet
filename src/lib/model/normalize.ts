@@ -1,4 +1,4 @@
-import type { Attack, Character, Deck, Feature, Item, Resource, Spell, SpellSlot } from './types';
+import type { ArmorStats, Attack, Character, Deck, Feature, Item, Resource, Spell, SpellSlot, WeaponStats } from './types';
 import { newCharacter } from './defaults';
 import { uid } from './ids';
 
@@ -28,7 +28,14 @@ export function mergeDefaults<T>(defaults: T, raw: unknown): T {
 const ATTACK: Attack = { id: '', name: '', ability: 'str', prof: true, bonus: 0, override: null, damage: '1d6+МОД', damageType: '', note: '', itemId: null, save: null, saveDc: null };
 const RESOURCE: Resource = { id: '', name: '', max: 1, current: 1, die: null, recharge: 'long', maxPerRoll: null };
 const SPELL: Spell = { id: '', level: 0, name: '', prepared: false, text: '' };
-const ITEM: Item = { id: '', name: '', qty: 1, text: '', magic: false };
+const ITEM: Item = {
+  id: '', name: '', qty: 1, text: '', magic: false, ref: null, equipped: false, attune: false, attuned: false, rarity: '',
+  weapon: null, armor: null, bonus: 0, acBonus: 0, saveBonus: 0, setAbility: null, setValue: 0, noArmor: false, resourceId: null,
+};
+const WEAPON: WeaponStats = { dice: '', type: '', props: [], finesse: false, ranged: false, versatile: '', range: '', martial: false };
+const ARMOR: ArmorStats = { kind: 'light', base: 10, dexMax: null, strMin: 0, stealthDis: false };
+const KINDS = ['light', 'medium', 'heavy', 'shield'];
+const ABIL = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
 const FEATURE: Feature = { id: '', name: '', text: '' };
 const DECK: Deck = { id: '', name: '', cards: [], drawn: [] };
 const SLOT: SpellSlot = { total: 0, used: 0 };
@@ -52,6 +59,15 @@ export function normalizeCharacter(raw: unknown): Character {
   c.resources = list(r.resources, RESOURCE);
   c.spells = list(r.spells, SPELL);
   c.equipment = list(r.equipment, ITEM);
+  // вложенные объекты оружия/доспеха mergeDefaults не берёт (по умолчанию null) — переносим вручную
+  const rawItems = Array.isArray(r.equipment) ? r.equipment.filter(isPlain) : [];
+  c.equipment.forEach((it, i) => {
+    const raw = rawItems[i] ?? {};
+    it.weapon = isPlain(raw.weapon) ? mergeDefaults(WEAPON, raw.weapon) : null;
+    it.armor = isPlain(raw.armor) ? mergeDefaults(ARMOR, raw.armor) : null;
+    if (it.armor && !KINDS.includes(it.armor.kind)) it.armor.kind = 'light';
+    if (it.setAbility && !ABIL.includes(it.setAbility)) it.setAbility = null;
+  });
   c.features = list(r.features, FEATURE);
   c.decks = list(r.decks, DECK);
   const sc = isPlain(r.spellcasting) ? r.spellcasting : {};

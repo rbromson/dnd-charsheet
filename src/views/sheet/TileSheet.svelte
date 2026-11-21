@@ -10,7 +10,8 @@
   import { charStore } from '../../lib/stores/characters.svelte';
   import { dice } from '../../lib/stores/dice.svelte';
   import { ui } from '../../lib/stores/ui.svelte';
-  import { fmt, initiative, initiativeAuto, profBonus, profBonusForLevel } from '../../lib/rules/calc';
+  import { acFromGear, itemAcBonusParts, armorClass, fmt, initiative, initiativeAuto, profBonus, profBonusForLevel } from '../../lib/rules/calc';
+  import Toggle from '../../components/Toggle.svelte';
   import { t } from '../../lib/i18n';
 
   let { kind }: { kind: 'ac' | 'init' | 'speed' | 'prof' } = $props();
@@ -21,7 +22,7 @@
     kind === 'ac' ? t('sheet.tile.ac') : kind === 'init' ? t('sheet.tile.init') : kind === 'speed' ? t('sheet.tile.speed') : t('sheet.tile.prof'),
   );
   const value = $derived(
-    !c ? '' : kind === 'ac' ? String(c.ac) : kind === 'init' ? fmt(initiative(c)) : kind === 'speed' ? c.speed : fmt(profBonus(c)),
+    !c ? '' : kind === 'ac' ? String(armorClass(c)) : kind === 'init' ? fmt(initiative(c)) : kind === 'speed' ? c.speed : fmt(profBonus(c)),
   );
 
   function rollInit() {
@@ -33,8 +34,26 @@
 {#if c}
   <SheetFrame {title} {value}>
     {#if kind === 'ac'}
-      <NumberField label={t('sheet.tile.ac')} bind:value={c.ac} min={0} max={50} big />
-      <TextField label={t('sheet.acNote')} placeholder={t('sheet.acNotePh')} bind:value={c.acNote} />
+      <Toggle label={t('sheet.acAutoToggle')} bind:checked={c.acAuto} />
+      {#if c.acAuto}
+        {@const g = acFromGear(c)}
+        <div class="calcbox">
+          {#each g.parts as p, i (i)}<span class="pt">{i ? (p.value < 0 ? ' − ' : ' + ') : ''}{i ? Math.abs(p.value) : p.value} <span class="muted">{p.label}</span></span>{/each}
+          = <b>{g.total}</b>
+        </div>
+        <p class="muted hint">{t('sheet.acAutoHint')}</p>
+      {:else}
+        <NumberField label={t('sheet.tile.ac')} bind:value={c.ac} min={0} max={50} big />
+        <TextField label={t('sheet.acNote')} placeholder={t('sheet.acNotePh')} bind:value={c.acNote} />
+        {#if itemAcBonusParts(c).length}
+          <div class="calcbox">
+            {t('sheet.acManualPlus')}
+            {#each itemAcBonusParts(c) as p, i (i)}<span class="pt"> +{p.value} <span class="muted">{p.label}</span></span>{/each}
+            = <b>{armorClass(c)}</b>
+          </div>
+        {/if}
+        <p class="muted hint">{t('sheet.acManualHint', { v: acFromGear(c).total })}</p>
+      {/if}
     {:else if kind === 'speed'}
       <TextField label={t('sheet.speedValue')} placeholder={t('sheet.speedPh')} bind:value={c.speed} />
       <p class="muted hint">{t('sheet.speedHint')}</p>
@@ -69,6 +88,9 @@
   .hint {
     margin: 0;
     font-size: 13px;
+  }
+  .pt {
+    white-space: nowrap;
   }
   .calcbox {
     padding: 10px 12px;

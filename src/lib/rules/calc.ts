@@ -1,4 +1,4 @@
-import type { Ability, Attack, Character, SkillKey } from '../model/types';
+import type { Ability, Attack, Character, Item, SkillKey } from '../model/types';
 
 export const abilityMod = (score: number): number => Math.floor((score - 10) / 2);
 
@@ -6,7 +6,72 @@ export const profBonusForLevel = (level: number): number => 2 + Math.floor((Math
 
 export const profBonus = (c: Character): number => c.profBonusOverride ?? profBonusForLevel(c.level);
 
-export const mod = (c: Character, a: Ability): number => abilityMod(c.abilities[a]);
+/** Предмет действует: надет и, если требует, налаштований. */
+export const itemActive = (i: Item): boolean => i.equipped && (!i.attune || i.attuned);
+
+/** Предмет, который сейчас задаёт значение характеристики («твоя Сила дорівнює 19»), если он выше своего. */
+export function abilitySetBy(c: Character, a: Ability): Item | null {
+  let best: Item | null = null;
+  for (const i of c.equipment)
+    if (i.setAbility === a && itemActive(i) && i.setValue > c.abilities[a] && (!best || i.setValue > best.setValue)) best = i;
+  return best;
+}
+/** Значение характеристики с учётом предметов. */
+export const abilityScore = (c: Character, a: Ability): number => abilitySetBy(c, a)?.setValue ?? c.abilities[a];
+
+export const mod = (c: Character, a: Ability): number => abilityMod(abilityScore(c, a));
+
+/** Сумма бонусов к рятункам от действующих предметов. */
+export const itemSaveBonus = (c: Character): number => c.equipment.reduce((s, i) => s + (itemActive(i) ? i.saveBonus : 0), 0);
+
+export const attunedCount = (c: Character): number => c.equipment.filter((i) => i.attune && i.attuned).length;
+
+export interface AcPart {
+  label: string;
+  value: number;
+}
+/** КО от надетого снаряжения: доспех (или 10) + Вправність с пределом + щит + бонусы предметов. */
+export function acFromGear(c: Character): { total: number; parts: AcPart[] } {
+  const dex = mod(c, 'dex');
+  const worn = c.equipment.filter((i) => i.armor && itemActive(i));
+  const armorVal = (i: Item) => {
+    const a = i.armor!;
+    const d = a.dexMax === null ? dex : Math.min(dex, a.dexMax);
+    return a.base + d + i.bonus;
+  };
+  const body = worn.filter((i) => i.armor!.kind !== 'shield').sort((x, y) => armorVal(y) - armorVal(x))[0];
+  const shield = worn.filter((i) => i.armor!.kind === 'shield').sort((x, y) => y.armor!.base + y.bonus - (x.armor!.base + x.bonus))[0];
+  const parts: AcPart[] = [];
+  if (body) {
+    const a = body.armor!;
+    parts.push({ label: body.name, value: a.base });
+    const d = a.dexMax === null ? dex : Math.min(dex, a.dexMax);
+    if (a.dexMax !== 0) parts.push({ label: a.dexMax === null ? 'Вправність' : `Вправність (макс. ${a.dexMax})`, value: d });
+    if (body.bonus) parts.push({ label: `${body.name}: магія`, value: body.bonus });
+  } else {
+    parts.push({ label: 'Без обладунку', value: 10 });
+    parts.push({ label: 'Вправність', value: dex });
+  }
+  if (shield) parts.push({ label: shield.name, value: shield.armor!.base + shield.bonus });
+  for (const i of c.equipment) {
+    if (!i.acBonus || !itemActive(i) || i.armor) continue;
+    if (i.noArmor && (body || shield)) continue;
+    parts.push({ label: i.name, value: i.acBonus });
+  }
+  return { total: parts.reduce((s, p) => s + p.value, 0), parts };
+}
+
+/** Бонусы к КО от действующих не-доспехов (плащ, перстень захисту…) — добавляются и к ручному КО. */
+export function itemAcBonusParts(c: Character): AcPart[] {
+  const wearingArmor = c.equipment.some((i) => i.armor && itemActive(i));
+  return c.equipment
+    .filter((i) => i.acBonus && itemActive(i) && !i.armor && !(i.noArmor && wearingArmor))
+    .map((i) => ({ label: i.name, value: i.acBonus }));
+}
+
+/** Итоговый КО: от снаряжения или вручную (+ бонусы предметов). */
+export const armorClass = (c: Character): number =>
+  c.acAuto ? acFromGear(c).total : c.ac + itemAcBonusParts(c).reduce((s, p) => s + p.value, 0);
 
 export function skillAuto(c: Character, key: SkillKey): number {
   const s = c.skills[key];
@@ -18,7 +83,7 @@ export function skillBonus(c: Character, key: SkillKey): number {
 
 export function saveAuto(c: Character, a: Ability): number {
   const s = c.saves[a];
-  return mod(c, a) + s.prof * profBonus(c) + s.bonus;
+  return mod(c, a) + s.prof * profBonus(c) + s.bonus + itemSaveBonus(c);
 }
 export function saveBonus(c: Character, a: Ability): number {
   return c.saves[a].override ?? saveAuto(c, a);

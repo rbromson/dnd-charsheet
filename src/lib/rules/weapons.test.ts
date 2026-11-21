@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { fridoSeed } from '../model/seed-frido';
+import { newItem } from '../model/defaults';
 import { linkedAttack, addWeaponAttack, removeWeaponAttack, removeItem, syncWeaponName } from './weapons';
 
 describe('weapons', () => {
@@ -10,7 +11,7 @@ describe('weapons', () => {
   });
   it('adds a linked attack once and removes it with the item', () => {
     const c = fridoSeed().character;
-    c.equipment.push({ id: 'dag', name: 'Кинджал', qty: 1, text: '', magic: false });
+    c.equipment.push(newItem({ id: 'dag', name: 'Кинджал' }));
     const a = addWeaponAttack(c, c.equipment[c.equipment.length - 1]);
     expect(a.itemId).toBe('dag');
     expect(a.name).toBe('Кинджал');

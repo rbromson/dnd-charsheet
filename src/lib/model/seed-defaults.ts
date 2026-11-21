@@ -1,5 +1,5 @@
 import type { Attack, Character, CodexEntry, Item, Spell } from './types';
-import { newCharacter } from './defaults';
+import { newCharacter, newItem } from './defaults';
 import { uid } from './ids';
 
 /**
@@ -30,7 +30,7 @@ const atk = (a: Partial<Attack> & Pick<Attack, 'name' | 'ability' | 'damage' | '
   saveDc: null,
   ...a,
 });
-const item = (name: string, qty = 1, text = '', magic = false): Item => ({ id: uid(), name, qty, text, magic });
+const item = (name: string, qty = 1, text = '', magic = false): Item => newItem({ name, qty, text, magic });
 const spell = (level: number, name: string, text: string, prepared = true): Spell => ({ id: uid(), level, name, text, prepared });
 const feat = (name: string, text: string) => ({ id: uid(), name, text });
 

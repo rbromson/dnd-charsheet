@@ -4,6 +4,8 @@
   import RowActions from '../../components/RowActions.svelte';
   import NumberField from '../../components/NumberField.svelte';
   import ItemSheet from './ItemSheet.svelte';
+  import ItemLibrary from './ItemLibrary.svelte';
+  import { attunedCount, itemActive } from '../../lib/rules/calc';
   import { removeItem as removeItemWithAttack } from '../../lib/rules/weapons';
   import CoinSheet from './CoinSheet.svelte';
   import DeckSheet from './DeckSheet.svelte';
@@ -16,6 +18,7 @@
   import { press } from '../../lib/actions/press';
   import { move } from '../../lib/list';
   import { uid } from '../../lib/model/ids';
+  import { newItem } from '../../lib/model/defaults';
   import { t } from '../../lib/i18n';
 
   const c = $derived(charStore.current!);
@@ -33,7 +36,7 @@
   }
   function addItem() {
     const id = uid();
-    c.equipment.push({ id, name: '', qty: 1, text: '', magic: false });
+    c.equipment.push(newItem({ id, name: '' }));
     itemSheet(id);
   }
   async function removeItem(id: string) {
@@ -61,11 +64,16 @@
   }
 </script>
 
-<TopBar title={t('nav.gear')} />
+<TopBar title={t('nav.gear')}>
+  <button class="btn btn-outline" onclick={() => ui.openSheet(ItemLibrary, {})}><Icon name="search" size={18} />{t('lib.open')}</button>
+</TopBar>
 <div class="view">
   <div class="cols cols-3">
     <section class="card equip">
       <h2 class="card-title">{t('gear.equipment')}</h2>
+      {#if c.equipment.some((i) => i.attune)}
+        <div class="att" class:over={attunedCount(c) > 3}><Icon name="sparkle" size={14} stroke={2} />{t('gear.attuneCount', { n: attunedCount(c) })}</div>
+      {/if}
       {#if c.equipment.length}
         <ul class="list">
           {#each c.equipment as it, i (it.id)}
@@ -81,6 +89,12 @@
                   {/if}
                   {#if it.magic}
                     <span class="magic"><Icon name="sparkle" size={14} stroke={2} />{t('gear.magic')}</span>
+                  {/if}
+                  {#if it.attune && it.attuned}
+                    <span class="badge on">{t('gear.attunedShort')}</span>
+                  {/if}
+                  {#if it.equipped && (it.armor || it.acBonus || it.saveBonus || it.setAbility)}
+                    <span class="badge" class:on={itemActive(it)}><Icon name="shield" size={12} stroke={2.2} />{t('gear.equippedShort')}</span>
                   {/if}
                   <span class="qty num" class:zero={it.qty === 0}>×{it.qty}</span>
                   {#if !ui.editing && it.text.trim()}
@@ -150,6 +164,35 @@
 {/if}
 
 <style>
+  .att {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--ink2);
+    margin: -2px 0 6px;
+  }
+  .att.over {
+    color: #8e2f20;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 6px;
+    border: 1px solid var(--edge);
+    color: var(--ink2);
+    white-space: nowrap;
+  }
+  .badge.on {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--parch);
+  }
   .weapon {
     display: inline-flex;
     color: var(--ink2);
@@ -181,13 +224,14 @@
     min-height: 56px;
     display: flex;
     align-items: center;
-    gap: 10px;
+    flex-wrap: wrap;
+    gap: 2px 8px;
     text-align: left;
     user-select: none;
     -webkit-user-select: none;
   }
   .nm {
-    flex: 1;
+    flex: 1 1 55%;
     min-width: 0;
     font-size: 17px;
     font-weight: 700;

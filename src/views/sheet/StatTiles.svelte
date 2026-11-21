@@ -7,7 +7,7 @@
   import { charStore } from '../../lib/stores/characters.svelte';
   import { dice } from '../../lib/stores/dice.svelte';
   import { ui } from '../../lib/stores/ui.svelte';
-  import { fmt, initiative, profBonus } from '../../lib/rules/calc';
+  import { armorClass, fmt, initiative, profBonus } from '../../lib/rules/calc';
   import { t } from '../../lib/i18n';
 
   const c = $derived(charStore.current!);
@@ -21,7 +21,7 @@
 
 <div class="tiles">
   <!-- КО -->
-  {#if ui.editing}
+  {#if ui.editing && !c.acAuto}
     <div class="tile t-ac">
       <span class="ic"><Icon name="shield" size={18} stroke={2.2} /></span><span class="wm" aria-hidden="true"><Icon name="shield" size={86} stroke={1.4} /></span>
       <div class="k">{t('sheet.tile.ac')}</div>
@@ -31,11 +31,11 @@
       </div>
     </div>
   {:else}
-    <button class="tile t-ac" use:press={{ onLong: () => open('ac') }}>
+    <button class="tile t-ac" use:press={{ onTap: () => ui.editing && open('ac'), onLong: () => open('ac') }}>
       <span class="ic"><Icon name="shield" size={18} stroke={2.2} /></span><span class="wm" aria-hidden="true"><Icon name="shield" size={86} stroke={1.4} /></span>
       <div class="k">{t('sheet.tile.ac')}</div>
-      <div class="v">{c.ac}</div>
-      <div class="s">{c.acNote || ' '}</div>
+      <div class="v">{armorClass(c)}</div>
+      <div class="s">{c.acAuto ? t('sheet.tile.acAuto') : c.acNote || ' '}</div>
     </button>
   {/if}
 

@@ -1,4 +1,4 @@
-import { ABILITIES, SKILLS, type Ability, type Character, type SkillKey, type SkillState, type SaveState } from './types';
+import { ABILITIES, SKILLS, type Ability, type Character, type Item, type SkillKey, type SkillState, type SaveState } from './types';
 import { uid } from './ids';
 
 export function emptySkills(): Record<SkillKey, SkillState> {
@@ -42,6 +42,7 @@ export function newCharacter(): Character {
     inspiration: false,
     ac: 10,
     acNote: '',
+    acAuto: false,
     initiative: { bonus: 0, override: null },
     speed: '30',
     hp: { max: 10, current: 10, temp: 0 },
@@ -61,6 +62,15 @@ export function newCharacter(): Character {
     gallery: [],
     secret: '',
     rules: { rerollOnes: false },
+  };
+}
+
+/** Пустой предмет снаряжения с нужными полями. */
+export function newItem(p: Partial<Item> & { name: string }): Item {
+  return {
+    id: uid(), qty: 1, text: '', magic: false, ref: null, equipped: false, attune: false, attuned: false, rarity: '',
+    weapon: null, armor: null, bonus: 0, acBonus: 0, saveBonus: 0, setAbility: null, setValue: 0, noArmor: false, resourceId: null,
+    ...p,
   };
 }
 

@@ -5,6 +5,7 @@
   import SpellHeader from './SpellHeader.svelte';
   import SpellLevel from './SpellLevel.svelte';
   import SpellSheet from './SpellSheet.svelte';
+  import SpellLibrary from './SpellLibrary.svelte';
   import { charStore } from '../../lib/stores/characters.svelte';
   import { ui } from '../../lib/stores/ui.svelte';
   import { uid } from '../../lib/model/ids';
@@ -39,6 +40,7 @@
 </script>
 
 <TopBar title={t('nav.spells')}>
+  <button class="btn btn-outline" onclick={() => ui.openSheet(SpellLibrary, {})}><Icon name="search" size={18} />{t('lib.open')}</button>
   {#if ui.editing && c.spellcasting.enabled}
     <button class="btn btn-outline" onclick={addSpell}><Icon name="plus" size={20} />{t('spells.add')}</button>
   {/if}
