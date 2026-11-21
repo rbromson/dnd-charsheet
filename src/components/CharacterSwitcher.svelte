@@ -8,6 +8,7 @@
   import { exportCharacter, importBackupFile } from '../lib/backup';
   import { pickFiles } from '../lib/stores/media';
   import { t } from '../lib/i18n';
+  import { deliverFile, templateFile } from '../lib/template';
   import { fly, fade } from 'svelte/transition';
 
   let menuFor = $state<string | null>(null);
@@ -88,6 +89,8 @@
       <button class="btn btn-primary grow" onclick={() => charStore.create().then(() => (ui.switcherOpen = false))}><Icon name="plus" />{t('chars.new')}</button>
       <button class="btn btn-outline" disabled={busy} onclick={doImport}><Icon name="upload" size={20} />{t('chars.import')}</button>
     </div>
+    <button class="btn btn-ghost tpl" onclick={() => deliverFile(templateFile().blob, templateFile().name)}><Icon name="download" size={20} />{t('tpl.button')}</button>
+    <p class="hint">{t('tpl.hint')}</p>
     <Toggle bind:checked={withAudio} label={t('chars.exportAudio')} />
     <p class="hint">{t('chars.hint')}</p>
     <div class="sp"></div>
@@ -198,6 +201,11 @@
   }
   .actions {
     margin-top: 8px;
+  }
+  .tpl {
+    align-self: flex-start;
+    padding: 0 8px;
+    color: var(--ember);
   }
   .sp {
     flex: 1;

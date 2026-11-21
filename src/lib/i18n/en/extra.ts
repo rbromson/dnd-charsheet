@@ -31,6 +31,8 @@ export default {
   'lang.title': 'Interface language',
   'lang.uk': 'Українська',
   'lang.en': 'English',
+  'tpl.button': 'Template for AI',
+  'tpl.hint': 'Download the template, give it to ChatGPT or Claude together with your character sheet (PDF, photo, text), then load the finished .json via “Import”.',
   'empty.title': 'No characters yet',
-  'empty.text': 'Create a new character or import a backup file (.zip).',
+  'empty.text': 'Create a new character, import a backup file (.zip), or fill in the template with your AI.',
 } satisfies Record<string, string>;

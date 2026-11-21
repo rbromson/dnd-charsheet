@@ -12,6 +12,7 @@ import { fridoCommoner, fridoVampire, type SeedCharacter } from '../src/lib/mode
 import { normalizeCharacter } from '../src/lib/model/normalize';
 import { uid, nowIso } from '../src/lib/model/ids';
 import { parseBackup, type BackupManifest } from '../src/lib/backup';
+import { buildTemplate } from '../src/lib/template';
 
 const OUT = process.env.EXPORT_DIR;
 const ASSETS = join(__dirname, 'seed-assets');
@@ -59,5 +60,10 @@ describe.skipIf(!OUT)('експорт Фрідо', () => {
       expect(blobs.size).toBe(s.gallery.length + 1);
       expect(manifest.codex).toHaveLength(3);
     }
+  });
+
+  it('пише шаблони для ШІ', () => {
+    writeFileSync(join(OUT!, 'taverna-shablon-personazha.json'), JSON.stringify(buildTemplate('uk'), null, 2));
+    writeFileSync(join(OUT!, 'taverna-character-template.json'), JSON.stringify(buildTemplate('en'), null, 2));
   });
 });

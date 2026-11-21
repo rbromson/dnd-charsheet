@@ -7,6 +7,12 @@
   import { importBackupFile } from '../lib/backup';
   import { pickFiles } from '../lib/stores/media';
   import { t } from '../lib/i18n';
+  import { deliverFile, templateFile } from '../lib/template';
+
+  async function downloadTemplate() {
+    const { blob, name } = templateFile();
+    await deliverFile(blob, name);
+  }
 
   let busy = $state(false);
 
@@ -35,7 +41,9 @@
     <div class="acts">
       <button class="btn btn-primary" onclick={() => charStore.create()}><Icon name="plus" />{t('chars.new')}</button>
       <button class="btn btn-outline" disabled={busy} onclick={doImport}><Icon name="upload" size={20} />{t('chars.import')}</button>
+      <button class="btn btn-ghost" onclick={downloadTemplate}><Icon name="download" size={20} />{t('tpl.button')}</button>
     </div>
+    <p class="small">{t('tpl.hint')}</p>
     <LangSwitch />
   </section>
 </div>
@@ -78,6 +86,10 @@
   p {
     margin: 0;
     color: var(--muted);
+  }
+  .small {
+    font-size: 12.5px;
+    margin-top: -6px;
   }
   .acts {
     display: flex;
