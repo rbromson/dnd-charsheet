@@ -29,7 +29,7 @@ const ATTACK: Attack = { id: '', name: '', ability: 'str', prof: true, bonus: 0,
 const RESOURCE: Resource = { id: '', name: '', max: 1, current: 1, die: null, recharge: 'long', maxPerRoll: null };
 const SPELL: Spell = { id: '', level: 0, name: '', prepared: false, text: '' };
 const ITEM: Item = {
-  id: '', name: '', qty: 1, text: '', magic: false, ref: null, equipped: false, attune: false, attuned: false, rarity: '',
+  id: '', name: '', qty: 1, text: '', magic: false, ref: null, en: '', equipped: false, attune: false, attuned: false, rarity: '',
   weapon: null, armor: null, bonus: 0, acBonus: 0, saveBonus: 0, setAbility: null, setValue: 0, noArmor: false, resourceId: null,
 };
 const WEAPON: WeaponStats = { dice: '', type: '', props: [], finesse: false, ranged: false, versatile: '', range: '', martial: false };

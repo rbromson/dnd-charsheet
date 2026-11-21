@@ -1,6 +1,7 @@
 import type { Attack, Character, Item } from '../model/types';
 import { uid } from '../model/ids';
 import { mod } from './calc';
+import { dieText, MOD_WORD, t } from '../i18n';
 
 /** Атака, связанная с предметом (оружием). */
 export function linkedAttack(c: Character, itemId: string): Attack | undefined {
@@ -21,7 +22,7 @@ export function addWeaponAttack(c: Character, item: Item): Attack {
   const w = item.weapon;
   const ability = !w ? 'str' : w.ranged ? 'dex' : w.finesse && mod(c, 'dex') >= mod(c, 'str') ? 'dex' : 'str';
   const note = w
-    ? [...w.props.map((p) => (p === 'універсальна' && w.versatile ? `${p} (${w.versatile.replace('d', 'к')})` : p)), w.range ? `${w.range} фт` : '']
+    ? [...w.props.map((p) => (p === t('lib.versatileProp') && w.versatile ? `${p} (${dieText(w.versatile)})` : p)), w.range ? `${w.range} ${t('lib.feet')}` : '']
         .filter(Boolean)
         .join(', ')
     : '';
@@ -32,7 +33,7 @@ export function addWeaponAttack(c: Character, item: Item): Attack {
     prof: true,
     bonus: item.bonus,
     override: null,
-    damage: w?.dice ? `${w.dice}+МОД${item.bonus ? `+${item.bonus}` : ''}` : '1d6+МОД',
+    damage: w?.dice ? `${w.dice}+${MOD_WORD}${item.bonus ? `+${item.bonus}` : ''}` : `1d6+${MOD_WORD}`,
     damageType: w?.type ?? '',
     note,
     itemId: item.id,

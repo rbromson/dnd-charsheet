@@ -57,7 +57,7 @@ class CodexStore {
       kind,
       name: name.trim(),
       text: '',
-      status: kind === 'quest' ? 'активне' : '',
+      status: kind === 'quest' ? t('journal.status.quest.active') : '',
       secret: '',
       images: [],
       createdAt: now,

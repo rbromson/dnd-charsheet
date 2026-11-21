@@ -347,3 +347,82 @@ for name, data in (('items.json', items), ('spells.json', spells)):
         json.dump(data, f, ensure_ascii=False, separators=(',', ':'))
 missing = [x['id'] for x in items + spells if x['n'] == x['en']]
 print(f'items={len(items)} spells={len(spells)} untranslated={len(missing)}')
+
+# ---------- английская версия (оригинал SRD) ----------
+EN_DMG = {v: k for k, v in DMG.items()}
+EN_PROP = {v: k.replace('-', ' ') for k, v in PROPS.items() if v}
+EN_COIN = {v: k for k, v in COIN.items()}
+
+
+def en_cost(s):
+    if not s:
+        return s
+    q, u = s.split(' ')
+    return f'{q} {EN_COIN.get(u, u)}'
+
+
+def en_kind(e):
+    cat = e['equipment_category']['index']
+    if cat == 'weapon':
+        return f"{e['category_range']} Weapon"
+    if cat == 'armor':
+        return 'Shield' if e['armor_category'] == 'Shield' else f"{e['armor_category']} Armor"
+    if cat == 'tools':
+        return e.get('tool_category', 'Tools')
+    return e.get('gear_category', {}).get('name', 'Adventuring Gear')
+
+
+def en_weapon(w):
+    w = dict(w)
+    w['dt'] = EN_DMG.get(w['dt'], w['dt'])
+    w['p'] = [EN_PROP.get(p, p) for p in w['p']]
+    return w
+
+
+items_en = []
+for it in items:
+    x = dict(it)
+    if it['id'].startswith('m:'):
+        m = MI[it['id'][2:]]
+        x['n'] = m['name']
+        x['k'] = m['desc'][0]
+        x['t'] = '\n'.join(m['desc'][1:])
+    else:
+        e = EQ[it['id']]
+        x['n'] = e['name']
+        x['k'] = en_kind(e)
+        x['t'] = '\n'.join(e.get('desc', []) + e.get('special', []))
+        if it.get('cost'):
+            x['cost'] = en_cost(it['cost'])
+    if 'w' in x:
+        x['w'] = en_weapon(x['w'])
+    items_en.append(x)
+
+SP = {s['index']: s for s in sp}
+spells_en = []
+for r in spells:
+    s = SP[r['id']]
+    x = dict(r)
+    x['n'] = s['name']
+    x['sc'] = s['school']['index']
+    x['ct'] = s['casting_time']
+    x['rg'] = s['range']
+    x['du'] = s['duration']
+    x['cl'] = [c['name'] for c in s.get('classes', [])]
+    x['t'] = '\n'.join(s['desc'])
+    if s.get('higher_level'):
+        x['h'] = '\n'.join(s['higher_level'])
+    if s.get('material'):
+        x['mt'] = s['material']
+    x['cp'] = ', '.join(s.get('components', []))
+    if 'dm' in x:
+        x['dm'] = dict(x['dm'])
+        x['dm']['t'] = EN_DMG.get(x['dm']['t'], x['dm']['t'])
+    if 'hl' in x:
+        x['hl'] = {k: v.replace('МОД', 'MOD') for k, v in x['hl'].items()}
+    spells_en.append(x)
+
+for name, data in (('items.en.json', items_en), ('spells.en.json', spells_en)):
+    with open(os.path.join(OUT, name), 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, separators=(',', ':'))
+print(f'en: items={len(items_en)} spells={len(spells_en)}')

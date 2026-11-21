@@ -51,3 +51,19 @@ describe('Фрідо-вампір 5', () => {
     expect(spellAttack(c)).toBe(5);
   });
 });
+
+describe('спорядження Фрідо пов’язане з бібліотекою', () => {
+  it('зброя, обладунок і колода мають ref та англійську назву', () => {
+    for (const s of [fridoCommoner(), fridoVampire()]) {
+      const byName = (n: string) => s.character.equipment.find((i) => i.name === n)!;
+      expect(byName('Кинджал').ref).toBe('dagger');
+      expect(byName('Кинджал').weapon?.dice).toBe('1d4');
+      expect(byName('Пательня').ref).toBe('club');
+      expect(byName('Легкий арбалет').weapon?.ranged).toBe(true);
+      expect(byName('Шкіряний обладунок').armor).toMatchObject({ kind: 'light', base: 11 });
+      expect(byName('Колода ілюзій').en).toBe('Deck of Illusions');
+    }
+    // КО у листах вручну — бібліотека його не змінює
+    expect(fridoCommoner().character.ac).toBe(13);
+  });
+});

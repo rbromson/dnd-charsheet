@@ -83,7 +83,9 @@
                   class="name"
                   use:press={{ onTap: () => tapItem(it.id), onLong: () => itemSheet(it.id) }}
                 >
-                  <span class="nm serif" class:unnamed={!it.name.trim()}>{it.name.trim() || t('gear.unnamed')}</span>
+                  <span class="nm serif" class:unnamed={!it.name.trim()}
+                    >{it.name.trim() || t('gear.unnamed')}{#if it.en && it.en !== it.name}<span class="en">{it.en}</span>{/if}</span
+                  >
                   {#if c.attacks.some((a) => a.itemId === it.id)}
                     <span class="weapon" title={t('gear.weaponIn')}><Icon name="combat" size={15} /></span>
                   {/if}
@@ -164,6 +166,14 @@
 {/if}
 
 <style>
+  .en {
+    display: block;
+    font-family: var(--font-sans);
+    font-size: 11.5px;
+    font-weight: 500;
+    font-style: italic;
+    color: var(--ink2);
+  }
   .att {
     display: inline-flex;
     align-items: center;

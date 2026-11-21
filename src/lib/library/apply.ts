@@ -4,6 +4,7 @@ import { newItem } from '../model/defaults';
 import { uid } from '../model/ids';
 import { addWeaponAttack } from '../rules/weapons';
 import type { LibItem, LibSpell, LibWeapon, LibArmor } from './types';
+import { t } from '../i18n';
 
 const GENERIC_PLUS = new Set(['m:weapon', 'm:armor', 'm:ammunition']);
 
@@ -29,7 +30,7 @@ export const armorFromLib = (a: LibArmor): ArmorStats => ({
 export function fitsPick(pick: string, base: LibItem): boolean {
   const [kind, what] = pick.split(':');
   if (kind === 'w') {
-    if (base.c !== 'weapon' || !base.w) return what === 'ammo' && base.c === 'gear' && base.k === 'Боєприпаси';
+    if (base.c !== 'weapon' || !base.w) return what === 'ammo' && base.c === 'gear' && (base.k === 'Боєприпаси' || base.k === 'Ammunition');
     if (what === 'any') return true;
     if (what === 'ammo') return false;
     const en = base.en.toLowerCase();
@@ -38,7 +39,7 @@ export function fitsPick(pick: string, base: LibItem): boolean {
     if (what === 'sword') return isSword;
     if (what === 'axe') return isAxe;
     if (what === 'axe|sword') return isSword || isAxe;
-    if (what === 'sword-slashing') return isSword && base.w.dt === 'рубана';
+    if (what === 'sword-slashing') return isSword && (base.w.dt === 'рубана' || base.w.dt === 'slashing');
     return true;
   }
   if (kind === 'a') return base.c === 'armor' && !!base.ar && what.split('|').includes(base.ar.k) && base.id !== 'hide-armor';
@@ -51,7 +52,12 @@ export function itemFromLib(e: LibItem, base?: LibItem): Item {
   const w = e.w ?? base?.w;
   const ar = e.ar ?? base?.ar;
   let name = e.n;
-  if (base) name = GENERIC_PLUS.has(e.of ?? '') && x.b ? `${base.n} +${x.b}` : `${e.n} (${base.n})`;
+  let en = e.en;
+  if (base) {
+    const plus = GENERIC_PLUS.has(e.of ?? '') && x.b;
+    name = plus ? `${base.n} +${x.b}` : `${e.n} (${base.n})`;
+    en = plus ? `${base.en} +${x.b}` : `${e.en} (${base.en})`;
+  }
   const magic = e.c === 'magic';
   const text = magic ? `${e.k}\n\n${e.t}`.trim() : e.t;
   const hasEffect = !!(ar || x.ac || x.sv || x.set);
@@ -60,6 +66,7 @@ export function itemFromLib(e: LibItem, base?: LibItem): Item {
     text,
     magic,
     ref: e.id,
+    en,
     rarity: e.r ?? '',
     attune: !!e.a,
     equipped: hasEffect,
@@ -110,12 +117,12 @@ export function spellDamageDice(s: LibSpell, charLevel: number): string {
 export function spellText(s: LibSpell): string {
   const comp = s.cp + (s.mt ? ` (${s.mt})` : '');
   const head = [
-    `${s.l === 0 ? 'Заговір' : `${s.l} рівень`}, ${s.sc}${s.ri ? ' (ритуал)' : ''}`,
-    `Час: ${s.ct} · Дальність: ${s.rg}`,
-    `Компоненти: ${comp}`,
-    `Тривалість: ${s.co ? 'концентрація, ' + s.du.charAt(0).toLowerCase() + s.du.slice(1) : s.du}`,
+    `${s.l === 0 ? t('spell.text.cantrip') : t('spell.text.level', { n: s.l })}, ${s.sc}${s.ri ? t('spell.text.ritual') : ''}`,
+    t('spell.text.time', { ct: s.ct, rg: s.rg }),
+    t('spell.text.comp', { c: comp }),
+    t('spell.text.dur', { d: s.co ? t('spell.text.conc', { d: s.du.charAt(0).toLowerCase() + s.du.slice(1) }) : s.du }),
   ].join('\n');
-  return `${head}\n\n${s.t}${s.h ? `\n\nНа вищих рівнях. ${s.h}` : ''}`;
+  return `${head}\n\n${s.t}${s.h ? `\n\n${t('spell.text.higher')} ${s.h}` : ''}`;
 }
 
 export function spellFromLib(s: LibSpell): Spell {
@@ -135,7 +142,7 @@ export function spellAttack(c: Character, s: LibSpell): Attack | null {
     override: null,
     damage: dice,
     damageType: s.dm?.t ?? '',
-    note: s.l === 0 ? 'Заговір: кубики ростуть на 5, 11 і 17 рівнях' : `${s.l} рівень; на вищих рівнях — більше`,
+    note: s.l === 0 ? t('spell.note.cantrip') : t('spell.note.level', { n: s.l }),
     itemId: null,
     save: s.at ? null : (s.sv ?? null),
     saveDc: null,

@@ -1,5 +1,8 @@
 import type { Attack, Character, CodexEntry, Item, Spell } from './types';
 import { newCharacter, newItem } from './defaults';
+import libItems from '../library/data/items.json';
+import { itemFromLib } from '../library/apply';
+import type { LibItem } from '../library/types';
 import { uid } from './ids';
 
 /**
@@ -13,7 +16,7 @@ import { uid } from './ids';
 export interface SeedCharacter {
   character: Character;
   codex: Omit<CodexEntry, 'id' | 'characterId' | 'createdAt' | 'updatedAt'>[];
-  /** путь к портрету относительно BASE_URL */
+  /** файл портрета в scripts/seed-assets */
   portrait: string;
   /** дополнительные картинки в галерею */
   gallery: string[];
@@ -31,6 +34,15 @@ const atk = (a: Partial<Attack> & Pick<Attack, 'name' | 'ability' | 'damage' | '
   ...a,
 });
 const item = (name: string, qty = 1, text = '', magic = false): Item => newItem({ name, qty, text, magic });
+
+const LIB = libItems as unknown as LibItem[];
+/** Предмет, привязанный к записи библиотеки SRD (механика и английское название — оттуда, имя и текст — свои). */
+function linked(ref: string, p: Partial<Item> & { name: string }, en?: string): Item {
+  const e = LIB.find((x) => x.id === ref);
+  if (!e) throw new Error(`library item not found: ${ref}`);
+  const it = itemFromLib(e);
+  return { ...it, equipped: false, text: '', ...p, en: en ?? e.en };
+}
 const spell = (level: number, name: string, text: string, prepared = true): Spell => ({ id: uid(), level, name, text, prepared });
 const feat = (name: string, text: string) => ({ id: uid(), name, text });
 
@@ -54,6 +66,18 @@ const HALFLING =
   'Хоробрий. Перевага на рятунки проти переляку.\n' +
   'Моторність. Можеш проходити крізь простір істот, більших за тебе.\n' +
   'Природна скритність. Можеш спробувати сховатися за істотою, більшою за тебе щонайменше на один розмір.';
+
+/** Спільне спорядження обох листів; armorOn — шкіряний обладунок вдягнено (вампір ходить без нього). */
+function commonGear(armorOn: boolean): Item[] {
+  return [
+    linked('crossbow-bolt', { name: 'Болти для арбалета', qty: 20 }, 'Crossbow bolts'),
+    linked('leather-armor', { name: 'Шкіряний обладунок', equipped: armorOn }),
+    linked('dungeoneers-pack', { name: 'Набір підземельника' }),
+    linked('cooks-utensils', { name: 'Кухарське начиння' }),
+    linked('m:deck-of-illusions', { name: 'Колода ілюзій', text: DECK_TEXT, magic: true }),
+    item('Купча на трактир «Три підкови»', 1, DEED_TEXT),
+  ];
+}
 
 function shared(c: Character) {
   c.name = 'Фрідо Брецель';
@@ -136,20 +160,10 @@ export function fridoCommoner(): SeedCharacter {
 
   c.resources = [{ id: uid(), name: 'Кубики завзятості', max: 3, current: 3, die: 'd4', recharge: 'short', maxPerRoll: 2 }];
 
-  const pan = item('Пательня', 1, 'Правила палиці: легка, дробильна. З 2 рівня — «Стара вірна»: 1к6 + Мудрість.');
-  const dagger = item('Кинджал', 2, 'Фехтувальна й метальна зброя (20/60 фт).');
-  const xbow = item('Легкий арбалет', 1, '80/320 фт, перезаряджання. Володіння немає.');
-  c.equipment = [
-    pan,
-    dagger,
-    xbow,
-    item('Болти для арбалета', 20),
-    item('Шкіряний обладунок'),
-    item('Набір підземельника'),
-    item('Кухарське начиння'),
-    item('Колода ілюзій', 1, DECK_TEXT, true),
-    item('Купча на трактир «Три підкови»', 1, DEED_TEXT),
-  ];
+  const pan = linked('club', { name: 'Пательня', text: 'Правила палиці: легка, дробильна. З 2 рівня — «Стара вірна»: 1к6 + Мудрість.' }, 'Frying pan (club)');
+  const dagger = linked('dagger', { name: 'Кинджал', qty: 2, text: 'Фехтувальна й метальна зброя (20/60 фт).' });
+  const xbow = linked('crossbow-light', { name: 'Легкий арбалет', text: '80/320 фт, перезаряджання. Володіння немає.' });
+  c.equipment = [pan, dagger, xbow, ...commonGear(true)];
   c.attacks = [
     atk({ name: 'Кинджал', ability: 'dex', damage: '1d4+МОД', damageType: 'колюча', note: 'Фехтувальна, метальна (20/60 фт)', itemId: dagger.id }),
     atk({ name: 'Пательня', ability: 'str', damage: '1d4+МОД', damageType: 'дробильна', note: 'Як палиця. З 2 рівня — 1к6 + Мудрість', itemId: pan.id }),
@@ -200,7 +214,7 @@ export function fridoCommoner(): SeedCharacter {
     '4 рів. — підвищення характеристик (вибір за гравцем). Третя байка: «Грізна найманська рота» (щити, гральні кості). Кубиків: 6.\n' +
     '5 рів. — Кураж: кубики завзятості можна додати до шкоди Старої вірної, а реакцією — зменшити отриману шкоду. Бонус майстерності +3. Кубиків: 7.';
 
-  return { character: c, codex: codexFor(), portrait: 'seed/frido.jpg', gallery: [] };
+  return { character: c, codex: codexFor(), portrait: 'frido.jpg', gallery: [] };
 }
 
 /** Фрідо після звернення: Вампір 5 (Тіньова рука) — лист від майстра. */
@@ -232,20 +246,10 @@ export function fridoVampire(): SeedCharacter {
     { id: uid(), name: 'Вампірське зачарування', max: 3, current: 3, die: null, recharge: 'long', maxPerRoll: null },
   ];
 
-  const pan = item('Пательня', 1, 'Правила палиці: легка, дробильна.');
-  const dagger = item('Кинджал', 2, 'Фехтувальна й метальна зброя (20/60 фт).');
-  const xbow = item('Легкий арбалет', 1, '80/320 фт, перезаряджання.');
-  c.equipment = [
-    pan,
-    dagger,
-    xbow,
-    item('Болти для арбалета', 20),
-    item('Шкіряний обладунок'),
-    item('Набір підземельника'),
-    item('Кухарське начиння'),
-    item('Колода ілюзій', 1, DECK_TEXT, true),
-    item('Купча на трактир «Три підкови»', 1, DEED_TEXT),
-  ];
+  const pan = linked('club', { name: 'Пательня', text: 'Правила палиці: легка, дробильна.' }, 'Frying pan (club)');
+  const dagger = linked('dagger', { name: 'Кинджал', qty: 2, text: 'Фехтувальна й метальна зброя (20/60 фт).' });
+  const xbow = linked('crossbow-light', { name: 'Легкий арбалет', text: '80/320 фт, перезаряджання.' });
+  c.equipment = [pan, dagger, xbow, ...commonGear(false)];
   c.attacks = [
     atk({
       name: 'Укус',
@@ -306,7 +310,7 @@ export function fridoVampire(): SeedCharacter {
     '14 — Виснажливі удари (+1к4 ОЗ за беззбройне влучання). 17 — Створіння ночі. 18 — Опори вампіра. 20 — Майстер-вампір.\n' +
     'Підвищення характеристик: 4, 8, 12, 16, 19. Запас крові: 1 (2 рів.), 2 (3–4), 3 (5–6), 4 (7–8), 5 (9–10) … 10 (19–20).';
 
-  return { character: c, codex: codexFor(), portrait: 'seed/frido-vampire.jpg', gallery: ['seed/frido.jpg'] };
+  return { character: c, codex: codexFor(), portrait: 'frido-vampire.jpg', gallery: ['frido.jpg'] };
 }
 
 export const defaultCharacters = (): SeedCharacter[] => [fridoCommoner(), fridoVampire()];

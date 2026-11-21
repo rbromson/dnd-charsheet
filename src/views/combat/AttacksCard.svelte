@@ -11,7 +11,7 @@
   import { attackBonus, attackSaveDc, fmt, resolveDamageFormula } from '../../lib/rules/calc';
   import { uid } from '../../lib/model/ids';
   import { move } from '../../lib/list';
-  import { t } from '../../lib/i18n';
+  import { MOD_WORD, t } from '../../lib/i18n';
 
   const c = $derived(charStore.current!);
 
@@ -40,7 +40,7 @@
 
   function add() {
     const id = uid();
-    c.attacks.push({ id, name: t('combat.atkNew'), ability: 'str', prof: true, bonus: 0, override: null, damage: '1d6+МОД', damageType: '', note: '', itemId: null, save: null, saveDc: null });
+    c.attacks.push({ id, name: t('combat.atkNew'), ability: 'str', prof: true, bonus: 0, override: null, damage: `1d6+${MOD_WORD}`, damageType: '', note: '', itemId: null, save: null, saveDc: null });
     open(id);
   }
 

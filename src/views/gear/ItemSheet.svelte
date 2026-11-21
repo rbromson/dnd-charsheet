@@ -64,7 +64,7 @@
     </div>
     {#if showMech}
       <div class="eff">
-        <span class="label">{t('gear.effects')}{item.ref ? ` · ${t('gear.fromLib')}` : ''}</span>
+        <span class="label">{t('gear.effects')}{item.ref ? ` · ${t('gear.fromLib')}` : ''}{item.en && item.en !== item.name ? ` · ${item.en}` : ''}</span>
         {#if item.armor}<div class="ln num">{armorLine()}</div>{/if}
         {#if item.weapon}
           <div class="ln num">

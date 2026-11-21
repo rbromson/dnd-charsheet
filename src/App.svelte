@@ -8,6 +8,7 @@
   import DiceOverlay from './views/dice/DiceOverlay.svelte';
   import DiceTray from './views/dice/DiceTray.svelte';
   import RollPrompt from './views/dice/RollPrompt.svelte';
+  import EmptyState from './components/EmptyState.svelte';
   import SheetView from './views/sheet/SheetView.svelte';
   import CombatView from './views/combat/CombatView.svelte';
   import SpellsView from './views/spells/SpellsView.svelte';
@@ -49,6 +50,9 @@
   });
 </script>
 
+{#if charStore.ready && !charStore.current}
+  <EmptyState />
+{:else}
 <div class="shell">
   <NavRail />
   <main bind:this={main}>
@@ -65,6 +69,7 @@
     {/if}
   </main>
 </div>
+{/if}
 
 <CharacterSwitcher />
 <DiceTray />

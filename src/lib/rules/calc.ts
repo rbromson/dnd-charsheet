@@ -1,4 +1,5 @@
 import type { Ability, Attack, Character, Item, SkillKey } from '../model/types';
+import { t } from '../i18n';
 
 export const abilityMod = (score: number): number => Math.floor((score - 10) / 2);
 
@@ -46,11 +47,11 @@ export function acFromGear(c: Character): { total: number; parts: AcPart[] } {
     const a = body.armor!;
     parts.push({ label: body.name, value: a.base });
     const d = a.dexMax === null ? dex : Math.min(dex, a.dexMax);
-    if (a.dexMax !== 0) parts.push({ label: a.dexMax === null ? 'Вправність' : `Вправність (макс. ${a.dexMax})`, value: d });
-    if (body.bonus) parts.push({ label: `${body.name}: магія`, value: body.bonus });
+    if (a.dexMax !== 0) parts.push({ label: a.dexMax === null ? t('calc.dex') : t('calc.dexMax', { n: a.dexMax }), value: d });
+    if (body.bonus) parts.push({ label: t('calc.magic', { name: body.name }), value: body.bonus });
   } else {
-    parts.push({ label: 'Без обладунку', value: 10 });
-    parts.push({ label: 'Вправність', value: dex });
+    parts.push({ label: t('calc.unarmored'), value: 10 });
+    parts.push({ label: t('calc.dex'), value: dex });
   }
   if (shield) parts.push({ label: shield.name, value: shield.armor!.base + shield.bonus });
   for (const i of c.equipment) {

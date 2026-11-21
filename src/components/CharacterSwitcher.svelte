@@ -2,6 +2,7 @@
   import Icon from './Icon.svelte';
   import Portrait from './Portrait.svelte';
   import Toggle from './Toggle.svelte';
+  import LangSwitch from './LangSwitch.svelte';
   import { ui } from '../lib/stores/ui.svelte';
   import { charStore } from '../lib/stores/characters.svelte';
   import { exportCharacter, importBackupFile } from '../lib/backup';
@@ -89,6 +90,8 @@
     </div>
     <Toggle bind:checked={withAudio} label={t('chars.exportAudio')} />
     <p class="hint">{t('chars.hint')}</p>
+    <div class="sp"></div>
+    <LangSwitch />
   </aside>
 {/if}
 
@@ -195,6 +198,9 @@
   }
   .actions {
     margin-top: 8px;
+  }
+  .sp {
+    flex: 1;
   }
   .hint {
     font-size: 12px;

@@ -2,16 +2,15 @@
   /** Бібліотека заклинань SRD 5.1: пошук, рівень, клас; додавання в книгу заклинань і (для шкоди) в атаки. */
   import SheetFrame from '../../components/SheetFrame.svelte';
   import Icon from '../../components/Icon.svelte';
-  import { loadSpells, matches, SRD_CREDIT } from '../../lib/library';
+  import { loadSpells, matches } from '../../lib/library';
   import { spellAttack, spellDamageDice, spellFromLib } from '../../lib/library/apply';
   import type { LibSpell } from '../../lib/library/types';
   import { charStore } from '../../lib/stores/characters.svelte';
   import { ui } from '../../lib/stores/ui.svelte';
-  import { t } from '../../lib/i18n';
+  import { dieText, lang, t } from '../../lib/i18n';
   import { onMount } from 'svelte';
 
   const PAGE = 60;
-  const CLASSES = ['Бард', 'Жрець', 'Друїд', 'Паладин', 'Слідопит', 'Чародій', 'Чаклун', 'Чарівник'];
 
   let all = $state<LibSpell[]>([]);
   let loading = $state(true);
@@ -33,6 +32,7 @@
       .sort((a, b) => a.l - b.l || a.n.localeCompare(b.n, 'uk')),
   );
   const shown = $derived(list.slice(0, limit));
+  const CLASSES = $derived([...new Set(all.flatMap((s) => s.cl))].sort((a, b) => a.localeCompare(b)));
   const have = $derived(new Set(charStore.current?.spells.map((s) => s.name.trim().toLowerCase())));
 
   $effect(() => {
@@ -53,7 +53,7 @@
     const c = charStore.current;
     const d = spellDamageDice(s, c?.level ?? 1);
     if (!d) return '';
-    return `${d.replace(/d/g, 'к')} ${s.dm?.t ?? ''}`.trim();
+    return `${dieText(d)} ${s.dm?.t ?? ''}`.trim();
   }
 
   function add(s: LibSpell, asAttack: boolean) {
@@ -120,7 +120,7 @@
                   <span class="nm serif">
                     {s.n}{#if have.has(s.n.trim().toLowerCase())}<span class="own"><Icon name="check" size={13} stroke={2.4} /></span>{/if}
                   </span>
-                  <span class="sb">{s.sc} · {s.ct} · {s.rg}{s.co ? ` · ${t('lib.concShort')}` : ''}</span>
+                  <span class="sb">{#if lang === 'uk'}<i>{s.en}</i> · {/if}{s.sc} · {s.ct} · {s.rg}{s.co ? ` · ${t('lib.concShort')}` : ''}</span>
                 </span>
                 {#if damageLine(s)}<span class="st num">{damageLine(s)}</span>{/if}
               </button>
@@ -131,7 +131,7 @@
           <button class="btn btn-outline more" onclick={() => (limit += PAGE)}>{t('lib.more', { n: list.length - limit })}</button>
         {/if}
       {/if}
-      <p class="credit">{SRD_CREDIT}</p>
+      <p class="credit">{t('lib.credit')}</p>
     {/if}
   </div>
 

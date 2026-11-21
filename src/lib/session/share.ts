@@ -7,6 +7,7 @@ import { journal } from '../stores/journal.svelte';
 import { codex } from '../stores/codex.svelte';
 import { charStore } from '../stores/characters.svelte';
 import { buildClaudeText, unsentSegments, segmentsWithText, type CodexNames } from './claude';
+import { t } from '../i18n';
 
 export type ShareResult = 'shared' | 'copied' | 'cancelled' | 'empty' | 'failed';
 
@@ -19,7 +20,8 @@ function names(): CodexNames {
 }
 
 function title(entry: JournalEntry): string {
-  return [entry.sessionNo != null ? `Сесія ${entry.sessionNo}` : '', entry.title].filter(Boolean).join(' · ') || 'Сесія';
+  const word = t('journal.kind.session');
+  return [entry.sessionNo != null ? `${word} ${entry.sessionNo}` : '', entry.title].filter(Boolean).join(' · ') || word;
 }
 
 export async function copyText(text: string): Promise<boolean> {

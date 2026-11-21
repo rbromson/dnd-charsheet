@@ -2,12 +2,12 @@
   /** Бібліотека предметів SRD 5.1: пошук, категорії, опис, додавання до спорядження (з вибором основи для «Зброя +1» тощо). */
   import SheetFrame from '../../components/SheetFrame.svelte';
   import Icon from '../../components/Icon.svelte';
-  import { loadItems, matches, RARITY_UK, SRD_CREDIT } from '../../lib/library';
+  import { loadItems, matches, rarityText } from '../../lib/library';
   import { addLibItem, fitsPick } from '../../lib/library/apply';
   import type { LibItem } from '../../lib/library/types';
   import { charStore } from '../../lib/stores/characters.svelte';
   import { ui } from '../../lib/stores/ui.svelte';
-  import { t } from '../../lib/i18n';
+  import { dieText, lang, t } from '../../lib/i18n';
   import { onMount } from 'svelte';
 
   type Cat = 'all' | 'weapon' | 'armor' | 'gear' | 'magic';
@@ -52,18 +52,23 @@
 
   function stats(e: LibItem): string {
     const bits: string[] = [];
-    if (e.w) bits.push(`${e.w.d.replace('d', 'к')} ${e.w.dt}`.trim());
-    if (e.ar) bits.push(e.ar.k === 'shield' ? `КО +${e.ar.b}` : `КО ${e.ar.b}${e.ar.dx === undefined ? ' + Впр' : e.ar.dx ? ` + Впр (макс. ${e.ar.dx})` : ''}`);
+    if (e.w) bits.push(`${dieText(e.w.d)} ${e.w.dt}`.trim());
+    if (e.ar)
+      bits.push(
+        e.ar.k === 'shield'
+          ? t('lib.st.acPlus', { n: e.ar.b })
+          : t('lib.st.ac', { n: e.ar.b }) + (e.ar.dx === undefined ? t('lib.st.dex') : e.ar.dx ? t('lib.st.dexMax', { n: e.ar.dx }) : ''),
+      );
     if (e.x?.b) bits.push(`+${e.x.b}`);
-    if (e.x?.ac) bits.push(`КО +${e.x.ac}`);
-    if (e.x?.sv) bits.push(`рятунки +${e.x.sv}`);
+    if (e.x?.ac) bits.push(t('lib.st.acPlus', { n: e.x.ac }));
+    if (e.x?.sv) bits.push(t('lib.st.saves', { n: e.x.sv }));
     if (e.x?.set) bits.push(`${t(`abilityShort.${e.x.set[0]}`)} ${e.x.set[1]}`);
     if (e.x?.ch) bits.push(t('lib.charges', { n: e.x.ch }));
     return bits.join(' · ');
   }
 
   function sub(e: LibItem): string {
-    if (e.c === 'magic') return [RARITY_UK[e.r ?? ''] ?? '', e.a ? t('lib.attune') : ''].filter(Boolean).join(' · ');
+    if (e.c === 'magic') return [rarityText(e.r), e.a ? t('lib.attune') : ''].filter(Boolean).join(' · ');
     return [e.k, e.cost].filter(Boolean).join(' · ');
   }
 
@@ -84,14 +89,14 @@
       <div class="meta">
         <span class="en">{e.en}</span>
         <span class="kind">{e.k}</span>
-        {#if e.r}<span class="tag rar rar-{e.r}">{RARITY_UK[e.r]}</span>{/if}
+        {#if e.r}<span class="tag rar rar-{e.r}">{rarityText(e.r)}</span>{/if}
         {#if e.a}<span class="tag att">{t('lib.attune')}</span>{/if}
       </div>
       {#if stats(e)}<div class="stats num">{stats(e)}</div>{/if}
       {#if e.w}
         <div class="facts">
           {#if e.w.p.length}<span>{e.w.p.join(', ')}</span>{/if}
-          {#if e.w.v}<span>{t('lib.versatile', { d: e.w.v.replace('d', 'к') })}</span>{/if}
+          {#if e.w.v}<span>{t('lib.versatile', { d: dieText(e.w.v) })}</span>{/if}
           {#if e.w.rn}<span>{t('lib.range', { r: e.w.rn })}</span>{/if}
           <span>{e.w.m ? t('lib.martial') : t('lib.simple')}</span>
         </div>
@@ -142,7 +147,7 @@
                     {#if e.c === 'magic'}<span class="spark"><Icon name="sparkle" size={13} stroke={2} /></span>{/if}{e.n}
                     {#if owned.has(e.id)}<span class="own"><Icon name="check" size={13} stroke={2.4} /></span>{/if}
                   </span>
-                  <span class="sb">{sub(e)}</span>
+                  <span class="sb">{#if lang === 'uk'}<i class="enn">{e.en}</i> · {/if}{sub(e)}</span>
                 </span>
                 {#if stats(e)}<span class="st num">{stats(e)}</span>{/if}
               </button>
@@ -153,7 +158,7 @@
           <button class="btn btn-outline more" onclick={() => (limit += PAGE)}>{t('lib.more', { n: list.length - limit })}</button>
         {/if}
       {/if}
-      <p class="credit">{SRD_CREDIT}</p>
+      <p class="credit">{t('lib.credit')}</p>
     {/if}
   </div>
 
@@ -225,6 +230,9 @@
   .own {
     color: var(--good);
     margin-left: 6px;
+  }
+  .enn {
+    font-style: italic;
   }
   .sb {
     font-size: 12.5px;
