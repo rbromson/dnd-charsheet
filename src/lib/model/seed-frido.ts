@@ -35,8 +35,9 @@ export function fridoSeed(): { character: Character; codex: Omit<CodexEntry, 'ch
   c.resources = [
     { id: uid(), name: 'Кубики завзятості', max: 8, current: 8, die: 'd4', recharge: 'short', maxPerRoll: 3 },
   ];
+  const panId = uid();
   c.attacks = [
-    { id: uid(), name: 'Сковорідка', ability: 'wis', prof: true, bonus: 0, override: null, damage: '1d6+МОД', damageType: 'дробильне', note: '' },
+    { id: uid(), name: 'Сковорідка', ability: 'wis', prof: true, bonus: 0, override: null, damage: '1d6+МОД', damageType: 'дробильне', note: '', itemId: panId },
   ];
   c.features = [
     { id: uid(), name: 'Трактирник', text: 'Ремесло класу Commoner. Опишіть тут, що вміє Фридо.' },
@@ -44,7 +45,7 @@ export function fridoSeed(): { character: Character; codex: Omit<CodexEntry, 'ch
   ];
   c.equipment = [
     { id: uid(), name: 'Колода ілюзій', qty: 1, text: 'Магічний предмет. Карти можна вести як колоду на цій же вкладці.', magic: true },
-    { id: uid(), name: 'Сковорідка', qty: 1, text: '', magic: false },
+    { id: panId, name: 'Сковорідка', qty: 1, text: '', magic: false },
   ];
   c.decks = [{ id: uid(), name: 'Колода ілюзій', cards: [], drawn: [] }];
   c.proficiencies = 'Мови: загальна, мова напіврослих.';

@@ -39,7 +39,7 @@
 
   function add() {
     const id = uid();
-    c.attacks.push({ id, name: t('combat.atkNew'), ability: 'str', prof: true, bonus: 0, override: null, damage: '1d6+МОД', damageType: '', note: '' });
+    c.attacks.push({ id, name: t('combat.atkNew'), ability: 'str', prof: true, bonus: 0, override: null, damage: '1d6+МОД', damageType: '', note: '', itemId: null });
     open(id);
   }
 

@@ -59,6 +59,8 @@ export interface Attack extends Tweak {
   damage: string;
   damageType: string;
   note: string;
+  /** Если атака создана из предмета снаряжения (оружие) — его id; имя синхронизируется с предметом */
+  itemId: string | null;
 }
 
 export type Recharge = 'short' | 'long' | 'manual';

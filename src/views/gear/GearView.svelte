@@ -4,6 +4,7 @@
   import RowActions from '../../components/RowActions.svelte';
   import NumberField from '../../components/NumberField.svelte';
   import ItemSheet from './ItemSheet.svelte';
+  import { removeItem as removeItemWithAttack } from '../../lib/rules/weapons';
   import CoinSheet from './CoinSheet.svelte';
   import DeckSheet from './DeckSheet.svelte';
   import DeckCard from './DeckCard.svelte';
@@ -43,7 +44,7 @@
     if (!ok) return;
     charStore.update(
       (ch) => {
-        ch.equipment = ch.equipment.filter((x) => x.id !== id);
+        removeItemWithAttack(ch, id);
       },
       { undo: t('gear.deleted', { name }) },
     );
@@ -73,11 +74,11 @@
                 <button
                   class="name"
                   use:press={{ onTap: () => tapItem(it.id), onLong: () => itemSheet(it.id) }}
-                  onclick={(e) => {
-                    if (e.detail === 0) tapItem(it.id);
-                  }}
                 >
                   <span class="nm serif" class:unnamed={!it.name.trim()}>{it.name.trim() || t('gear.unnamed')}</span>
+                  {#if c.attacks.some((a) => a.itemId === it.id)}
+                    <span class="weapon" title={t('gear.weaponIn')}><Icon name="combat" size={15} /></span>
+                  {/if}
                   {#if it.magic}
                     <span class="magic"><Icon name="sparkle" size={14} stroke={2} />{t('gear.magic')}</span>
                   {/if}
@@ -149,6 +150,10 @@
 {/if}
 
 <style>
+  .weapon {
+    display: inline-flex;
+    color: var(--ink2);
+  }
   @container (min-width: 1040px) {
     .equip {
       grid-column: span 2;

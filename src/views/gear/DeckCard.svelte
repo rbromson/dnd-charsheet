@@ -61,9 +61,6 @@
       <button
         class="hd grow"
         use:press={{ onTap: () => ui.editing && settings(), onLong: settings }}
-        onclick={(e) => {
-          if (e.detail === 0 && ui.editing) settings();
-        }}
       >
         <span class="nm serif">{deck.name.trim() || t('gear.unnamed')}</span>
         <span class="sub">{t('gear.deckLeft', { left, total })}</span>

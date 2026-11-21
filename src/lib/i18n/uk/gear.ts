@@ -57,4 +57,8 @@ export default {
   'gear.deleteDeckConfirm': 'Видалити колоду «{name}»?',
   'gear.deleted': 'Видалено «{name}»',
   'gear.deckDeleted': 'Колоду видалено',
+  'gear.weaponToggle': 'Зброя — показувати в атаках',
+  'gear.weaponIn': 'Є на вкладці «Бій» як атака',
+  'gear.weaponSetup': 'Налаштувати атаку',
+  'gear.weaponRemoved': 'Прибрано з атак',
 } satisfies Record<string, string>;

@@ -133,9 +133,6 @@
             <button
               class="name"
               use:press={{ onTap: () => tapSpell(s.id), onLong: () => edit(s.id) }}
-              onclick={(e) => {
-                if (e.detail === 0) tapSpell(s.id);
-              }}
             >
               <span class="nm serif" class:unnamed={!s.name.trim()}>{s.name.trim() || t('spells.unnamed')}</span>
               {#if !ui.editing && s.text.trim()}

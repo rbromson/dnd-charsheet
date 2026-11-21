@@ -8,10 +8,27 @@
   import { charStore } from '../../lib/stores/characters.svelte';
   import { ui } from '../../lib/stores/ui.svelte';
   import { t } from '../../lib/i18n';
+  import { linkedAttack, addWeaponAttack, removeWeaponAttack, removeItem, syncWeaponName } from '../../lib/rules/weapons';
+  import { attackBonus, resolveDamageFormula, fmt } from '../../lib/rules/calc';
+  import AttackSheet from '../combat/AttackSheet.svelte';
 
   let { id }: { id: string } = $props();
 
   const item = $derived(charStore.current?.equipment.find((x) => x.id === id));
+  const atk = $derived(charStore.current ? linkedAttack(charStore.current, id) : undefined);
+
+  // имя атаки следует за именем предмета
+  $effect(() => {
+    void item?.name;
+    if (charStore.current && atk) syncWeaponName(charStore.current, id);
+  });
+
+  function setWeapon(on: boolean) {
+    const c = charStore.current;
+    if (!c || !item) return;
+    if (on) addWeaponAttack(c, item);
+    else charStore.update((ch) => removeWeaponAttack(ch, id), { undo: t('gear.weaponRemoved') });
+  }
 
   async function remove() {
     if (!item) return;
@@ -21,7 +38,7 @@
     ui.closeSheet();
     charStore.update(
       (ch) => {
-        ch.equipment = ch.equipment.filter((x) => x.id !== id);
+        removeItem(ch, id);
       },
       { undo: t('gear.deleted', { name }) },
     );
@@ -36,6 +53,16 @@
       <Stepper bind:value={item.qty} min={0} max={9999} />
     </div>
     <Toggle bind:checked={item.magic} label={t('gear.magicToggle')} />
+    <Toggle checked={!!atk} label={t('gear.weaponToggle')} onchange={setWeapon} />
+    {#if atk && charStore.current}
+      <div class="weapon">
+        <span class="grow">
+          <span class="wl">{t('gear.weaponIn')}</span>
+          <span class="num">⚔ {fmt(attackBonus(charStore.current, atk))} · {resolveDamageFormula(charStore.current, atk)}{atk.damageType ? ` ${atk.damageType}` : ''}</span>
+        </span>
+        <button class="btn btn-outline" onclick={() => ui.openSheet(AttackSheet, { id: atk.id })}><Icon name="combat" size={18} />{t('gear.weaponSetup')}</button>
+      </div>
+    {/if}
     <TextField bind:value={item.text} label={t('gear.itemText')} placeholder={t('gear.itemTextPlaceholder')} multiline rows={6} serif />
 
     {#snippet footer()}
@@ -47,6 +74,23 @@
 {/if}
 
 <style>
+  .weapon {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(42, 31, 23, 0.07);
+    flex-wrap: wrap;
+  }
+  .wl {
+    display: block;
+    font-size: 12px;
+    color: var(--ink2);
+  }
+  .weapon .num {
+    font-size: 17px;
+  }
   .qty .label {
     margin: 0;
   }

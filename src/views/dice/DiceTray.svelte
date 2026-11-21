@@ -105,7 +105,6 @@
             class:on={n > 0}
             aria-label={n > 0 ? t('dice.tray.count', { die: `d${d}`, n }) : `d${d}`}
             use:press={{ onTap: () => addDie(d), onLong: () => clearDie(d) }}
-            onclick={(e) => e.detail === 0 && addDie(d)}
           >
             d{d}
             {#if n > 0}<sup>×{n}</sup>{/if}
