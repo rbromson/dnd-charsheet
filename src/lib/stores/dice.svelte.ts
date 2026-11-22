@@ -21,7 +21,7 @@ export interface CheckRequest {
 
 export type RollEntry =
   | { id: string; at: number; type: 'd20'; label: string; request: CheckRequest; roll: D20Roll; spent: Record<string, number> }
-  | { id: string; at: number; type: 'formula'; label: string; roll: FormulaRoll };
+  | { id: string; at: number; type: 'formula'; label: string; roll: FormulaRoll; /** без «Ще раз» (кубик здоров'я) */ once?: boolean };
 
 class DiceStore {
   /** Режим следующего броска d20; сбрасывается после броска */
@@ -83,9 +83,9 @@ class DiceStore {
     return e;
   }
 
-  rollDamage(label: string, formula: string, crit = false): RollEntry {
+  rollDamage(label: string, formula: string, crit = false, once = false): RollEntry {
     const roll = rollFormula(formula, { rng: cryptoRng, crit });
-    const e: RollEntry = { id: uid(), at: Date.now(), type: 'formula', label, roll };
+    const e: RollEntry = { id: uid(), at: Date.now(), type: 'formula', label, roll, ...(once ? { once } : {}) };
     this.#push(e);
     buzz(20);
     return e;

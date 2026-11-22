@@ -1,6 +1,8 @@
 <script lang="ts">
   import NavRail from './components/NavRail.svelte';
   import DiceFab from './components/DiceFab.svelte';
+  import RestFab from './components/RestFab.svelte';
+  import RestTray from './views/rest/RestTray.svelte';
   import CharacterSwitcher from './components/CharacterSwitcher.svelte';
   import SheetHost from './components/SheetHost.svelte';
   import Confirm from './components/Confirm.svelte';
@@ -72,11 +74,12 @@
     {/if}
   </main>
 </div>
-{#if charStore.current && (ui.tab === 'sheet' || ui.tab === 'combat')}<DiceFab />{/if}
+{#if charStore.current && (ui.tab === 'sheet' || ui.tab === 'combat' || ui.tab === 'spells')}<RestFab /><DiceFab />{/if}
 {/if}
 
 <CharacterSwitcher />
 <DiceTray />
+<RestTray />
 <QuickNote />
 <SheetHost />
 <RollPrompt />
@@ -96,7 +99,7 @@
     overflow-y: auto;
     overflow-x: hidden;
     padding-right: env(safe-area-inset-right);
-    padding-bottom: 96px;
+    padding-bottom: 170px;
   }
   @media (max-width: 640px) {
     .shell {
@@ -104,7 +107,7 @@
     }
     main {
       height: 100dvh;
-      padding-bottom: calc(64px + 84px + env(safe-area-inset-bottom));
+      padding-bottom: calc(64px + 160px + env(safe-area-inset-bottom));
     }
   }
 </style>

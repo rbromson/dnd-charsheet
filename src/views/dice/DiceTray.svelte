@@ -4,7 +4,6 @@
    * Ровно один d20 бросается как проверка (перевага/перешкода, крит, кості ресурсів);
    * любой другой набор — свободная формула через dice.rollFree.
    */
-  import Icon from '../../components/Icon.svelte';
   import Stepper from '../../components/Stepper.svelte';
   import RollModeToggle from '../../components/RollModeToggle.svelte';
   import { press } from '../../lib/actions/press';
@@ -14,6 +13,7 @@
   import { TRAY_DICE, trayFormula, trayFormulaAscii, isSingleD20, historyValue } from './format';
   import { shapeFor } from './DieShape.svelte';
   import DiceOverlay from './DiceOverlay.svelte';
+  import Tray from '../../components/Tray.svelte';
 
   const MAX_PER_DIE = 20;
   const RING_C = 2 * Math.PI * 112;
@@ -96,15 +96,7 @@
 </script>
 
 {#if ui.diceTrayOpen}
-  <aside class="tray" aria-label={t('dice.tray.title')}>
-    <header>
-      <h2 class="sc">{t('dice.tray.title')}</h2>
-      <button class="icon-btn" aria-label={t('dice.close')} onclick={closeTray}>
-        <Icon name="close" />
-      </button>
-    </header>
-
-    <div class="body">
+  <Tray title={t('dice.tray.title')} onclose={closeTray}>
       <!-- результат броска — здесь же, вместо выбора костей -->
       <DiceOverlay embedded />
       {#if !(dice.overlayOpen && dice.last)}
@@ -183,67 +175,10 @@
         {/if}
       </div>
       {/if}
-    </div>
-  </aside>
+  </Tray>
 {/if}
 
 <style>
-  .tray {
-    position: fixed;
-    right: 12px;
-    bottom: 12px;
-    width: 396px;
-    /* постоянная высота: выбор костей и результат броска не прыгают */
-    height: min(540px, calc(100dvh - 24px));
-    z-index: 35;
-    display: flex;
-    flex-direction: column;
-    background:
-      radial-gradient(circle at 50% 55%, rgba(232, 116, 59, 0.14), transparent 45%),
-      var(--leather);
-    background-size: 100% 100%, var(--leather-size);
-    border: 1px solid #0a0605;
-    border-radius: 20px;
-    box-shadow:
-      var(--leather-shadow),
-      var(--shadow-pop);
-    overflow: hidden;
-    animation: tray-in 0.22s cubic-bezier(0.2, 0.9, 0.3, 1) both;
-  }
-  header {
-    display: flex;
-    align-items: center;
-    padding: 6px 6px 0 18px;
-  }
-  h2 {
-    flex: 1;
-    font-size: 19px;
-    letter-spacing: 0.03em;
-    color: var(--parch);
-    text-shadow: 0 0 20px rgba(232, 116, 59, 0.25);
-  }
-  .icon-btn {
-    width: var(--tap);
-    height: var(--tap);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 12px;
-    color: var(--muted);
-  }
-  .body {
-    flex: 1;
-    min-height: 0;
-    overflow-x: hidden;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    padding: 4px 14px 14px;
-  }
-
   .dsel {
     display: flex;
     gap: 4px;
@@ -496,25 +431,7 @@
   }
 
   /* Книжная / узкая: нижний лист на всю ширину */
-  @media (max-width: 760px), (orientation: portrait) {
-    .tray {
-      left: 0;
-      right: 0;
-      bottom: 0;
-      width: auto;
-      height: min(580px, 78dvh);
-      min-height: 0;
-      border-radius: 22px 22px 0 0;
-      border-bottom: none;
-      padding-bottom: env(safe-area-inset-bottom);
-      animation-name: sheet-in;
-    }
-    .body {
-      width: 100%;
-      max-width: 560px;
-      margin: 0 auto;
-    }
-  }
+
   /* Низкий экран: кнопка поменьше */
   @media (max-height: 640px) {
     .hold {
@@ -576,18 +493,6 @@
     }
     100% {
       transform: translate(0, 0) rotate(0);
-    }
-  }
-  @keyframes tray-in {
-    from {
-      opacity: 0;
-      transform: translate3d(24px, 0, 0);
-    }
-  }
-  @keyframes sheet-in {
-    from {
-      transform: translate3d(0, 40px, 0);
-      opacity: 0;
     }
   }
 </style>

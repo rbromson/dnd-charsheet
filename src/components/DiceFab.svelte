@@ -9,7 +9,7 @@
   import { t } from '../lib/i18n';
 </script>
 
-{#if !ui.diceTrayOpen}
+{#if !ui.diceTrayOpen && !ui.restOpen}
   <button class="fab" aria-label={t('nav.dice')} title={t('nav.dice')} onclick={() => (ui.diceTrayOpen = true)}>
     <span class="side" aria-hidden="true"></span>
     <span class="body" aria-hidden="true">

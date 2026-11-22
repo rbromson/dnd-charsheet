@@ -20,8 +20,8 @@
   type Phase = 'idle' | 'spin' | 'add';
 
   let { embedded = false }: { embedded?: boolean } = $props();
-  /** Этот экземпляр показывает броски: встроенный — всегда, отдельное окно — только при закрытом лотке. */
-  const active = $derived(embedded || !ui.diceTrayOpen);
+  /** Этот экземпляр показывает броски: встроенный — всегда, отдельное окно — только когда не открыт ни один лоток. */
+  const active = $derived(embedded || !(ui.diceTrayOpen || ui.restOpen));
 
   const SPIN_MS = 720;
   const ADD_MS = 480;
@@ -425,7 +425,7 @@
             <span class="pv num">{damagePreview}</span>
           </button>
         {/if}
-        {#if !(entry.type === 'd20' && entry.request.kind === 'death')}
+        {#if !(entry.type === 'd20' && entry.request.kind === 'death') && !(entry.type === 'formula' && entry.once)}
           <button class="act sec" onclick={again}>{t('dice.again')}</button>
         {/if}
         <button class="act sec done" onclick={() => dice.close()}>{t('dice.done')}</button>

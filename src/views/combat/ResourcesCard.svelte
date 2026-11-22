@@ -1,5 +1,5 @@
 <script lang="ts">
-  /** Ресурсы (пипсы / степпер) и кнопки отдыха. */
+  /** Ресурсы (пипсы / степпер). Восстанавливаются в лотке «Привал» (RestTray). */
   import Stepper from '../../components/Stepper.svelte';
   import RowActions from '../../components/RowActions.svelte';
   import Icon from '../../components/Icon.svelte';
@@ -8,10 +8,9 @@
   import { press } from '../../lib/actions/press';
   import { charStore } from '../../lib/stores/characters.svelte';
   import { ui, buzz } from '../../lib/stores/ui.svelte';
-  import { applyRest, restPreview, type RestKind } from '../../lib/rules/rest';
   import { uid } from '../../lib/model/ids';
   import { move } from '../../lib/list';
-  import { has, t } from '../../lib/i18n';
+  import { t } from '../../lib/i18n';
 
   const c = $derived(charStore.current!);
 
@@ -61,20 +60,6 @@
       },
       { undo: t('common.deleted', { name }) },
     );
-  }
-
-  async function rest(kind: RestKind) {
-    const preview = restPreview(c, kind).map(([k, v]) => {
-      const key = `combat.restKey.${k}`;
-      return `${['hp', 'temp', 'hitDice', 'slots'].includes(k) && has(key) ? t(key) : k}: ${v}`;
-    });
-    const ok = await ui.confirm(t(kind === 'short' ? 'combat.restAskShort' : 'combat.restAskLong'), {
-      okLabel: t('combat.restOk'),
-      details: preview.length ? preview : [t('combat.restNothing')],
-    });
-    if (!ok) return;
-    charStore.update((ch) => applyRest(ch, kind), { undo: t(kind === 'short' ? 'combat.restDoneShort' : 'combat.restDoneLong') });
-    buzz([15, 40, 15]);
   }
 </script>
 
@@ -127,10 +112,9 @@
     <button class="btn btn-outline add" onclick={add}><Icon name="plus" size={20} />{t('common.add')}</button>
   {/if}
 
-  <div class="rest">
-    <button class="btn btn-outline" onclick={() => rest('short')}><Icon name="coffee" size={20} />{t('combat.restShort')}</button>
-    <button class="btn btn-outline" onclick={() => rest('long')}><Icon name="moon" size={20} />{t('combat.restLong')}</button>
-  </div>
+  {#if c.resources.some((r) => r.recharge !== 'manual')}
+    <p class="rest-hint"><Icon name="coffee" size={16} />{t('combat.restHint')}</p>
+  {/if}
 </section>
 
 <style>
@@ -214,17 +198,17 @@
   .add {
     margin-top: 10px;
   }
-  .rest {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-top: 12px;
+  .rest-hint {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 10px 0 0;
+    font-size: 12.5px;
+    color: var(--ink2);
   }
-  .rest .btn {
-    min-height: 52px;
-    font-size: 14px;
-    padding: 4px 10px;
-    line-height: 1.2;
-    text-align: center;
+  .rest-hint :global(svg) {
+    flex-shrink: 0;
+    color: var(--ember);
   }
+
 </style>

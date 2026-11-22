@@ -17,7 +17,7 @@ export default {
   'spells.levelN': '{n} рівень',
   'spells.slotsTotal': 'Усього слотів',
   'spells.slotsUsed': 'Витрачено слотів',
-  'spells.slotsLeft': 'вільно {left} з {total}',
+  'spells.slotsLeft': 'вільно {left} з {total} · ↻ довгий відпочинок',
   'spells.noSlots': 'немає слотів',
   'spells.slotSpent': 'Витрачено слот {n} рівня',
   'spells.slotRestored': 'Повернуто слот {n} рівня',

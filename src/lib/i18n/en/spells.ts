@@ -17,7 +17,7 @@ export default {
   'spells.levelN': 'Level {n}',
   'spells.slotsTotal': 'Total slots',
   'spells.slotsUsed': 'Slots expended',
-  'spells.slotsLeft': '{left} of {total} left',
+  'spells.slotsLeft': '{left} of {total} left · ↻ long rest',
   'spells.noSlots': 'no slots',
   'spells.slotSpent': 'Level {n} slot expended',
   'spells.slotRestored': 'Level {n} slot restored',

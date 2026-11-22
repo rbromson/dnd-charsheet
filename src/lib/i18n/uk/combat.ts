@@ -22,8 +22,7 @@ export default {
 
   // кубики здоров'я
   'combat.hitDice': "Кубики здоров'я",
-  'combat.hitDiceSub': 'залишилось {left} з {total} · довгий відпочинок повертає половину',
-  'combat.spend': 'Витратити',
+  'combat.hitDiceSub': 'залишилось {left} з {total} · тратяться на короткому привалі, довгий повертає половину',
   'combat.hitDieLabel': "Кубик здоров'я",
   'combat.hitDieToast': "Кубик здоров'я: +{n} ({from} → {to})",
   'combat.die': 'Кубик',
@@ -62,10 +61,6 @@ export default {
 
   // відпочинок
   'combat.rest': 'Відпочинок',
-  'combat.restShort': 'Короткий відпочинок',
-  'combat.restLong': 'Довгий відпочинок',
-  'combat.restAskShort': 'Короткий відпочинок?',
-  'combat.restAskLong': 'Довгий відпочинок?',
   'combat.restNothing': 'Нічого не відновиться',
   'combat.restOk': 'Відпочити',
   'combat.restDoneShort': 'Короткий відпочинок',
@@ -103,5 +98,15 @@ export default {
   'combat.atkRoll': 'Атака',
   'combat.atkDamageLabel': '{name}: шкода',
 
-  // кубики
+  // привал
+  'combat.restHint': 'Відновлюються на привалі — кнопка з вогнищем унизу екрана.',
+  'rest.title': 'Привал',
+  'rest.short': 'Короткий',
+  'rest.long': 'Довгий',
+  'rest.shortAbout': 'Година перепочинку: можна витратити кубики здоров’я, відновлюються ресурси «будь-який відпочинок».',
+  'rest.longAbout': 'Вісім годин сну: повне здоров’я, половина кубиків здоров’я, усі слоти й ресурси.',
+  'rest.restores': 'Відновиться',
+  'rest.hpNow': 'здоров’я {cur} з {max}',
+  'rest.roll': 'Кинути {f}',
+  'rest.go': 'Відпочити',
 } satisfies Record<string, string>;

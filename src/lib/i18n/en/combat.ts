@@ -22,8 +22,7 @@ export default {
 
   // hit dice
   'combat.hitDice': 'Hit Dice',
-  'combat.hitDiceSub': '{left} of {total} left · a long rest restores half',
-  'combat.spend': 'Spend',
+  'combat.hitDiceSub': '{left} of {total} left · spent during a short rest, a long rest restores half',
   'combat.hitDieLabel': 'Hit Die',
   'combat.hitDieToast': 'Hit Die: +{n} ({from} → {to})',
   'combat.die': 'Die',
@@ -62,10 +61,6 @@ export default {
 
   // rest
   'combat.rest': 'Rest',
-  'combat.restShort': 'Short rest',
-  'combat.restLong': 'Long rest',
-  'combat.restAskShort': 'Take a short rest?',
-  'combat.restAskLong': 'Take a long rest?',
   'combat.restNothing': 'Nothing will be restored',
   'combat.restOk': 'Rest',
   'combat.restDoneShort': 'Short rest',
@@ -103,5 +98,15 @@ export default {
   'combat.atkRoll': 'Attack',
   'combat.atkDamageLabel': '{name}: damage',
 
-  // dice
+  // привал
+  'combat.restHint': 'Restored at a rest — the campfire button at the bottom of the screen.',
+  'rest.title': 'Rest',
+  'rest.short': 'Short',
+  'rest.long': 'Long',
+  'rest.shortAbout': 'An hour of downtime: you can spend Hit Dice; “any rest” resources recharge.',
+  'rest.longAbout': 'Eight hours of sleep: full HP, half your Hit Dice, all slots and resources.',
+  'rest.restores': 'Will restore',
+  'rest.hpNow': 'HP {cur} of {max}',
+  'rest.roll': 'Roll {f}',
+  'rest.go': 'Rest',
 } satisfies Record<string, string>;
