@@ -9,6 +9,19 @@
   import { pickFiles } from '../lib/stores/media';
   import { t } from '../lib/i18n';
   import { deliverFile, templateFile } from '../lib/template';
+  import { digestFor } from '../lib/digest';
+  import { shareOrCopy } from '../lib/session/share';
+  import { journal } from '../lib/stores/journal.svelte';
+  import { codex } from '../lib/stores/codex.svelte';
+
+  async function exportForAi(id: string) {
+    menuFor = null;
+    await Promise.all([charStore.flush(), journal.flush(), codex.flush()]);
+    const { name, text } = await digestFor(id);
+    const r = await shareOrCopy(text, name || t('chars.unnamed'));
+    if (r === 'copied') ui.toast(t('chars.aiCopied'));
+    else if (r === 'failed') ui.toast(t('session.claude.failed'));
+  }
   import { fly, fade } from 'svelte/transition';
 
   let menuFor = $state<string | null>(null);
@@ -80,6 +93,7 @@
           <div class="menu" transition:fade={{ duration: 100 }}>
             <button onclick={() => charStore.duplicate(c.id).then(() => (menuFor = null))}><Icon name="copy" size={20} />{t('chars.duplicate')}</button>
             <button onclick={() => doExport(c.id)}><Icon name="share" size={20} />{t('chars.export')}</button>
+            <button onclick={() => exportForAi(c.id)}><Icon name="sparkle" size={20} />{t('chars.exportAi')}</button>
             <button class="danger" onclick={() => remove(c.id, c.name)}><Icon name="trash" size={20} />{t('chars.delete')}</button>
           </div>
         {/if}

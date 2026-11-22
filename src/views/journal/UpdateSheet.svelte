@@ -11,6 +11,9 @@
   import { ui } from '../../lib/stores/ui.svelte';
   import { pickFiles } from '../../lib/stores/media';
   import { buildUpdatePrompt } from '../../lib/update-prompt';
+  import { historyForPrompt } from '../../lib/digest';
+  import Toggle from '../../components/Toggle.svelte';
+  import { lang } from '../../lib/i18n';
   import { extractJson, parseUpdate, planUpdate, applyOps, type Op } from '../../lib/update';
   import { loadItems } from '../../lib/library';
   import type { LibItem } from '../../lib/library/types';
@@ -19,6 +22,7 @@
   import { jv } from './state.svelte';
 
   let raw = $state('');
+  let withHistory = $state(true);
   let ops = $state<Op[] | null>(null);
   let on = $state<Record<string, boolean>>({});
   let lib: LibItem[] = [];
@@ -27,7 +31,7 @@
   const chosen = $derived(ops ? ops.filter((o) => on[o.id]) : []);
 
   function prompt() {
-    return buildUpdatePrompt(c, codex.items);
+    return buildUpdatePrompt(c, codex.items, '', lang, withHistory ? historyForPrompt(codex.items, journal.entries) : '');
   }
   async function share() {
     const r = await shareOrCopy(prompt(), t('upd.title'));
@@ -145,6 +149,7 @@
     <section class="step">
       <h3 class="card-title">{t('upd.step1')}</h3>
       <p class="hint">{t('upd.step1Hint')}</p>
+      <Toggle bind:checked={withHistory} label={t('upd.withHistory')} />
       <div class="row">
         <button class="btn btn-ink grow" onclick={share}><Icon name="share" size={18} />{t('upd.share')}</button>
         <button class="btn btn-outline" onclick={copy}><Icon name="copy" size={18} />{t('upd.copy')}</button>

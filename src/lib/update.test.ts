@@ -113,3 +113,31 @@ describe('оновлення персонажа від ШІ', () => {
     expect(buildUpdatePrompt(c, codex, 'купили зілля', 'uk')).toContain('купили зілля');
   });
 });
+
+import { characterDigest, historyForPrompt } from './digest';
+
+describe('історія персонажа для ШІ', () => {
+  it('зведення містить лист, спорядження, довідник і журнал без розмітки згадок', () => {
+    const { c, codex } = setup();
+    const journal: JournalEntry[] = [
+      { id: 'j1', characterId: c.id, kind: 'session', sessionNo: 1, date: '2026-11-21', title: 'Перша', text: 'Ми зустріли @[Незнайомець у сірому плащі].', secret: 'таємниця', pinned: false, images: [], transcript: [], createdAt: '1', updatedAt: '1' },
+    ];
+    const d = characterDigest(c, codex, journal, 'uk');
+    expect(d).toContain('# Фрідо Брецель');
+    expect(d).toContain('Болти для арбалета ×20');
+    expect(d).toContain('**Три підкови**');
+    expect(d).toContain('### Сесія 1 · 2026-11-21 · Перша');
+    expect(d).toContain('Ми зустріли Незнайомець у сірому плащі.');
+    expect(d).not.toContain('@[');
+    expect(d).not.toContain('таємниця');
+  });
+
+  it('інструкція з історією просить не створювати дублікати', () => {
+    const { c, codex } = setup();
+    const h = historyForPrompt(codex, [], 'uk');
+    const p = buildUpdatePrompt(c, codex, '', 'uk', h);
+    expect(p).toContain('Не створюй дублікатів');
+    expect(p).toContain('Побачити свій трактир');
+    expect(historyForPrompt([], [], 'uk')).toBe('');
+  });
+});

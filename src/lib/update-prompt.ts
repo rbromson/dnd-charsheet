@@ -58,8 +58,11 @@ const T: Record<Lang, { intro: string; rules: string[]; ctx: string; inv: string
   },
 };
 
-/** Полный текст для ШІ. transcript — уже распознанные нотатки; без него — просьба расшифровать приложенную запись. */
-export function buildUpdatePrompt(c: Character, codex: CodexEntry[], transcript = '', language: Lang = lang): string {
+/**
+ * Полный текст для ШІ. transcript — уже распознанные нотатки; без него — просьба расшифровать приложенную запись.
+ * history — блок «що вже відомо» (довідник + журнал), см. historyForPrompt.
+ */
+export function buildUpdatePrompt(c: Character, codex: CodexEntry[], transcript = '', language: Lang = lang, history = ''): string {
   const L = T[language];
   const lines: string[] = [L.intro, '', FORMAT, ''];
   L.rules.forEach((r, i) => lines.push(`${i + 1}. ${r.replace('{today}', todayDate())}`));
@@ -73,6 +76,7 @@ export function buildUpdatePrompt(c: Character, codex: CodexEntry[], transcript 
     const names = codex.filter((x) => x.kind === kind).map((x) => x.name);
     if (names.length) lines.push(`${L.known[kind]}: ${names.join(', ')}.`);
   }
+  if (history.trim()) lines.push('', history.trim());
   lines.push('');
   if (transcript.trim()) {
     lines.push(L.transcript);

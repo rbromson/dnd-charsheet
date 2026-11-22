@@ -16,6 +16,8 @@
   import { clock, unsentSegments, segmentsWithText } from '../../lib/session/claude';
   import { shareToClaude, copyTranscript, shareOrCopy } from '../../lib/session/share';
   import { buildUpdatePrompt } from '../../lib/update-prompt';
+  import { historyForPrompt } from '../../lib/digest';
+  import { lang } from '../../lib/i18n';
   import { transcriptLines } from '../../lib/session/claude';
   import { charStore } from '../../lib/stores/characters.svelte';
   import { codex } from '../../lib/stores/codex.svelte';
@@ -139,7 +141,8 @@
   async function sortIntoSheet() {
     const c = charStore.current;
     if (!c) return;
-    const text = buildUpdatePrompt(c, codex.items, transcriptLines(segmentsWithText(entry)));
+    const others = journal.entries.filter((e) => e.id !== entry.id);
+    const text = buildUpdatePrompt(c, codex.items, transcriptLines(segmentsWithText(entry)), lang, historyForPrompt(codex.items, others));
     const r = await shareOrCopy(text, t('upd.title'));
     if (r === 'shared' || r === 'copied') ui.toast(t('upd.fromSessionDone'), undefined, 8000);
     else if (r === 'failed') ui.toast(t('session.claude.failed'));
