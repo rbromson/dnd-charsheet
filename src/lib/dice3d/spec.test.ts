@@ -1,29 +1,29 @@
 import { describe, it, expect } from 'vitest';
-import { expandSpecs, percentParts, PERCENT_LABELS, UNIT_LABELS } from './spec';
+import { expandSpecs, PERCENT_LABELS } from './spec';
+import { rollFormula } from '../dice/formula';
+import { seqRng } from '../dice/rng';
 
-describe('d100 як два d10', () => {
-  const show = (v: number) => {
-    const { tens, units } = percentParts(v);
-    return `${PERCENT_LABELS[tens]}+${UNIT_LABELS[units]}`;
-  };
-  it('десятки 00–90 і одиниці 0–9; «00»+«0» = 100', () => {
-    expect(show(100)).toBe('00+0');
-    expect(show(1)).toBe('00+1');
-    expect(show(10)).toBe('10+0');
-    expect(show(47)).toBe('40+7');
-    expect(show(99)).toBe('90+9');
+describe('d100 — процентна кістка', () => {
+  it('показує лише десятки 00–90', () => {
+    expect(PERCENT_LABELS).toEqual(['00', '10', '20', '30', '40', '50', '60', '70', '80', '90']);
+    const phys = expandSpecs([{ sides: 100, value: 70 }]);
+    expect(phys).toHaveLength(1);
+    expect(phys[0]).toMatchObject({ sides: 10, tone: 'wine' });
+    expect(phys[0].labels[phys[0].face]).toBe('70');
+    expect(expandSpecs([{ sides: 100, value: 0 }])[0].labels[0]).toBe('00');
   });
-  it('кожне значення 1–100 розкладається однозначно', () => {
-    const seen = new Set<string>();
-    for (let v = 1; v <= 100; v++) seen.add(show(v));
-    expect(seen.size).toBe(100);
+
+  it('кидок d100 дає 0, 10 … 90; з d10 — 1…100', () => {
+    for (let k = 1; k <= 10; k++) {
+      const r = rollFormula('1d100', { rng: seqRng([k]) });
+      expect(r.total).toBe((k - 1) * 10);
+    }
+    expect(rollFormula('1d100+1d10', { rng: seqRng([1, 10]) }).total).toBe(10); // 00 + 10
+    expect(rollFormula('1d100+1d10', { rng: seqRng([10, 10]) }).total).toBe(100); // 90 + 10
+    expect(rollFormula('1d100+1d10', { rng: seqRng([5, 7]) }).total).toBe(47);
   });
-  it('expandSpecs дає дві кості для d100 і одну для інших', () => {
-    const phys = expandSpecs([{ sides: 20, value: 17 }, { sides: 100, value: 63 }]);
-    expect(phys).toHaveLength(3);
-    expect(phys[0]).toMatchObject({ sides: 20, face: 16, src: 0 });
-    expect(phys[1]).toMatchObject({ sides: 10, face: 6, tone: 'wine', src: 1 });
-    expect(phys[1].labels[phys[1].face]).toBe('60');
-    expect(phys[2].labels[phys[2].face]).toBe('3');
+
+  it('звичайні кістки — одна на кидок', () => {
+    expect(expandSpecs([{ sides: 20, value: 17 }])[0]).toMatchObject({ sides: 20, face: 16 });
   });
 });

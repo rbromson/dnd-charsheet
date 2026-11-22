@@ -48,7 +48,8 @@ export function rollFormula(formula: string, opts: { rng: Rng; crit?: boolean })
   const dice: DieResult[] = [];
   for (const t of p.dice) {
     const n = t.count * (opts.crit ? 2 : 1);
-    for (let i = 0; i < n; i++) dice.push({ sides: t.sides, value: opts.rng(t.sides), sign: t.sign });
+    // d100 — процентная кость: только десятки 00…90 (для 1–100 к ней докидывают d10)
+    for (let i = 0; i < n; i++) dice.push({ sides: t.sides, value: t.sides === 100 ? (opts.rng(10) - 1) * 10 : opts.rng(t.sides), sign: t.sign });
   }
   const total = dice.reduce((s, d) => s + d.sign * d.value, 0) + p.flat;
   return { formula, dice, flat: p.flat, total, crit: !!opts.crit };
