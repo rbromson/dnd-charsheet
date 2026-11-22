@@ -187,8 +187,8 @@
     right: 12px;
     bottom: 12px;
     width: 396px;
-    height: min(74dvh, calc(100dvh - 24px));
-    min-height: min(560px, calc(100dvh - 24px));
+    /* высота по содержимому: выбор костей или результат броска */
+    max-height: calc(100dvh - 24px);
     z-index: 35;
     display: flex;
     flex-direction: column;
@@ -524,6 +524,32 @@
     }
   }
 
+  /* Планшет горизонтально: лоток сбоку — компактная кнопка броска */
+  @media (min-width: 761px) and (orientation: landscape) {
+    .hold {
+      width: 150px;
+      height: 150px;
+    }
+    .ring {
+      width: 174px;
+      height: 174px;
+    }
+    .big {
+      font-size: 26px;
+    }
+    .sm {
+      font-size: 10px;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+    .face {
+      padding: 0 8px;
+    }
+    .hold-zone {
+      gap: 8px;
+      padding-top: 14px;
+    }
+  }
   @keyframes fill-ring {
     to {
       stroke-dashoffset: 0;

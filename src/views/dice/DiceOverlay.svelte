@@ -298,7 +298,7 @@
                 }))}
                 rollKey={spinKey}
                 mode={phase === 'spin' ? 'roll' : 'show'}
-                height={r.dice.length > 1 ? 150 : 170}
+                height={embedded ? 130 : r.dice.length > 1 ? 150 : 170}
                 onlanded={landed3d}
               />
             </div>
@@ -340,7 +340,7 @@
         {#if can3d(specsOf(entry))}
           <div class="dice-row">
             <div class="d3wrap">
-              <Dice3D specs={specsOf(entry)} rollKey={spinKey} mode={phase === 'spin' ? 'roll' : 'show'} height={r.dice.length > 3 ? 140 : 160} onlanded={landed3d} />
+              <Dice3D specs={specsOf(entry)} rollKey={spinKey} mode={phase === 'spin' ? 'roll' : 'show'} height={embedded ? 130 : r.dice.length > 3 ? 140 : 160} onlanded={landed3d} />
             </div>
             {#if r.flat}
               <span class="plus">{r.flat < 0 ? MINUS : '+'}</span>
@@ -494,6 +494,10 @@
   }
   .rc.embedded::before {
     inset: 0;
+  }
+  .rc.embedded .dice-row {
+    margin: 8px 0 2px;
+    min-height: 0;
   }
   .rc > :not(.sr) {
     position: relative;
