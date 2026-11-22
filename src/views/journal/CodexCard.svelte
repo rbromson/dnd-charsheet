@@ -13,7 +13,9 @@
   import { t } from '../../lib/i18n';
   import type { Sel } from './state.svelte';
   import { jv } from './state.svelte';
-  import { codexInitial, entryShort, statusPresets, statusTone } from './format';
+  import { entryShort, statusPresets, statusTone } from './format';
+  import CodexAvatar from './CodexAvatar.svelte';
+  import { pickFiles, putMedia, resizeImage } from '../../lib/stores/media';
 
   let {
     id,
@@ -89,6 +91,31 @@
     return r.title;
   }
 
+  // аватар следует за картинками: первая добавленная становится аватаром, удалённый — сбрасывается
+  $effect(() => {
+    if (!c) return;
+    const imgs = c.images;
+    const p = c.portraitId ?? null;
+    if (p && !imgs.includes(p)) codex.update(c.id, { portraitId: imgs[0] ?? null });
+    else if (!p && imgs.length) codex.update(c.id, { portraitId: imgs[0] });
+  });
+
+  let picking = $state(false);
+  /** Тап по аватару — выбрать новую картинку: она добавится в картинки и станет аватаром. */
+  async function pickAvatar() {
+    if (!c || picking) return;
+    const [f] = await pickFiles('image/*', false);
+    if (!f) return;
+    picking = true;
+    try {
+      const id = await putMedia(c.characterId, await resizeImage(f, 1024), 'image');
+      codex.update(c.id, { images: [...c.images, id], portraitId: id });
+      ui.toast(t('gallery.portraitSet'));
+    } finally {
+      picking = false;
+    }
+  }
+
   async function del() {
     if (!c) return;
     const ok = await ui.confirm(t('journal.codex.deleteConfirm', { name: c.name }), { danger: true, okLabel: t('common.delete') });
@@ -100,7 +127,10 @@
   <div class="cx" class:compact>
     {#if header}
       <div class="top">
-        <div class="av {c.kind}">{codexInitial(c)}</div>
+        <button class="avb" aria-label={t('journal.codex.avatar')} onclick={pickAvatar}>
+          <CodexAvatar entry={c} size={compact ? 52 : 64} radius={compact ? 14 : 16} />
+          <span class="cam"><Icon name="camera" size={13} /></span>
+        </button>
         <div class="grow">
           <div class="nm serif">{c.name || '—'}</div>
           <div class="kd">{t(`journal.codex.kind.${c.kind}`)}</div>
@@ -112,6 +142,12 @@
     {/if}
 
     <div class="bar">
+      {#if !header}
+        <button class="avb" aria-label={t('journal.codex.avatar')} onclick={pickAvatar}>
+          <CodexAvatar entry={c} size={56} radius={14} />
+          <span class="cam"><Icon name="camera" size={13} /></span>
+        </button>
+      {/if}
       {#if c.status && !editing}<span class="st {statusTone(c.status)}">{c.status}</span>{/if}
       <div class="grow"></div>
       {#if !ui.editing}
@@ -163,7 +199,14 @@
     <Secret bind:value={c.secret} editable={editing} compact />
 
     {#if editing || c.images.length}
-      <Gallery bind:ids={c.images} characterId={c.characterId} size={compact ? 72 : 100} />
+      <Gallery
+        bind:ids={c.images}
+        characterId={c.characterId}
+        size={compact ? 72 : 100}
+        portraitId={c.portraitId ?? null}
+        onSetPortrait={(id) => codex.update(c.id, { portraitId: id })}
+        setLabel={t('journal.codex.setAvatar')}
+      />
     {/if}
 
     <div class="back">
@@ -199,34 +242,28 @@
     gap: 12px;
     align-items: center;
   }
-  .av {
-    width: 64px;
-    height: 64px;
-    border-radius: 16px;
+  .avb {
+    position: relative;
     flex-shrink: 0;
+    display: flex;
+    border-radius: 16px;
+  }
+  .avb:active {
+    transform: scale(0.95);
+  }
+  .cam {
+    position: absolute;
+    right: -4px;
+    bottom: -4px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: var(--font-sc);
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--parch3);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
-  }
-  .compact .av {
-    width: 52px;
-    height: 52px;
-    border-radius: 14px;
-    font-size: 23px;
-  }
-  .av.npc {
-    background: var(--t-wine);
-  }
-  .av.place {
-    background: var(--t-teal);
-  }
-  .av.quest {
-    background: var(--t-ochre);
+    color: var(--parch);
+    background: var(--ink);
+    box-shadow: 0 0 0 2px var(--parch2);
   }
   .nm {
     font-weight: 700;

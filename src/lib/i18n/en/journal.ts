@@ -81,6 +81,8 @@ export default {
   'journal.codex.kind.npc': 'NPC',
   'journal.codex.kind.place': 'Place',
   'journal.codex.kind.quest': 'Quest',
+  'journal.codex.avatar': 'Change avatar',
+  'journal.codex.setAvatar': 'Make avatar',
   'journal.codex.name': 'Name',
   'journal.codex.status': 'Status',
   'journal.codex.statusPh': 'Custom status',

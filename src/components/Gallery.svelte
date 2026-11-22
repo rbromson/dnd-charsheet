@@ -16,12 +16,15 @@
     portraitId = null,
     onSetPortrait,
     size = 120,
+    setLabel = '',
   }: {
     ids: string[];
     characterId: string;
     portraitId?: string | null;
     onSetPortrait?: (id: string) => void;
     size?: number;
+    /** подпись кнопки «Зробити портретом» (для довідника — «аватаркою») */
+    setLabel?: string;
   } = $props();
 
   let viewing = $state<string | null>(null);
@@ -75,7 +78,7 @@
           onclick={() => {
             onSetPortrait?.(viewing!);
             ui.toast(t('gallery.portraitSet'));
-          }}><Icon name="profile" size={20} />{t('gallery.setPortrait')}</button
+          }}><Icon name="profile" size={20} />{setLabel || t('gallery.setPortrait')}</button
         >
       {/if}
       <button class="btn btn-danger" onclick={() => remove(viewing!)}><Icon name="trash" size={20} />{t('common.delete')}</button>

@@ -311,6 +311,8 @@ export interface CodexEntry {
   status: string;
   secret: string;
   images: string[];
+  /** аватар — одна из images (как портрет персонажа); нет — буква на цвете типа */
+  portraitId?: string | null;
   createdAt: string;
   updatedAt: string;
 }

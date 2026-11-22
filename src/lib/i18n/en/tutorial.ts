@@ -5,7 +5,7 @@ export default {
   'tut.skip': 'Skip',
   'tut.done': 'Let’s play!',
   'tut.step': 'Step {n} of {total}',
-  'tut.ask': 'Ask your AI',
+  'tut.ask': 'Ask your AI how this works',
   'tut.askCopied': 'Question copied — paste it into your AI chat',
   'tut.askIntro': 'I play D&D 5e and keep my character in a sheet app called “Taverna”. Explain in plain words with short in-game examples, no filler.',
   'tut.1.ask': 'What is a D&D 5e character sheet made of (abilities, skills, saving throws, AC, HP, attacks, equipment, spells) and what should a beginner learn first? When moving a paper sheet into an app, what must be filled in?',

@@ -77,7 +77,7 @@
 
 {#if ui.tutorialOpen}
   <div class="layer" transition:fade={{ duration: 160 }}>
-    <div class="box" role="dialog" aria-modal="true" aria-label={t(`tut.${n}.title`)} onpointerdown={down} onpointerup={up}>
+    <div class="box" role="dialog" tabindex="-1" aria-modal="true" aria-label={t(`tut.${n}.title`)} onpointerdown={down} onpointerup={up}>
       <div class="top">
         <span class="count">{t('tut.step', { n, total: TOTAL })}</span>
         <button class="skip" onclick={close}>{t('tut.skip')}</button>
@@ -166,7 +166,7 @@
             <li>{t(`tut.${n}.p2`)}</li>
             <li>{t(`tut.${n}.p3`)}</li>
           </ul>
-          <button class="ask" onclick={ask}><Icon name="sparkle" size={16} />{t('tut.ask')}</button>
+          <button class="ask" onclick={ask}><Icon name="sparkle" size={16} />{t('tut.ask')}<Icon name="copy" size={15} /></button>
         </div>
       {/key}
 

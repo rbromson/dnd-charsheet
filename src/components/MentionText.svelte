@@ -5,6 +5,7 @@
    * <MentionText text={entry.text} onopen={(id) => …} />
    */
   import { splitMentions } from '../lib/mentions';
+  import MediaImage from './MediaImage.svelte';
   import { codex } from '../lib/stores/codex.svelte';
   import { ui } from '../lib/stores/ui.svelte';
   import { t } from '../lib/i18n';
@@ -25,7 +26,7 @@
   }
 </script>
 
-<span class="mt">{#each parts as p, i (i)}{#if p.kind === 'text'}{p.text}{:else}{@const c = codex.byName(p.name)}{#if c}<button type="button" class="men {c.kind}" onclick={(e) => open(e, c.id)}><span class="g" aria-hidden="true">{GLYPH[c.kind]}</span>{p.name}</button>{:else}<span class="men unknown" title={t('journal.mention.unknown')}>{p.name}</span>{/if}{/if}{/each}</span>
+<span class="mt">{#each parts as p, i (i)}{#if p.kind === 'text'}{p.text}{:else}{@const c = codex.byName(p.name)}{#if c}<button type="button" class="men {c.kind}" onclick={(e) => open(e, c.id)}>{#if c.portraitId}<span class="pic" aria-hidden="true"><MediaImage id={c.portraitId} /></span>{:else}<span class="g" aria-hidden="true">{GLYPH[c.kind]}</span>{/if}{p.name}</button>{:else}<span class="men unknown" title={t('journal.mention.unknown')}>{p.name}</span>{/if}{/if}{/each}</span>
 
 <style>
   .mt {
@@ -49,6 +50,19 @@
     content: '';
     position: absolute;
     inset: -10px -3px;
+  }
+  .pic {
+    display: inline-block;
+    width: 1.25em;
+    height: 1.25em;
+    border-radius: 50%;
+    overflow: hidden;
+    vertical-align: -0.28em;
+    margin: 0 4px 0 -3px;
+    box-shadow: 0 0 0 1.5px currentColor;
+  }
+  .pic :global(img) {
+    object-fit: cover;
   }
   .g {
     font-size: 0.7em;

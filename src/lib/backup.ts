@@ -114,7 +114,7 @@ export async function importManifest(manifest: BackupManifest, blobs: Map<string
     });
   }
   for (const e of manifest.codex ?? []) {
-    await putCodex({ ...e, id: uid(), characterId: newId, images: (e.images ?? []).map(mapId).filter((x): x is string => !!x) });
+    await putCodex({ ...e, id: uid(), characterId: newId, images: (e.images ?? []).map(mapId).filter((x): x is string => !!x), portraitId: mapId(e.portraitId ?? null) });
   }
   return c;
 }

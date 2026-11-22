@@ -8,7 +8,8 @@
   import { t } from '../../lib/i18n';
   import type { CodexKind, JournalEntry } from '../../lib/model/types';
   import { jv, type JournalTab, type Sel } from './state.svelte';
-  import { compareEntries, entryLabel, monthHeader, monthKey, searchSnippet, statusTone, codexInitial } from './format';
+  import { compareEntries, entryLabel, monthHeader, monthKey, searchSnippet, statusTone } from './format';
+  import CodexAvatar from './CodexAvatar.svelte';
 
   let { onpick, oncreate, scroll = false }: { onpick: (s: Sel) => void; oncreate: (kind: CodexKind) => void; scroll?: boolean } = $props();
 
@@ -113,7 +114,7 @@
       {#each codexList as c (c.id)}
         {@const line = firstLine(c.text)}
         <button class="ce" class:sel={isSel('codex', c.id)} onclick={() => onpick({ kind: 'codex', id: c.id })}>
-          <span class="av {c.kind}">{codexInitial(c)}</span>
+          <CodexAvatar entry={c} size={44} radius={12} />
           <span class="body">
             <span class="t">{c.name || '—'}</span>
             {#if line}<span class="x">{line}</span>{/if}
