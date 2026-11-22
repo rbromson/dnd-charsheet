@@ -78,6 +78,12 @@
     if (!ui.diceTrayOpen) stopHold();
   });
 
+  /** Закрыть лоток вместе с показанным в нём результатом — иначе его подхватит отдельное окно. */
+  function closeTray() {
+    dice.close();
+    ui.diceTrayOpen = false;
+  }
+
   function showEntry(h: RollEntry) {
     dice.last = h;
     dice.overlayOpen = true;
@@ -93,7 +99,7 @@
   <aside class="tray" aria-label={t('dice.tray.title')}>
     <header>
       <h2 class="sc">{t('dice.tray.title')}</h2>
-      <button class="icon-btn" aria-label={t('dice.close')} onclick={() => (ui.diceTrayOpen = false)}>
+      <button class="icon-btn" aria-label={t('dice.close')} onclick={closeTray}>
         <Icon name="close" />
       </button>
     </header>
@@ -187,8 +193,8 @@
     right: 12px;
     bottom: 12px;
     width: 396px;
-    /* высота по содержимому: выбор костей или результат броска */
-    max-height: calc(100dvh - 24px);
+    /* постоянная высота: выбор костей и результат броска не прыгают */
+    height: min(540px, calc(100dvh - 24px));
     z-index: 35;
     display: flex;
     flex-direction: column;
@@ -495,9 +501,8 @@
       right: 0;
       bottom: 0;
       width: auto;
-      height: auto;
+      height: min(580px, 78dvh);
       min-height: 0;
-      max-height: 78dvh;
       border-radius: 22px 22px 0 0;
       border-bottom: none;
       padding-bottom: env(safe-area-inset-bottom);
