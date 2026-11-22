@@ -26,7 +26,8 @@
     display: flex;
     gap: 4px;
     padding: 4px;
-    border-radius: 15px;
+    border-radius: 2px;
+    clip-path: polygon(9px 0, calc(100% - 9px) 0, 100% 9px, 100% calc(100% - 9px), calc(100% - 9px) 100%, 9px 100%, 0 calc(100% - 9px), 0 9px);
     background: rgba(0, 0, 0, 0.34);
     box-shadow:
       inset 0 2px 5px rgba(0, 0, 0, 0.5),
@@ -45,7 +46,8 @@
     flex: 1;
     min-height: var(--tap);
     padding: 0 10px;
-    border-radius: 11px;
+    border-radius: 2px;
+    clip-path: polygon(6px 0, calc(100% - 6px) 0, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0 calc(100% - 6px), 0 6px);
     font-weight: 600;
     font-size: 14px;
     white-space: nowrap;

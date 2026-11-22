@@ -73,12 +73,10 @@
     border-color: var(--ink);
   }
   .sheet :global(.btn-outline) {
-    border: 1px solid rgba(110, 78, 40, 0.55);
+    --frame: rgba(110, 78, 40, 0.6);
+    --fill: linear-gradient(180deg, #fbf3e2, #efe2c6);
     color: var(--ink);
-    background: linear-gradient(180deg, rgba(255, 250, 235, 0.55), rgba(255, 250, 235, 0.15));
-    box-shadow:
-      inset 0 1px 0 rgba(255, 252, 240, 0.8),
-      0 1px 2px rgba(80, 50, 20, 0.2);
+    filter: drop-shadow(0 1px 1.5px rgba(80, 50, 20, 0.25));
   }
   .sheet :global(.muted) {
     color: var(--ink2);

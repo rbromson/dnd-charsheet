@@ -122,13 +122,15 @@
   .ib {
     width: var(--tap);
     height: var(--tap);
-    border-radius: 14px;
+    border-radius: 2px;
+    clip-path: polygon(7px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 7px), calc(100% - 7px) 100%, 7px 100%, 0 calc(100% - 7px), 0 7px);
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    color: var(--text);
-    background: linear-gradient(180deg, #33271f, var(--bg3));
-    border: 1px solid var(--line2);
+    color: var(--parch);
+    background: var(--pores), linear-gradient(180deg, #3d2c21, #241812);
+    background-size: 140px 140px, 100% 100%;
+    border: none;
     box-shadow: inset 0 1px 0 rgba(255, 220, 180, 0.06);
     transition:
       transform 0.15s var(--ease-spring),
@@ -138,10 +140,13 @@
   .ib:active {
     transform: scale(0.9);
   }
+  /* сургучная печать */
   .ib.qn {
-    background: linear-gradient(160deg, #f39a62, var(--ember) 50%, #c9562a);
-    color: var(--ember-ink);
-    border-color: var(--ember);
+    clip-path: none;
+    border-radius: 47% 53% 50% 50% / 52% 46% 54% 48%;
+    background: radial-gradient(circle at 36% 30%, #f6a36c, var(--ember) 45%, #a8401a 80%, #7a2a10);
+    color: #3a1206;
+    border: none;
     box-shadow:
       inset 0 1px 0 rgba(255, 225, 200, 0.55),
       0 4px 14px -4px var(--ember-glow);

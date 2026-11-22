@@ -622,9 +622,12 @@
     margin-top: 8px;
   }
   .act {
+    position: relative;
+    isolation: isolate;
     flex: 1 1 0;
     min-height: 52px;
-    border-radius: 14px;
+    border-radius: 2px;
+    clip-path: polygon(7px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 7px), calc(100% - 7px) 100%, 7px 100%, 0 calc(100% - 7px), 0 7px);
     padding: 6px 14px;
     display: flex;
     flex-direction: column;
@@ -645,17 +648,28 @@
     opacity: 0.45;
   }
   .act.pri {
-    background: var(--ember);
+    background: linear-gradient(180deg, #f39a62, var(--ember) 50%, #cf5a26);
     color: var(--ember-ink);
+    box-shadow: inset 0 1px 0 rgba(255, 225, 200, 0.6), inset 0 -3px 0 rgba(110, 35, 8, 0.3);
     flex-grow: 1.6;
   }
   .act.pri.gold {
-    background: var(--gold);
+    background: linear-gradient(180deg, #ffe39a, var(--gold) 50%, #b8861e);
     color: #1a1206;
   }
-  .act.sec {
-    border: 1.5px solid #5a4533;
+  .act.sec,
+  .res-btn {
     color: var(--parch);
+    background: rgba(214, 170, 110, 0.5);
+  }
+  .act.sec::before,
+  .res-btn::before {
+    content: '';
+    position: absolute;
+    inset: 1.5px;
+    z-index: -1;
+    clip-path: polygon(6px 0, calc(100% - 6px) 0, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0 calc(100% - 6px), 0 6px);
+    background: linear-gradient(180deg, #2e231c, #1e1612);
   }
   .act.done {
     flex-grow: 0.7;
@@ -666,9 +680,11 @@
   }
   .res-btn {
     width: 100%;
-    background: var(--ember-soft);
-    border: 1.5px solid var(--ember);
     color: var(--ember);
+    background: var(--ember);
+  }
+  .res-btn::before {
+    background: linear-gradient(180deg, #3a2318, #24150f);
   }
   .res-main {
     font-size: 15px;

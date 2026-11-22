@@ -142,17 +142,19 @@
     width: 60px;
     height: 60px;
     flex-shrink: 0;
-    border-radius: 18px;
-    background: linear-gradient(160deg, #f39a62, var(--ember) 50%, #c9562a);
-    color: var(--ember-ink);
+    /* сургучная печать с пером */
+    border-radius: 47% 53% 50% 50% / 52% 46% 54% 48%;
+    background: radial-gradient(circle at 36% 30%, #f6a36c, var(--ember) 45%, #a8401a 80%, #7a2a10);
+    color: #3a1206;
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow:
-      inset 0 1px 0 rgba(255, 225, 200, 0.6),
-      inset 0 -3px 0 rgba(120, 40, 10, 0.25),
-      0 0 0 4px rgba(232, 116, 59, 0.12),
-      0 8px 26px var(--ember-glow);
+      inset 0 0 0 5px rgba(122, 42, 16, 0.25),
+      inset 0 0 0 7px rgba(255, 200, 160, 0.18),
+      inset 0 2px 2px rgba(255, 230, 200, 0.5),
+      0 0 0 3px rgba(232, 116, 59, 0.12),
+      0 8px 22px var(--ember-glow);
     margin-top: 6px;
     transition: transform 0.15s var(--ease-spring);
   }
