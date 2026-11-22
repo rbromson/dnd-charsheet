@@ -22,7 +22,7 @@
     if (r === 'copied') ui.toast(t('chars.aiCopied'));
     else if (r === 'failed') ui.toast(t('session.claude.failed'));
   }
-  import { fly, fade } from 'svelte/transition';
+  import { fly, fade, slide } from 'svelte/transition';
 
   let menuFor = $state<string | null>(null);
   let withAudio = $state(false);
@@ -79,7 +79,8 @@
     </div>
     <div class="list">
       {#each charStore.list as c (c.id)}
-        <div class="ch" class:on={c.id === charStore.current?.id}>
+        {@const open = menuFor === c.id}
+        <div class="ch" class:on={c.id === charStore.current?.id} class:open>
           <button class="main" onclick={() => pick(c.id)}>
             <Portrait id={c.portraitId} name={c.name} size={56} glow={c.id === charStore.current?.id} />
             <span class="grow txt">
@@ -87,16 +88,31 @@
               <span class="meta">{t('chars.level', { cls: c.className, lvl: c.level })} · ❤ {c.hp.current}/{c.hp.max}</span>
             </span>
           </button>
-          <button class="btn btn-ghost" aria-label="…" onclick={() => (menuFor = menuFor === c.id ? null : c.id)}><Icon name="more" /></button>
+          <button
+            class="more key-tile"
+            class:on={open}
+            aria-label={t('chars.options')}
+            aria-expanded={open}
+            onclick={() => (menuFor = open ? null : c.id)}><Icon name="more" size={20} /></button
+          >
+          <!-- дії — розкриваються всередині картки, список не зсувається вбік -->
+          {#if open}
+            <div class="opts" transition:slide={{ duration: 180 }}>
+              <button class="opt" title={t('chars.duplicate')} onclick={() => charStore.duplicate(c.id).then(() => (menuFor = null))}
+                ><Icon name="copy" size={20} /><span>{t('chars.act.duplicate')}</span></button
+              >
+              <button class="opt" title={t('chars.export')} onclick={() => doExport(c.id)}
+                ><Icon name="share" size={20} /><span>{t('chars.act.export')}</span></button
+              >
+              <button class="opt" title={t('chars.exportAi')} onclick={() => exportForAi(c.id)}
+                ><Icon name="sparkle" size={20} /><span>{t('chars.act.ai')}</span></button
+              >
+              <button class="opt danger" title={t('chars.delete')} onclick={() => remove(c.id, c.name)}
+                ><Icon name="trash" size={20} /><span>{t('chars.act.delete')}</span></button
+              >
+            </div>
+          {/if}
         </div>
-        {#if menuFor === c.id}
-          <div class="menu" transition:fade={{ duration: 100 }}>
-            <button onclick={() => charStore.duplicate(c.id).then(() => (menuFor = null))}><Icon name="copy" size={20} />{t('chars.duplicate')}</button>
-            <button onclick={() => doExport(c.id)}><Icon name="share" size={20} />{t('chars.export')}</button>
-            <button onclick={() => exportForAi(c.id)}><Icon name="sparkle" size={20} />{t('chars.exportAi')}</button>
-            <button class="danger" onclick={() => remove(c.id, c.name)}><Icon name="trash" size={20} />{t('chars.delete')}</button>
-          </div>
-        {/if}
       {/each}
     </div>
     <div class="row actions">
@@ -126,10 +142,13 @@
     top: 0;
     bottom: 0;
     width: min(400px, calc(100vw - 96px));
+    /* кожа без крупных пятен (--mottle): на высокой узкой панели они читаются как камуфляж */
     background:
       radial-gradient(ellipse 90% 40% at 30% 0%, rgba(232, 116, 59, 0.12), transparent 70%),
-      var(--leather);
-    background-size: 100% 100%, var(--leather-size);
+      var(--pores),
+      var(--crinkle),
+      linear-gradient(180deg, #3e2b21 0%, #2e2119 45%, #23180f 100%);
+    background-size: 100% 100%, 140px 140px, 300px 300px, 100% 100%;
     border-right: 1px solid var(--line);
     box-shadow: 20px 0 40px rgba(0, 0, 0, 0.5);
     z-index: 31;
@@ -182,7 +201,7 @@
     content: '';
     position: absolute;
     left: 3px;
-    top: 50%;
+    top: 34px;
     width: 7px;
     height: 7px;
     transform: translateY(-50%) rotate(45deg);
@@ -215,42 +234,70 @@
     font-size: 12.5px;
     color: var(--muted);
   }
-  .menu {
-    margin: 0 0 4px 70px;
+  .ch {
+    flex-wrap: wrap;
+  }
+  .more {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    margin-left: 4px;
+  }
+  /* раскрытая карточка невыбранного персонажа — бронзовая оправа */
+  .ch.open:not(.on) {
+    background: var(--frame-bronze);
+  }
+  .ch.open:not(.on)::before {
+    content: '';
+    position: absolute;
+    inset: 1.5px;
+    z-index: -1;
+    clip-path: inherit;
     background: radial-gradient(ellipse 120% 100% at 50% 0%, #3a2b22, #1a120e);
-    border: 1px solid rgba(155, 116, 64, 0.7);
-    border-radius: 3px;
-    box-shadow:
-      inset 0 0 0 1px rgba(0, 0, 0, 0.5),
-      0 10px 24px -10px rgba(0, 0, 0, 0.8);
-    padding: 6px;
+  }
+  .opts {
+    flex-basis: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-top: 8px;
+    padding-top: 10px;
+    /* гравированная линия-разделитель */
+    background: linear-gradient(90deg, transparent, rgba(227, 189, 115, 0.45) 20%, rgba(227, 189, 115, 0.45) 80%, transparent) top / 100% 1px no-repeat;
+  }
+  .opt {
     display: flex;
     flex-direction: column;
-  }
-  .menu button {
-    min-height: 44px;
-    display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 0 10px;
+    justify-content: center;
+    gap: 4px;
+    min-height: 58px;
+    padding: 6px 2px;
     border-radius: 3px;
     font-family: var(--font-sc);
     font-weight: 700;
+    font-size: 12px;
     letter-spacing: 0.02em;
     color: #e3c48a;
-    text-align: left;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
+    transition:
+      background 0.15s,
+      transform 0.1s;
   }
-  .menu button :global(svg) {
+  .opt :global(svg) {
     color: var(--gold);
   }
+  .opt:active {
+    transform: scale(0.94);
+  }
   @media (hover: hover) {
-    .menu button:hover {
-      background: rgba(232, 180, 90, 0.1);
+    .opt:hover {
+      background: radial-gradient(ellipse 80% 90% at 50% 50%, rgba(232, 180, 90, 0.16), transparent 75%);
     }
   }
-  .menu .danger,
-  .menu .danger :global(svg) {
-    color: #e07a66;
+  .opt.danger,
+  .opt.danger :global(svg) {
+    color: #e88a74;
   }
   .actions {
     margin-top: 8px;
