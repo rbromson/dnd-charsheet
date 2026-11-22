@@ -4,7 +4,6 @@
    * Объём: грани с разной освещённостью (свет слева сверху), площадка-«стол» в центре
    * и тёмная боковина снизу; при нажатии камень вдавливается.
    */
-  import Icon from './Icon.svelte';
   import { ui } from '../lib/stores/ui.svelte';
   import { t } from '../lib/i18n';
 </script>
@@ -15,7 +14,7 @@
     <span class="body" aria-hidden="true">
       <span class="rim"></span>
       <span class="gem"></span>
-      <span class="table"><Icon name="dice" size={24} stroke={2.1} /></span>
+      <span class="table"><span class="twenty">20</span></span>
       <span class="glint"></span>
     </span>
   </button>
@@ -82,8 +81,18 @@
     background: radial-gradient(circle at 40% 30%, #f9ae78, #df6c33 60%, #b24a1c);
     box-shadow: inset 0 0 0 1px rgba(255, 220, 180, 0.35);
   }
-  .table :global(svg) {
-    filter: drop-shadow(0 1px 0 rgba(90, 25, 0, 0.8));
+  /* «20», как на грани d20 */
+  .twenty {
+    font-family: var(--font-serif);
+    font-weight: 700;
+    font-size: 21px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: #fff4e2;
+    text-shadow:
+      0 1px 0 rgba(90, 25, 0, 0.85),
+      0 -1px 0 rgba(255, 220, 180, 0.35);
+    transform: translateY(1px);
   }
   .glint {
     inset: 3px;
@@ -109,6 +118,9 @@
       bottom: calc(64px + 14px + var(--depth) + env(safe-area-inset-bottom));
       width: 56px;
       height: 64px;
+    }
+    .twenty {
+      font-size: 18px;
     }
   }
 </style>
