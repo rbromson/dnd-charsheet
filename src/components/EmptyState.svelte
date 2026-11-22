@@ -44,6 +44,7 @@
       <button class="btn btn-ghost" onclick={downloadTemplate}><Icon name="download" size={20} />{t('tpl.button')}</button>
     </div>
     <p class="small">{t('tpl.hint')}</p>
+    <button class="btn btn-ghost help" onclick={() => (ui.tutorialOpen = true)}><Icon name="eye" size={18} />{t('tut.open')}</button>
     <LangSwitch />
   </section>
 </div>
@@ -86,6 +87,10 @@
   p {
     margin: 0;
     color: var(--muted);
+  }
+  .help {
+    align-self: center;
+    color: var(--ember);
   }
   .small {
     font-size: 12.5px;

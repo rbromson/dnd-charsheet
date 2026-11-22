@@ -31,6 +31,8 @@ class UiStore {
   switcherOpen = $state(false);
   quickNoteOpen = $state(false);
   diceTrayOpen = $state(false);
+  /** Обучение (показывается при первом запуске, повтор — из панели персонажей) */
+  tutorialOpen = $state(false);
   /** Открытая запись журнала / справочника (для перехода из других экранов) */
   journalFocus = $state<{ kind: 'entry' | 'codex'; id: string } | null>(null);
 

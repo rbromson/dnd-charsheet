@@ -108,6 +108,7 @@
     <Toggle bind:checked={withAudio} label={t('chars.exportAudio')} />
     <p class="hint">{t('chars.hint')}</p>
     <div class="sp"></div>
+    <button class="btn btn-ghost tpl" onclick={() => ((ui.switcherOpen = false), (ui.tutorialOpen = true))}><Icon name="eye" size={20} />{t('tut.open')}</button>
     <LangSwitch />
   </aside>
 {/if}

@@ -9,6 +9,7 @@
   import DiceTray from './views/dice/DiceTray.svelte';
   import RollPrompt from './views/dice/RollPrompt.svelte';
   import EmptyState from './components/EmptyState.svelte';
+  import Tutorial, { tutorialSeen } from './components/Tutorial.svelte';
   import SheetView from './views/sheet/SheetView.svelte';
   import CombatView from './views/combat/CombatView.svelte';
   import SpellsView from './views/spells/SpellsView.svelte';
@@ -30,6 +31,7 @@
   onMount(() => {
     charStore.load();
     requestPersistence();
+    if (!tutorialSeen()) ui.tutorialOpen = true;
     const flush = () => {
       charStore.flush();
       journal.flush();
@@ -78,6 +80,7 @@
 <RollPrompt />
 <DiceOverlay />
 <Confirm />
+<Tutorial />
 <Toasts />
 
 <style>
