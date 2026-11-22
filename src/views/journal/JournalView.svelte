@@ -10,6 +10,7 @@
   import EntryDetail from './EntryDetail.svelte';
   import CodexCard from './CodexCard.svelte';
   import CodexSheet from './CodexSheet.svelte';
+  import UpdateSheet from './UpdateSheet.svelte';
   import { journal } from '../../lib/stores/journal.svelte';
   import { codex } from '../../lib/stores/codex.svelte';
   import { charStore } from '../../lib/stores/characters.svelte';
@@ -128,6 +129,7 @@
 </script>
 
 <TopBar title={t('nav.journal')}>
+  <button class="btn btn-outline" onclick={() => ui.openSheet(UpdateSheet, {})}><Icon name="sparkle" size={18} />{t('upd.open')}</button>
   <button class="btn btn-primary" aria-label={t('journal.newSessionAria')} onclick={newSession}><Icon name="plus" size={20} stroke={2.2} />{t('journal.newSession')}</button>
 </TopBar>
 

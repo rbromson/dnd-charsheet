@@ -79,3 +79,16 @@ export async function copyTranscript(entry: JournalEntry): Promise<ShareResult> 
   const text = buildClaudeText({ ...entry, transcript: [] }, segs, names(), charStore.current?.name ?? '');
   return (await copyText(text)) ? 'copied' : 'failed';
 }
+
+/** Поделиться текстом (приложение Claude/ChatGPT принимает текст), иначе — в буфер обмена. */
+export async function shareOrCopy(text: string, titleText: string): Promise<ShareResult> {
+  if (typeof navigator.share === 'function') {
+    try {
+      await navigator.share({ title: titleText, text });
+      return 'shared';
+    } catch (e) {
+      if ((e as Error)?.name === 'AbortError') return 'cancelled';
+    }
+  }
+  return (await copyText(text)) ? 'copied' : 'failed';
+}

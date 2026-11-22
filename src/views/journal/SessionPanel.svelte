@@ -14,7 +14,11 @@
   import { whisper } from '../../lib/session/engines/whisper.svelte';
   import { dbToSlider } from '../../lib/session/vad';
   import { clock, unsentSegments, segmentsWithText } from '../../lib/session/claude';
-  import { shareToClaude, copyTranscript } from '../../lib/session/share';
+  import { shareToClaude, copyTranscript, shareOrCopy } from '../../lib/session/share';
+  import { buildUpdatePrompt } from '../../lib/update-prompt';
+  import { transcriptLines } from '../../lib/session/claude';
+  import { charStore } from '../../lib/stores/characters.svelte';
+  import { codex } from '../../lib/stores/codex.svelte';
   import SessionSettings from '../../lib/session/SessionSettings.svelte';
   import ModelBox from '../../lib/session/ModelBox.svelte';
 
@@ -130,6 +134,15 @@
       ui.toast(t('session.claude.copied'));
     } else if (r === 'empty') ui.toast(t('session.claude.nothing'));
     else ui.toast(t('session.claude.failed'));
+  }
+  /** Расшифровка + инструкция «разложи по аркушу» → Claude/ChatGPT. */
+  async function sortIntoSheet() {
+    const c = charStore.current;
+    if (!c) return;
+    const text = buildUpdatePrompt(c, codex.items, transcriptLines(segmentsWithText(entry)));
+    const r = await shareOrCopy(text, t('upd.title'));
+    if (r === 'shared' || r === 'copied') ui.toast(t('upd.fromSessionDone'), undefined, 8000);
+    else if (r === 'failed') ui.toast(t('session.claude.failed'));
   }
   function openSettings() {
     ui.openSheet(SessionSettings, {});
@@ -341,6 +354,7 @@
       </button>
       <button class="btn btn-outline" onclick={copy}><Icon name="copy" />{t('session.claude.copy')}</button>
     </div>
+    <button class="btn btn-outline sort" onclick={sortIntoSheet} title={t('upd.fromSessionHint')}><Icon name="sparkle" />{t('upd.fromSession')}</button>
     {#if sharedHint}
       <div class="hint-line"><Icon name="feather" size={18} />{t('session.claude.hint')}</div>
     {/if}
@@ -621,6 +635,10 @@
     .act-label {
       display: none;
     }
+  }
+  .sort {
+    width: 100%;
+    margin-top: 8px;
   }
   .claude {
     flex-wrap: wrap;
