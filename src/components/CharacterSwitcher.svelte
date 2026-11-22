@@ -26,9 +26,14 @@
   let menuFor = $state<string | null>(null);
   let busy = $state(false);
 
+  /** Тап по карточке: другой персонаж — выбрать и закрыть панель; уже выбранный — раскрыть/свернуть его действия. */
   async function pick(id: string) {
+    if (id === charStore.current?.id) {
+      menuFor = menuFor === id ? null : id;
+      return;
+    }
     menuFor = null;
-    if (id !== charStore.current?.id) await charStore.select(id);
+    await charStore.select(id);
     ui.switcherOpen = false;
   }
 
