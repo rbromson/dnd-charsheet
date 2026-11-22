@@ -13,6 +13,7 @@
   import { t } from '../../lib/i18n';
   import { TRAY_DICE, trayFormula, trayFormulaAscii, isSingleD20, historyValue } from './format';
   import { shapeFor } from './DieShape.svelte';
+  import DiceOverlay from './DiceOverlay.svelte';
 
   const MAX_PER_DIE = 20;
   const RING_C = 2 * Math.PI * 112;
@@ -98,6 +99,9 @@
     </header>
 
     <div class="body">
+      <!-- результат броска — здесь же, вместо выбора костей -->
+      <DiceOverlay embedded />
+      {#if !(dice.overlayOpen && dice.last)}
       <div class="dsel" title={t('dice.tray.dieHint')}>
         {#each TRAY_DICE as d (d)}
           {@const n = counts[d] ?? 0}
@@ -172,6 +176,7 @@
           <div class="hist-empty">{t('dice.tray.historyEmpty')}</div>
         {/if}
       </div>
+      {/if}
     </div>
   </aside>
 {/if}
@@ -307,7 +312,8 @@
 
   .row-mod {
     display: grid;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: auto minmax(max-content, 1fr) auto;
+    gap: 6px;
     justify-items: center;
     align-items: center;
     gap: 8px;
@@ -316,6 +322,7 @@
   }
   .row-mod .label {
     margin: 0;
+    letter-spacing: 0.02em;
     justify-self: start;
     min-width: 0;
     overflow: hidden;
@@ -325,8 +332,18 @@
   .row-mod .clear {
     justify-self: end;
   }
+  @media (max-width: 420px) {
+    .row-mod .label {
+      font-size: 10.5px;
+      letter-spacing: 0;
+    }
+    .row-mod .clear {
+      font-size: 13px;
+      padding: 0 4px;
+    }
+  }
   .clear {
-    padding: 0 10px;
+    padding: 0 6px;
     color: var(--muted);
   }
   .mode {

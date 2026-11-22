@@ -30,10 +30,6 @@
     {/each}
   </div>
   <div class="sp"></div>
-  <button class="it dice" class:on={ui.diceTrayOpen} onclick={() => (ui.diceTrayOpen = !ui.diceTrayOpen)}>
-    <span class="pl"><Icon name="dice" /></span>
-    <span class="lb">{t('nav.dice')}</span>
-  </button>
   <button class="fab" aria-label={t('nav.quickNote')} onclick={() => (ui.quickNoteOpen = true)}>
     <Icon name="feather" size={26} stroke={2} />
   </button>
@@ -249,8 +245,7 @@
       width: 46px;
       height: 32px;
     }
-    .fab,
-    .it.dice {
+    .fab {
       display: none;
     }
   }

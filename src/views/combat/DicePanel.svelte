@@ -1,18 +1,12 @@
 <script lang="ts">
-  /** Кнопка лотка кубиков и последние броски. Сам лоток — отдельный компонент (views/dice). */
-  import Icon from '../../components/Icon.svelte';
+  /** Последние броски. Лоток кубиков открывается плавающей кнопкой (components/DiceFab). */
   import { dice } from '../../lib/stores/dice.svelte';
-  import { ui } from '../../lib/stores/ui.svelte';
   import { t } from '../../lib/i18n';
 
   const recent = $derived(dice.history.slice(0, 10));
 </script>
 
 <section class="panel">
-  <button class="btn btn-primary open" onclick={() => (ui.diceTrayOpen = true)} aria-label={t('combat.openTray')}>
-    <Icon name="dice" size={24} />{t('combat.dice')}
-  </button>
-
   <h3 class="card-title">{t('combat.history')}</h3>
   {#if recent.length === 0}
     <div class="empty">{t('combat.historyEmpty')}</div>
@@ -32,14 +26,6 @@
 </section>
 
 <style>
-  .open {
-    width: 100%;
-    min-height: 60px;
-    font-size: 17px;
-    border-radius: var(--r);
-    margin-bottom: 14px;
-    box-shadow: 0 0 22px var(--ember-glow);
-  }
   ul {
     list-style: none;
     margin: 0;

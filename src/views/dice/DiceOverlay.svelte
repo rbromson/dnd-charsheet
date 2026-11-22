@@ -3,19 +3,25 @@
    * Оверлей результата броска: кость кувыркается ~0,7 с, затем крупный итог и мелкий расклад.
    * Нат. 20 — золотая вспышка и «КРИТ», нат. 1 — красная и «ПРОВАЛ».
    * Анимация перезапускается на каждый dice.seq; докинутая кость ресурса анимируется отдельно.
+   * embedded — тот же результат прямо внутри лотка кубиков (без второго окна поверх);
+   * пока лоток открыт, отдельное окно молчит.
    */
   import { untrack } from 'svelte';
   import DieShape from './DieShape.svelte';
   import Dice3D, { can3d, type DieSpec } from './Dice3D.svelte';
   import { dice, type RollEntry } from '../../lib/stores/dice.svelte';
   import { charStore } from '../../lib/stores/characters.svelte';
-  import { buzz } from '../../lib/stores/ui.svelte';
+  import { buzz, ui } from '../../lib/stores/ui.svelte';
   import { parseFormula, formatFormula } from '../../lib/dice/formula';
   import { fmt } from '../../lib/rules/calc';
   import { t } from '../../lib/i18n';
   import { joinParts, d20Parts, formulaParts, ruleChips, groupDice, MINUS, type RuleChip } from './format';
 
   type Phase = 'idle' | 'spin' | 'add';
+
+  let { embedded = false }: { embedded?: boolean } = $props();
+  /** Этот экземпляр показывает броски: встроенный — всегда, отдельное окно — только при закрытом лотке. */
+  const active = $derived(embedded || !ui.diceTrayOpen);
 
   const SPIN_MS = 720;
   const ADD_MS = 480;
@@ -33,7 +39,11 @@
   let flashKey = $state(0);
 
   /** Что уже показано — чтобы отличить новый бросок от докинутой кости и от просмотра истории. */
-  const track = { id: '', extra: 0, seq: 0 };
+  const track = untrack(() => ({
+    id: dice.last?.id ?? '',
+    extra: dice.last?.type === 'd20' ? dice.last.roll.extra.length : 0,
+    seq: dice.seq,
+  }));
 
   const reducedMotion = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
   const rnd = (s: number) => 1 + Math.floor(Math.random() * s);
@@ -129,10 +139,18 @@
   $effect(() => {
     const e = dice.last;
     const seq = dice.seq;
-    return untrack(() => start(e, seq));
+    const on = active;
+    return untrack(() => {
+      if (on) return start(e, seq);
+      // бросок показывает другой экземпляр — только запомнить, что он уже был
+      track.id = e?.id ?? '';
+      track.extra = e?.type === 'd20' ? e.roll.extra.length : 0;
+      track.seq = seq;
+      phase = 'idle';
+    });
   });
 
-  const entry = $derived(dice.overlayOpen ? dice.last : null);
+  const entry = $derived(dice.overlayOpen && active ? dice.last : null);
   const landed = $derived(phase === 'idle');
 
   /** Бросок d20 «как видно сейчас»: пока новая кость катится — без неё. */
@@ -233,13 +251,20 @@
   }
 
   function onKey(e: KeyboardEvent) {
-    if (e.key === 'Escape' && dice.overlayOpen) dice.close();
+    if (e.key === 'Escape' && entry) dice.close();
   }
 </script>
 
 <svelte:window onkeydown={onKey} />
 
-{#if entry}
+{#if entry && embedded}
+  {#if flashKey && flashTone}
+    {#key flashKey}
+      <div class="flash flash-{flashTone}" aria-hidden="true"></div>
+    {/key}
+  {/if}
+  {@render card(entry)}
+{:else if entry}
   <div class="layer">
     <button class="scrim" aria-label={t('dice.close')} onclick={() => dice.close()}></button>
 
@@ -249,7 +274,12 @@
       {/key}
     {/if}
 
-    <div class="rc" class:crit class:fumble role="dialog" aria-modal="true" aria-label={entry.label}>
+    {@render card(entry)}
+  </div>
+{/if}
+
+{#snippet card(entry: RollEntry)}
+    <div class="rc" class:embedded class:crit class:fumble role={embedded ? 'region' : 'dialog'} aria-modal={embedded ? undefined : 'true'} aria-label={entry.label}>
       <div class="tt">{entry.label}</div>
       {#if subtitle}<div class="su">{subtitle}</div>{/if}
 
@@ -401,8 +431,7 @@
         <button class="act sec done" onclick={() => dice.close()}>{t('dice.done')}</button>
       </div>
     </div>
-  </div>
-{/if}
+{/snippet}
 
 <style>
   .layer {
@@ -446,6 +475,25 @@
     transition:
       border-color 0.3s,
       box-shadow 0.3s;
+  }
+  /* внутри лотка: без своей «карточки», лоток и есть окно */
+  .rc.embedded {
+    width: 100%;
+    max-height: none;
+    overflow: visible;
+    background: none;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 2px 2px 4px;
+    animation: card-in 0.2s var(--ease) both;
+  }
+  .rc.embedded.crit,
+  .rc.embedded.fumble {
+    box-shadow: none;
+  }
+  .rc.embedded::before {
+    inset: 0;
   }
   .rc > :not(.sr) {
     position: relative;

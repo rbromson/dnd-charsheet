@@ -18,7 +18,6 @@
   {#if ui.editing}<span class="hint"><Icon name="edit" size={16} />{t('mode.editHint')}</span>{/if}
   <div class="grow"></div>
   {#if children}<div class="extra">{@render children()}</div>{/if}
-  <button class="ib dice" class:on={ui.diceTrayOpen} aria-label={t('nav.dice')} onclick={() => (ui.diceTrayOpen = !ui.diceTrayOpen)}><Icon name="dice" size={22} /></button>
   <button class="ib qn" aria-label={t('nav.quickNote')} onclick={() => (ui.quickNoteOpen = true)}><Icon name="feather" size={22} stroke={2} /></button>
   <button
     class="ib pen"
@@ -158,11 +157,9 @@
       inset 0 1px 0 rgba(255, 225, 200, 0.55),
       0 4px 14px -4px var(--ember-glow);
   }
-  .ib.dice.on,
   .ib.pen.on {
     color: #ffe6b8;
   }
-  .ib.dice.on::before,
   .ib.pen.on::before {
     background:
       radial-gradient(ellipse 90% 70% at 50% 110%, rgba(232, 116, 59, 0.7), transparent 70%),
