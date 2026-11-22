@@ -52,6 +52,8 @@
     cards: 'M7 3h10v14H7z M4 6v14h10',
     wave: 'M3 12h2 M7 8v8 M11 5v14 M15 9v6 M19 11v2',
     back: 'M15 5l-7 7 7 7',
+    chevron: 'M9 5l7 7-7 7',
+    chevronDown: 'M5 9l7 7 7-7',
   };
 </script>
 

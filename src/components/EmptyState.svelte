@@ -1,36 +1,10 @@
 <script lang="ts">
-  /** Первый запуск: персонажей нет — создать нового или импортировать резервную копию. */
+  /** Первый запуск: персонажей нет — «Новий персонаж» (вручну / через ШІ / з файлу). */
   import Icon from './Icon.svelte';
   import LangSwitch from './LangSwitch.svelte';
-  import { charStore } from '../lib/stores/characters.svelte';
   import { ui } from '../lib/stores/ui.svelte';
-  import { importBackupFile } from '../lib/backup';
-  import { pickFiles } from '../lib/stores/media';
   import { t } from '../lib/i18n';
-  import { deliverFile, templateFile } from '../lib/template';
-
-  async function downloadTemplate() {
-    const { blob, name } = templateFile();
-    await deliverFile(blob, name);
-  }
-
-  let busy = $state(false);
-
-  async function doImport() {
-    const [file] = await pickFiles('.zip,.json,application/zip,application/json', false);
-    if (!file) return;
-    busy = true;
-    try {
-      const c = await importBackupFile(file);
-      await charStore.adopt(c);
-      ui.toast(t('chars.imported', { name: c.name }));
-    } catch (e) {
-      console.error(e);
-      ui.toast(t('chars.importError'));
-    } finally {
-      busy = false;
-    }
-  }
+  import NewCharacterSheet from '../views/chars/NewCharacterSheet.svelte';
 </script>
 
 <div class="empty-wrap">
@@ -39,11 +13,8 @@
     <h1 class="sc">{t('empty.title')}</h1>
     <p>{t('empty.text')}</p>
     <div class="acts">
-      <button class="btn btn-primary" onclick={() => charStore.create()}><Icon name="plus" />{t('chars.new')}</button>
-      <button class="btn btn-outline" disabled={busy} onclick={doImport}><Icon name="upload" size={20} />{t('chars.import')}</button>
-      <button class="btn btn-ghost" onclick={downloadTemplate}><Icon name="download" size={20} />{t('tpl.button')}</button>
+      <button class="btn btn-primary" onclick={() => ui.openSheet(NewCharacterSheet, {})}><Icon name="plus" />{t('chars.new')}</button>
     </div>
-    <p class="small">{t('tpl.hint')}</p>
     <button class="btn btn-ghost help" onclick={() => (ui.tutorialOpen = true)}><Icon name="eye" size={18} />{t('tut.open')}</button>
     <LangSwitch />
   </section>
@@ -91,10 +62,6 @@
   .help {
     align-self: center;
     color: var(--ember);
-  }
-  .small {
-    font-size: 12.5px;
-    margin-top: -6px;
   }
   .acts {
     display: flex;

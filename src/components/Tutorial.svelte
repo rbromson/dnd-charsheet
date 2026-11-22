@@ -94,8 +94,8 @@
               <div class="die1"><DieShape sides={20} value="20" size={92} tone="ember" /></div>
               <div class="stack1">
                 <span class="mb pri b1"><Icon name="plus" size={14} />{t('chars.new')}</span>
-                <span class="mb b2"><Icon name="upload" size={14} />{t('chars.import')}</span>
-                <span class="mb b3"><Icon name="download" size={14} />{t('tpl.button')}</span>
+                <span class="mb b2"><Icon name="sparkle" size={14} />{t('newc.ai')}</span>
+                <span class="mb b3"><Icon name="upload" size={14} />{t('newc.file')}</span>
               </div>
             {:else if id === 2}
               <div class="seg2"><span class="sg">{t('mode.play')}</span><span class="sg">{t('mode.edit')}</span><span class="thumb"></span></div>

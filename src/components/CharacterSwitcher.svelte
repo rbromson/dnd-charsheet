@@ -1,14 +1,13 @@
 <script lang="ts">
   import Icon from './Icon.svelte';
   import Portrait from './Portrait.svelte';
-  import Toggle from './Toggle.svelte';
   import LangSwitch from './LangSwitch.svelte';
   import { ui } from '../lib/stores/ui.svelte';
   import { charStore } from '../lib/stores/characters.svelte';
-  import { exportCharacter, importBackupFile } from '../lib/backup';
-  import { pickFiles } from '../lib/stores/media';
+  import { exportCharacter } from '../lib/backup';
+  import { byCharacter } from '../lib/db';
+  import NewCharacterSheet from '../views/chars/NewCharacterSheet.svelte';
   import { t } from '../lib/i18n';
-  import { deliverFile, templateFile } from '../lib/template';
   import { digestFor } from '../lib/digest';
   import { shareOrCopy } from '../lib/session/share';
   import { journal } from '../lib/stores/journal.svelte';
@@ -25,7 +24,6 @@
   import { fly, fade, slide } from 'svelte/transition';
 
   let menuFor = $state<string | null>(null);
-  let withAudio = $state(false);
   let busy = $state(false);
 
   async function pick(id: string) {
@@ -40,10 +38,15 @@
     if (ok) await charStore.remove(id);
   }
 
+  /** Экспорт в файл; если есть аудиозаписи сессий — спросить, класть ли их (файл станет больше). */
   async function doExport(id: string) {
     menuFor = null;
     busy = true;
     try {
+      const audio = (await byCharacter('media', id)).filter((m) => m.kind === 'audio').length;
+      const withAudio =
+        audio > 0 &&
+        (await ui.confirm(t('chars.exportAudioAsk', { n: audio }), { okLabel: t('chars.exportAudioYes'), cancelLabel: t('chars.exportAudioNo') }));
       await exportCharacter(id, { audio: withAudio });
     } catch (e) {
       console.error(e);
@@ -52,22 +55,12 @@
     }
   }
 
-  async function doImport() {
-    const [file] = await pickFiles('.zip,.json,application/zip,application/json', false);
-    if (!file) return;
-    busy = true;
-    try {
-      const c = await importBackupFile(file);
-      await charStore.adopt(c);
-      ui.toast(t('chars.imported', { name: c.name }));
-      ui.switcherOpen = false;
-    } catch (e) {
-      console.error(e);
-      ui.toast(t('chars.importError'));
-    } finally {
-      busy = false;
-    }
+  function newCharacter() {
+    menuFor = null;
+    ui.switcherOpen = false;
+    ui.openSheet(NewCharacterSheet, {});
   }
+
 </script>
 
 {#if ui.switcherOpen}
@@ -89,11 +82,11 @@
             </span>
           </button>
           <button
-            class="more key-tile"
-            class:on={open}
+            class="more"
+            class:open
             aria-label={t('chars.options')}
             aria-expanded={open}
-            onclick={() => (menuFor = open ? null : c.id)}><Icon name="more" size={20} /></button
+            onclick={() => (menuFor = open ? null : c.id)}><Icon name="chevronDown" size={22} stroke={2.4} /></button
           >
           <!-- дії — розкриваються всередині картки, список не зсувається вбік -->
           {#if open}
@@ -115,14 +108,7 @@
         </div>
       {/each}
     </div>
-    <div class="row actions">
-      <button class="btn btn-outline" disabled={busy} onclick={doImport}><Icon name="upload" size={20} />{t('chars.import')}</button>
-      <button class="btn btn-primary grow" onclick={() => charStore.create().then(() => (ui.switcherOpen = false))}><Icon name="plus" />{t('chars.new')}</button>
-    </div>
-    <button class="btn btn-ghost tpl" onclick={() => deliverFile(templateFile().blob, templateFile().name)}><Icon name="download" size={20} />{t('tpl.button')}</button>
-    <p class="hint">{t('tpl.hint')}</p>
-    <Toggle bind:checked={withAudio} label={t('chars.exportAudio')} />
-    <p class="hint">{t('chars.hint')}</p>
+    <button class="btn btn-primary newc" onclick={newCharacter}><Icon name="plus" />{t('chars.new')}</button>
     <div class="sp"></div>
     <button class="btn btn-ghost tpl" onclick={() => ((ui.switcherOpen = false), (ui.tutorialOpen = true))}><Icon name="eye" size={20} />{t('tut.open')}</button>
     <LangSwitch />
@@ -237,11 +223,23 @@
   .ch {
     flex-wrap: wrap;
   }
+  /* стрелка аккордеона — без рамки, золотом */
   .more {
-    width: 40px;
-    height: 40px;
+    width: var(--tap);
+    height: var(--tap);
     flex-shrink: 0;
-    margin-left: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gold);
+    filter: drop-shadow(0 0 4px rgba(230, 180, 80, 0.35));
+    -webkit-tap-highlight-color: transparent;
+  }
+  .more :global(svg) {
+    transition: transform 0.2s var(--ease);
+  }
+  .more.open :global(svg) {
+    transform: rotate(180deg);
   }
   /* раскрытая карточка невыбранного персонажа — бронзовая оправа */
   .ch.open:not(.on) {
@@ -258,7 +256,7 @@
   .opts {
     flex-basis: 100%;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: 1fr 1fr;
     gap: 6px;
     margin-top: 8px;
     padding-top: 10px;
@@ -267,16 +265,16 @@
   }
   .opt {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 4px;
-    min-height: 58px;
-    padding: 6px 2px;
+    gap: 8px;
+    min-height: var(--tap);
+    padding: 6px 10px;
+    text-align: left;
     border-radius: 3px;
     font-family: var(--font-sc);
     font-weight: 700;
-    font-size: 12px;
+    font-size: 13.5px;
+    line-height: 1.15;
     letter-spacing: 0.02em;
     color: #e3c48a;
     text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
@@ -299,8 +297,9 @@
   .opt.danger :global(svg) {
     color: #e88a74;
   }
-  .actions {
-    margin-top: 8px;
+  .newc {
+    width: 100%;
+    margin-top: 6px;
   }
   .tpl {
     align-self: flex-start;
@@ -308,11 +307,6 @@
   }
   .sp {
     flex: 1;
-  }
-  .hint {
-    font-size: 12px;
-    color: var(--muted);
-    margin: 0;
   }
   @media (max-width: 640px) {
     .scrim {

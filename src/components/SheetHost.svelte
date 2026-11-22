@@ -70,10 +70,19 @@
       left: 0;
       right: 0;
       bottom: 0;
-      top: 6dvh;
+      /* по высоте содержимого, но не выше экрана — дальше прокрутка внутри */
+      top: auto;
+      max-height: 94dvh;
+      display: flex;
+      flex-direction: column;
       width: auto;
       border-radius: 22px 22px 0 0;
       padding-bottom: env(safe-area-inset-bottom);
+    }
+    .sheet > :global(.frame) {
+      height: auto;
+      flex: 1 1 auto;
+      min-height: 0;
     }
     /* «ручка» нижнего листа */
     .sheet::before {

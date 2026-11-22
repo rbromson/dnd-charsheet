@@ -401,9 +401,10 @@ h3 {
 }
 /* главная: раскалённая медь в золоте */
 .btn-primary {
-  --fill: radial-gradient(ellipse 120% 90% at 50% 0%, #f39a5c 0%, #d2622c 40%, #8f3412 100%);
-  color: #fff3e0;
-  text-shadow: 0 1px 0 rgba(70, 18, 0, 0.7);
+  /* темнее, чтобы светлый текст читался: медь, а не морковь */
+  --fill: radial-gradient(ellipse 120% 90% at 50% 0%, #c9682f 0%, #9a3f18 45%, #5e200b 100%);
+  color: #fff1dc;
+  text-shadow: 0 1px 1px rgba(40, 8, 0, 0.85);
   filter: drop-shadow(0 3px 8px rgba(232, 116, 59, 0.4));
 }
 .btn-primary:active {

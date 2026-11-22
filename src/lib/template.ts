@@ -104,6 +104,26 @@ export function buildTemplate(language: Lang = lang): Record<string, unknown> {
   };
 }
 
+const CREATE_TAIL: Record<Lang, string[]> = {
+  uk: [
+    'До цього повідомлення я додаю свій лист персонажа (PDF, фото чи текст).',
+    'Твою відповідь я вставлю прямо в застосунок, тож відповідай лише готовим JSON (можна в блоці коду).',
+    'Шаблон для заповнення:',
+  ],
+  en: [
+    'I am attaching my character sheet to this message (PDF, photo or text).',
+    'I will paste your answer straight into the app, so reply with the finished JSON only (a code block is fine).',
+    'Template to fill:',
+  ],
+};
+
+/** Текст для «Новий персонаж → Через ШІ»: инструкция + шаблон, ответ вставляется в приложение. */
+export function buildCreatePrompt(language: Lang = lang): string {
+  const { _instructions, ...rest } = buildTemplate(language);
+  const intro = (_instructions as string[]).slice(0, 4);
+  return [...intro, '', ...CREATE_TAIL[language], '', JSON.stringify(rest, null, 1)].join('\n');
+}
+
 export function templateFile(language: Lang = lang): { blob: Blob; name: string } {
   const json = JSON.stringify(buildTemplate(language), null, 2);
   return {

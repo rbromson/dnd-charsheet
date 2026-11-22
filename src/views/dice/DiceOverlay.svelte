@@ -701,9 +701,9 @@
     opacity: 0.45;
   }
   .act.pri {
-    background: radial-gradient(ellipse 120% 90% at 50% 0%, #f39a5c 0%, #d2622c 40%, #8f3412 100%);
-    color: #fff3e0;
-    text-shadow: 0 1px 0 rgba(70, 18, 0, 0.7);
+    background: radial-gradient(ellipse 120% 90% at 50% 0%, #c9682f 0%, #9a3f18 45%, #5e200b 100%);
+    color: #fff1dc;
+    text-shadow: 0 1px 1px rgba(40, 8, 0, 0.85);
     outline: 1.5px solid #e3bd73;
     outline-offset: -1.5px;
     box-shadow: inset 0 1px 0 rgba(255, 225, 200, 0.6), inset 0 -3px 0 rgba(110, 35, 8, 0.3);

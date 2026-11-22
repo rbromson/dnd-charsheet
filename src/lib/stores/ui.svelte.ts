@@ -13,6 +13,7 @@ export interface ToastItem {
 export interface ConfirmState {
   message: string;
   okLabel?: string;
+  cancelLabel?: string;
   danger?: boolean;
   /** Доп. строки (например, что восстановится на отдыхе) */
   details?: string[];
@@ -58,7 +59,7 @@ class UiStore {
     this.sheet = null;
   }
 
-  confirm(message: string, opts: { okLabel?: string; danger?: boolean; details?: string[] } = {}): Promise<boolean> {
+  confirm(message: string, opts: { okLabel?: string; cancelLabel?: string; danger?: boolean; details?: string[] } = {}): Promise<boolean> {
     return new Promise((resolve) => {
       this.confirmState = {
         message,

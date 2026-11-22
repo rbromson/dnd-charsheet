@@ -15,7 +15,7 @@
       </ul>
     {/if}
     <div class="row actions">
-      <button class="btn btn-outline grow" onclick={() => s.resolve(false)}>{t('common.cancel')}</button>
+      <button class="btn btn-outline grow" onclick={() => s.resolve(false)}>{s.cancelLabel ?? t('common.cancel')}</button>
       <button class="btn grow {s.danger ? 'btn-danger' : 'btn-ink'}" onclick={() => s.resolve(true)}>{s.okLabel ?? t('common.confirm')}</button>
     </div>
   </div>

@@ -26,7 +26,7 @@ export default {
 
   'tut.1.title': 'Welcome to Taverna',
   'tut.1.p1': 'A D&D character sheet and adventure journal in one. Works offline.',
-  'tut.1.p2': 'Create a character, import a backup file, or hand your paper sheet to an AI via “Template for AI”.',
+  'tut.1.p2': '“New character” — by hand, with AI (give it your paper sheet) or from a backup file.',
   'tut.1.p3': 'Switch characters by tapping the portrait at the top.',
 
   'tut.2.title': 'Play and Edit',
