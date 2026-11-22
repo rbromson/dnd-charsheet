@@ -21,6 +21,9 @@
   import { t } from '../../lib/i18n';
   import { jv } from './state.svelte';
 
+  /** открыто сразу после отправки инструкции (из «Швидкої нотатки»): ждём ответ */
+  let { sent = null }: { sent?: 'shared' | 'copied' | null } = $props();
+
   let raw = $state('');
   let withHistory = $state(true);
   let ops = $state<Op[] | null>(null);
@@ -146,7 +149,10 @@
 
 <SheetFrame kicker={t('upd.kicker')} title={t('upd.title')}>
   {#if !ops}
-    <section class="step">
+    {#if sent}
+      <div class="sent"><Icon name="check" size={18} stroke={2.4} />{sent === 'copied' ? t('upd.sentCopied') : t('upd.sentShared')}</div>
+    {/if}
+    <section class="step" class:dim={!!sent}>
       <h3 class="card-title">{t('upd.step1')}</h3>
       <p class="hint">{t('upd.step1Hint')}</p>
       <Toggle bind:checked={withHistory} label={t('upd.withHistory')} />
@@ -192,6 +198,21 @@
 </SheetFrame>
 
 <style>
+  .sent {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    background: rgba(127, 163, 107, 0.18);
+    box-shadow: inset 0 0 0 1px rgba(127, 163, 107, 0.5);
+  }
+  .dim {
+    opacity: 0.6;
+  }
   .step {
     display: flex;
     flex-direction: column;

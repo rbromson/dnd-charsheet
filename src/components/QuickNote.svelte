@@ -12,7 +12,13 @@
   import { ui } from '../lib/stores/ui.svelte';
   import { journal } from '../lib/stores/journal.svelte';
   import { todayDate } from '../lib/model/ids';
-  import { t } from '../lib/i18n';
+  import { lang, t } from '../lib/i18n';
+  import { charStore } from '../lib/stores/characters.svelte';
+  import { codex } from '../lib/stores/codex.svelte';
+  import { buildUpdatePrompt } from '../lib/update-prompt';
+  import { historyForPrompt } from '../lib/digest';
+  import { shareOrCopy } from '../lib/session/share';
+  import UpdateSheet from '../views/journal/UpdateSheet.svelte';
   import { fade, fly } from 'svelte/transition';
 
   /** Куда попадёт заметка — та же логика, что в journal.currentSession(), но без создания. */
@@ -50,6 +56,26 @@
     });
   }
 
+  /** Заметка → ШІ (с инструкцией и историей), сразу открываем «ШІ → аркуш» ждать ответ. */
+  async function viaAi() {
+    const c = charStore.current;
+    if (!c) return;
+    const text = draft.trim();
+    if (!text) {
+      close();
+      ui.openSheet(UpdateSheet, {});
+      return;
+    }
+    const prompt = buildUpdatePrompt(c, codex.items, text, lang, historyForPrompt(codex.items, journal.entries));
+    const r = await shareOrCopy(prompt, t('upd.title'));
+    if (r !== 'shared' && r !== 'copied') {
+      if (r === 'failed') ui.toast(t('session.claude.failed'));
+      return;
+    }
+    close();
+    ui.openSheet(UpdateSheet, { sent: r });
+  }
+
   function cancel() {
     const was = draft;
     draft = '';
@@ -80,6 +106,7 @@
       <span class="hint muted">{t('journal.quick.hint')}</span>
       <div class="grow"></div>
       <button class="btn btn-outline" onclick={cancel}>{t('common.cancel')}</button>
+      <button class="btn btn-outline ai" onclick={viaAi} title={t('journal.quick.aiHint')}><Icon name="sparkle" size={20} />{t('journal.quick.ai')}</button>
       <button class="btn btn-primary save" onclick={save}><Icon name="check" size={20} />{t('journal.quick.save')}</button>
     </div>
   </div>
@@ -137,6 +164,9 @@
     min-width: 160px;
     min-height: 56px;
     font-size: 17px;
+  }
+  .ai {
+    color: var(--ink);
   }
   @media (pointer: coarse) {
     .hint {
