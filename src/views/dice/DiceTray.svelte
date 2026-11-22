@@ -12,6 +12,7 @@
   import { dice, type RollEntry } from '../../lib/stores/dice.svelte';
   import { t } from '../../lib/i18n';
   import { TRAY_DICE, trayFormula, trayFormulaAscii, isSingleD20, historyValue } from './format';
+  import { shapeFor } from './DieShape.svelte';
 
   const MAX_PER_DIE = 20;
   const RING_C = 2 * Math.PI * 112;
@@ -106,7 +107,8 @@
             aria-label={n > 0 ? t('dice.tray.count', { die: `d${d}`, n }) : `d${d}`}
             use:press={{ onTap: () => addDie(d), onLong: () => clearDie(d) }}
           >
-            d{d}
+            <svg class="shp" viewBox="0 0 100 100" aria-hidden="true"><polygon points={shapeFor(d)?.outline ?? ''} /></svg>
+            <span class="dl">d{d}</span>
             {#if n > 0}<sup>×{n}</sup>{/if}
           </button>
         {/each}
@@ -239,25 +241,52 @@
   }
   .die-btn {
     position: relative;
-    height: var(--tap);
-    min-width: 40px;
+    height: 54px;
+    min-width: 38px;
     flex: 1 1 0;
     max-width: 64px;
-    padding: 0 4px;
+    padding: 0 2px;
     border-radius: 12px;
-    border: 1.5px solid var(--line2);
     color: var(--parch);
     font-weight: 700;
-    font-size: 14.5px;
+    font-size: 13.5px;
     user-select: none;
     -webkit-touch-callout: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.22);
+    box-shadow:
+      inset 0 0 0 1px rgba(214, 170, 110, 0.25),
+      inset 0 1px 0 rgba(255, 220, 170, 0.06);
     transition:
-      transform 0.08s,
+      transform 0.15s var(--ease-spring),
       background 0.15s,
-      border-color 0.15s;
+      box-shadow 0.15s,
+      color 0.15s;
+  }
+  .shp {
+    position: absolute;
+    inset: 5px;
+    width: calc(100% - 10px);
+    height: calc(100% - 10px);
+    fill: rgba(232, 116, 59, 0.06);
+    stroke: rgba(214, 170, 110, 0.45);
+    stroke-width: 4;
+    stroke-linejoin: round;
+    transition:
+      fill 0.15s,
+      stroke 0.15s;
+  }
+  .dl {
+    position: relative;
   }
   .die-btn:active {
-    transform: scale(0.94);
+    transform: scale(0.9) rotate(-6deg);
+  }
+  .die-btn.on .shp {
+    fill: rgba(232, 116, 59, 0.28);
+    stroke: var(--ember);
   }
   .die-btn.on {
     border-color: var(--ember);
@@ -277,7 +306,9 @@
   }
 
   .row-mod {
-    display: flex;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    justify-items: center;
     align-items: center;
     gap: 8px;
     width: 100%;
@@ -285,7 +316,14 @@
   }
   .row-mod .label {
     margin: 0;
-    flex: 1;
+    justify-self: start;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .row-mod .clear {
+    justify-self: end;
   }
   .clear {
     padding: 0 10px;

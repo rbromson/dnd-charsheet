@@ -18,11 +18,7 @@
 
 <style>
   .rm {
-    width: min(340px, 100%);
-  }
-  @media (max-width: 900px) {
-    .rm {
-      width: 240px;
-    }
+    width: 100%;
+    max-width: 400px;
   }
 </style>

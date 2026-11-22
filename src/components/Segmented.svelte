@@ -59,6 +59,12 @@
   button:active {
     transform: scale(0.96);
   }
+  @media (max-width: 420px) {
+    button {
+      padding: 0 4px;
+      font-size: 13px;
+    }
+  }
   :global(.card) button,
   :global(.sheet) button {
     color: var(--ink2);

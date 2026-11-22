@@ -2,11 +2,12 @@
   import { ui } from '../lib/stores/ui.svelte';
   import { t } from '../lib/i18n';
   import { fly } from 'svelte/transition';
+  import { backOut } from 'svelte/easing';
 </script>
 
 <div class="toasts" aria-live="polite">
   {#each ui.toasts as toast (toast.id)}
-    <div class="toast" transition:fly={{ y: 20, duration: 160 }}>
+    <div class="toast" in:fly={{ y: 30, duration: 320, easing: backOut }} out:fly={{ y: 16, duration: 160 }}>
       <span class="grow">{toast.message}</span>
       {#if toast.undo}
         <button

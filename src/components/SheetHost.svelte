@@ -1,5 +1,6 @@
 <script lang="ts">
   import { ui } from '../lib/stores/ui.svelte';
+  import { cubicOut } from 'svelte/easing';
   import { fly, fade } from 'svelte/transition';
 
   // Последнее открытое значение: пока карточка анимированно закрывается, ui.sheet уже null.
@@ -21,7 +22,7 @@
 {#if ui.sheet && shown}
   {@const C = shown.component}
   <div class="scrim" role="presentation" transition:fade={{ duration: 150 }} onclick={scrimClick}></div>
-  <aside class="sheet" transition:fly={{ x: 80, duration: 200 }}>
+  <aside class="sheet" in:fly={{ x: 90, duration: 300, easing: cubicOut }} out:fly={{ x: 60, duration: 180 }}>
     <C {...shown.props} />
   </aside>
 {/if}

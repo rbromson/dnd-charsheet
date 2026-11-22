@@ -7,6 +7,8 @@ import { ABILITIES, SKILLS } from './model/types';
 import { abilityScore, armorClass, fmt, mod, profBonus, skillBonus } from './rules/calc';
 import { MENTION_RE } from './mentions';
 import { lang, t, type Lang } from './i18n';
+import { db, byCharacter } from './db';
+import { normalizeCharacter } from './model/normalize';
 
 const L: Record<Lang, Record<string, string>> = {
   uk: {
@@ -136,8 +138,6 @@ export function characterDigest(c: Character, codex: CodexEntry[], journal: Jour
 
 /** Собрать текст для персонажа из базы (любого, не только открытого). */
 export async function digestFor(characterId: string): Promise<{ name: string; text: string }> {
-  const { db, byCharacter } = await import('./db');
-  const { normalizeCharacter } = await import('./model/normalize');
   const c = normalizeCharacter(await (await db()).get('characters', characterId));
   const [codex, journal] = await Promise.all([byCharacter('codex', characterId), byCharacter('journal', characterId)]);
   return { name: c.name, text: characterDigest(c, codex, journal) };

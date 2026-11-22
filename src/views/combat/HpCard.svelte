@@ -36,9 +36,16 @@
     else if (entry.length < 4) entry = entry === '0' ? k : entry + k;
   }
 
+  /** всплывающее «−7» / «+5» и вспышка карточки */
+  let fx = $state<{ key: number; kind: 'dmg' | 'heal' | 'temp'; text: string } | null>(null);
+  function burst(kind: 'dmg' | 'heal' | 'temp', text: string) {
+    fx = { key: (fx?.key ?? 0) + 1, kind, text };
+  }
+
   function damage() {
     const n = amount;
     if (!n) return;
+    burst('dmg', `−${n}`);
     const from = c.hp.current;
     const next = applyDamage(c.hp, n);
     charStore.update(
@@ -54,6 +61,7 @@
   function heal() {
     const n = amount;
     if (!n) return;
+    burst('heal', `+${n}`);
     const from = c.hp.current;
     const next = applyHeal(c.hp, n);
     charStore.update(
@@ -71,6 +79,7 @@
   function temp() {
     const n = amount;
     if (!n) return;
+    burst('temp', `+${n}`);
     const next = setTemp(c.hp, n);
     charStore.update(
       (ch) => {
@@ -87,6 +96,12 @@
 </script>
 
 <section class="card hp" class:down>
+  {#if fx}
+    {#key fx.key}
+      <span class="flash {fx.kind}" aria-hidden="true"></span>
+      <span class="float {fx.kind}" aria-hidden="true">{fx.text}</span>
+    {/key}
+  {/if}
   <div class="head">
     <h3 class="card-title">{t('combat.hp')}</h3>
     {#if down}<span class="downtag">{t('combat.down')}</span>{/if}
@@ -134,6 +149,100 @@
   .hp {
     display: flex;
     flex-direction: column;
+  }
+  /* вспышка по краю карточки и всплывающее число */
+  .flash {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 2;
+    animation: hp-flash 0.7s ease-out both;
+  }
+  .flash.dmg {
+    box-shadow:
+      inset 0 0 0 3px var(--bad),
+      inset 0 0 60px rgba(192, 83, 63, 0.45);
+  }
+  .flash.heal {
+    box-shadow:
+      inset 0 0 0 3px var(--good),
+      inset 0 0 60px rgba(127, 163, 107, 0.45);
+  }
+  .flash.temp {
+    box-shadow:
+      inset 0 0 0 3px var(--temp),
+      inset 0 0 60px rgba(79, 115, 144, 0.45);
+  }
+  @keyframes hp-flash {
+    0% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+  .float {
+    position: absolute;
+    left: 50%;
+    top: 26px;
+    z-index: 3;
+    pointer-events: none;
+    font-family: var(--font-serif);
+    font-weight: 700;
+    font-size: 44px;
+    line-height: 1;
+    text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
+    animation: hp-float 1.1s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+  }
+  .float.dmg {
+    color: var(--bad);
+  }
+  .float.heal {
+    color: #4f7f3c;
+  }
+  .float.temp {
+    color: var(--temp);
+  }
+  @keyframes hp-float {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, 16px) scale(0.6);
+    }
+    18% {
+      opacity: 1;
+      transform: translate(-50%, 0) scale(1.15);
+    }
+    60% {
+      opacity: 1;
+      transform: translate(-50%, -18px) scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: translate(-50%, -46px) scale(0.95);
+    }
+  }
+  .flash.dmg ~ .hpbig .cur,
+  .hp:has(.flash.dmg) .cur {
+    animation: hp-shake 0.4s ease-in-out;
+  }
+  @keyframes hp-shake {
+    0%,
+    100% {
+      transform: none;
+    }
+    20% {
+      transform: translateX(-5px) rotate(-2deg);
+    }
+    40% {
+      transform: translateX(4px) rotate(1.5deg);
+    }
+    60% {
+      transform: translateX(-3px);
+    }
+    80% {
+      transform: translateX(2px);
+    }
   }
   .hp.down {
     box-shadow:
@@ -202,7 +311,7 @@
   }
   .bar .a {
     background: linear-gradient(90deg, var(--good), color-mix(in srgb, var(--good) 70%, var(--parch)));
-    transition: width 0.25s;
+    transition: width 0.6s cubic-bezier(0.3, 0.8, 0.3, 1);
   }
   .bar .b {
     background: var(--temp);

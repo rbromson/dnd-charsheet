@@ -6,6 +6,7 @@
    */
   import { untrack } from 'svelte';
   import DieShape from './DieShape.svelte';
+  import Dice3D, { can3d, type DieSpec } from './Dice3D.svelte';
   import { dice, type RollEntry } from '../../lib/stores/dice.svelte';
   import { charStore } from '../../lib/stores/characters.svelte';
   import { buzz } from '../../lib/stores/ui.svelte';
@@ -37,6 +38,17 @@
   const reducedMotion = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
   const rnd = (s: number) => 1 + Math.floor(Math.random() * s);
 
+  /** Кости броска для 3D (без докинутых костей ресурсов). */
+  function specsOf(e: RollEntry): DieSpec[] {
+    if (e.type === 'd20') return e.roll.dice.map((d) => ({ sides: 20, value: d.value }));
+    return e.roll.dice.map((d) => ({ sides: d.sides, value: d.value }));
+  }
+  /** Закончить кувыркание (3D сообщает о приземлении сам). */
+  let finishSpin: (() => void) | null = null;
+  function landed3d() {
+    finishSpin?.();
+  }
+
   function mainSides(e: RollEntry): number[] {
     return e.type === 'd20' ? e.roll.dice.map(() => 20) : e.roll.dice.map((d) => d.sides);
   }
@@ -59,6 +71,29 @@
       addFrom = -1;
       if (fresh) popKey++;
       return;
+    }
+
+    // основной бросок в 3D: ждём приземления (с запасным таймером)
+    if (!isAdd && can3d(specsOf(e))) {
+      addFrom = -1;
+      phase = 'spin';
+      spinKey++;
+      let done = false;
+      const finish = () => {
+        if (done) return;
+        done = true;
+        finishSpin = null;
+        phase = 'idle';
+        popKey++;
+        if (e.type === 'd20' && (e.roll.crit || e.roll.fumble)) flashKey++;
+        else buzz(8);
+      };
+      finishSpin = finish;
+      const to3d = setTimeout(finish, 4000);
+      return () => {
+        clearTimeout(to3d);
+        finishSpin = null;
+      };
     }
 
     const sides = isAdd && e.type === 'd20' ? e.roll.extra.slice(from).map((x) => x.sides) : mainSides(e);
@@ -222,6 +257,22 @@
       {#if entry.type === 'd20'}
         {@const r = entry.roll}
         <div class="dice-row">
+          {#if can3d(specsOf(entry))}
+            <div class="d3wrap">
+              <Dice3D
+                specs={r.dice.map((d) => ({
+                  sides: 20,
+                  value: d.value,
+                  tone: phase === 'spin' ? 'ember' : r.dice.length > 1 && !d.kept ? 'dim' : crit ? 'gold' : fumble ? 'bad' : 'ember',
+                  struck: phase !== 'spin' && r.dice.length > 1 && !d.kept,
+                }))}
+                rollKey={spinKey}
+                mode={phase === 'spin' ? 'roll' : 'show'}
+                height={r.dice.length > 1 ? 150 : 170}
+                onlanded={landed3d}
+              />
+            </div>
+          {:else}
           {#key spinKey}
             {#each r.dice as d, i (i)}
               <DieShape
@@ -235,6 +286,7 @@
               />
             {/each}
           {/key}
+          {/if}
           {#if r.extra.length}
             <span class="plus">+</span>
             <div class="extras">
@@ -255,6 +307,17 @@
         {@const r = entry.roll}
         {@const groups = groupDice(r)}
         {@const sz = sizeFor(r.dice.length)}
+        {#if can3d(specsOf(entry))}
+          <div class="dice-row">
+            <div class="d3wrap">
+              <Dice3D specs={specsOf(entry)} rollKey={spinKey} mode={phase === 'spin' ? 'roll' : 'show'} height={r.dice.length > 3 ? 140 : 160} onlanded={landed3d} />
+            </div>
+            {#if r.flat}
+              <span class="plus">{r.flat < 0 ? MINUS : '+'}</span>
+              <span class="flat num">{Math.abs(r.flat)}</span>
+            {/if}
+          </div>
+        {:else}
         <div class="dice-row formula" class:many={r.dice.length > 4}>
           {#key spinKey}
             {#each groups as g, gi (gi)}
@@ -281,6 +344,7 @@
             {/if}
           {/key}
         </div>
+        {/if}
       {/if}
 
       <!-- Итог -->
@@ -438,6 +502,10 @@
     gap: 14px;
     margin: 16px 0 6px;
     min-height: 124px;
+  }
+  .d3wrap {
+    flex: 1 1 100%;
+    min-width: 0;
   }
   .dice-row.formula {
     gap: 8px 10px;

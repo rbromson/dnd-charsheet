@@ -4,6 +4,7 @@
    * перешкода / звичайний / перевага, а кость бросается вторым нажатием.
    */
   import DieShape from './DieShape.svelte';
+  import Dice3D, { can3d } from './Dice3D.svelte';
   import Icon from '../../components/Icon.svelte';
   import { dice } from '../../lib/stores/dice.svelte';
   import { charStore } from '../../lib/stores/characters.svelte';
@@ -65,10 +66,27 @@
       </div>
 
       <button class="throw" class:two class:adv={dice.mode === 'adv'} class:dis={dice.mode === 'dis'} onclick={() => dice.confirmPending()}>
-        <span class="dice">
-          <span class="d d1"><DieShape sides={20} value="20" size={two ? 104 : 128} tone="ember" /></span>
-          {#if two}<span class="d d2"><DieShape sides={20} value="20" size={104} tone={dice.mode === 'adv' ? 'gold' : 'bad'} /></span>{/if}
-        </span>
+        {#if can3d([{ sides: 20 }])}
+          <span class="d3">
+            {#key two}
+              <Dice3D
+                specs={two
+                  ? [
+                      { sides: 20, value: 20, tone: 'ember' },
+                      { sides: 20, value: 20, tone: dice.mode === 'adv' ? 'gold' : 'bad' },
+                    ]
+                  : [{ sides: 20, value: 20, tone: 'ember' }]}
+                mode={two ? 'show' : 'idle'}
+                height={150}
+              />
+            {/key}
+          </span>
+        {:else}
+          <span class="dice">
+            <span class="d d1"><DieShape sides={20} value="20" size={two ? 104 : 128} tone="ember" /></span>
+            {#if two}<span class="d d2"><DieShape sides={20} value="20" size={104} tone={dice.mode === 'adv' ? 'gold' : 'bad'} /></span>{/if}
+          </span>
+        {/if}
         <span class="cta">{t('roll.prompt.tap')}</span>
       </button>
 
@@ -220,6 +238,11 @@
   }
   .throw:active .d {
     transform: scale(0.92) rotate(-8deg);
+  }
+  .d3 {
+    display: block;
+    width: 100%;
+    pointer-events: none;
   }
   .cta {
     margin-top: 8px;

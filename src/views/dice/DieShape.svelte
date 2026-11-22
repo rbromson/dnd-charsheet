@@ -42,6 +42,15 @@
   const shape = $derived(shapeFor(sides));
   const text = $derived(String(value));
   const fs = $derived(Math.round(size * (text.length >= 3 ? 0.26 : sides === 4 ? 0.28 : 0.36)));
+  const uid = $props.id();
+
+  // приземление: после кувыркания — волна и пыль
+  let landKey = $state(0);
+  let wasSpinning = false;
+  $effect(() => {
+    if (wasSpinning && !spinning) landKey++;
+    wasSpinning = spinning;
+  });
 </script>
 
 <div
@@ -53,28 +62,57 @@
   style:--dir={dir}
   aria-hidden="true"
 >
-  <svg viewBox="0 0 100 100">
-    {#if shape}
-      <polygon class="body" points={shape.outline} />
-      <path class="facets" d={shape.facets} />
-    {:else}
-      <circle class="body" cx="50" cy="50" r="45" />
-    {/if}
-  </svg>
-  <span class="n" style:font-size="{fs}px" style:top="{shape?.numY ?? 50}%">{text}</span>
+  <span class="shadow"></span>
+  <div class="inner">
+    <svg viewBox="0 0 100 100">
+      <defs>
+        <radialGradient id="g{uid}" cx="35%" cy="28%" r="80%">
+          <stop offset="0" style="stop-color: var(--hi)" />
+          <stop offset="0.55" style="stop-color: var(--mid)" />
+          <stop offset="1" style="stop-color: var(--lo)" />
+        </radialGradient>
+      </defs>
+      {#if shape}
+        <polygon class="body" points={shape.outline} fill="url(#g{uid})" />
+        <path class="facets" d={shape.facets} />
+        <polygon class="rim" points={shape.outline} />
+      {:else}
+        <circle class="body" cx="50" cy="50" r="45" fill="url(#g{uid})" />
+      {/if}
+    </svg>
+    <span class="n" style:font-size="{fs}px" style:top="{shape?.numY ?? 50}%">{text}</span>
+  </div>
   {#if label}<span class="t" style:font-size="{Math.max(9, Math.round(size * 0.14))}px">d{sides}</span>{/if}
+  {#if landKey}
+    {#key landKey}
+      <span class="land">
+        <span class="wave"></span>
+        {#each [0, 1, 2, 3, 4, 5] as i (i)}<span class="dust" style:--a="{i * 60 + 15}deg"></span>{/each}
+      </span>
+    {/key}
+  {/if}
 </div>
 
 <style>
+  /* Кость: «самоцвет» с градиентом граней, тень на столе; бросок — 3D-кувырок с двумя отскоками */
   .die {
     position: relative;
     flex-shrink: 0;
-    --c: var(--ember);
-    --fill: var(--ember-soft);
-    color: var(--parch);
+    --c: #f08a50;
+    --hi: #ffd2a6;
+    --mid: #e8743b;
+    --lo: #8f3a17;
+    --ink: #2a1206;
+    color: var(--ink);
+    perspective: 420px;
     transition:
       opacity 0.25s,
       transform 0.25s;
+  }
+  .inner {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
   }
   svg {
     position: absolute;
@@ -82,19 +120,31 @@
     width: 100%;
     height: 100%;
     overflow: visible;
+    filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.45));
   }
   .body {
-    fill: var(--fill);
-    stroke: var(--c);
-    stroke-width: 3;
-    stroke-linejoin: round;
+    stroke: none;
   }
   .facets {
     fill: none;
-    stroke: var(--c);
-    stroke-width: 1.4;
+    stroke: rgba(40, 14, 4, 0.55);
+    stroke-width: 1.6;
     stroke-linejoin: round;
-    opacity: 0.45;
+  }
+  .rim {
+    fill: none;
+    stroke: var(--c);
+    stroke-width: 2.6;
+    stroke-linejoin: round;
+  }
+  .shadow {
+    position: absolute;
+    left: 14%;
+    right: 14%;
+    bottom: -9%;
+    height: 14%;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(0, 0, 0, 0.55), transparent 70%);
   }
   .n {
     position: absolute;
@@ -105,6 +155,7 @@
     line-height: 1;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
+    text-shadow: 0 1px 0 rgba(255, 230, 200, 0.45);
   }
   .t {
     position: absolute;
@@ -118,68 +169,178 @@
     transform: translateY(100%);
   }
   .tone-gold {
-    --c: var(--gold);
-    --fill: rgba(230, 180, 80, 0.14);
-    color: var(--gold);
+    --c: #ffd97a;
+    --hi: #fff0c2;
+    --mid: #e6b450;
+    --lo: #8a6018;
+    --ink: #2a1a04;
   }
   .tone-bad {
-    --c: var(--bad);
-    --fill: rgba(192, 83, 63, 0.14);
-    color: #e79a8a;
+    --c: #e07a66;
+    --hi: #f0a898;
+    --mid: #c0533f;
+    --lo: #5e1d12;
+    --ink: #fff2ee;
+  }
+  .tone-bad .n {
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
   }
   .tone-plain {
-    --c: var(--line2);
-    --fill: rgba(0, 0, 0, 0.15);
+    --c: #7a6550;
+    --hi: #5a4636;
+    --mid: #3a2c22;
+    --lo: #1d1612;
+    --ink: var(--parch);
   }
   .tone-dim {
-    --c: #7a6550;
-    --fill: transparent;
-    color: var(--muted);
+    --c: #6b5a48;
+    --hi: #4a3a2e;
+    --mid: #2b211b;
+    --lo: #17110e;
+    --ink: var(--muted);
+  }
+  .tone-plain .n,
+  .tone-dim .n {
+    text-shadow: none;
   }
   .struck {
-    opacity: 0.4;
+    opacity: 0.45;
     transform: scale(0.82);
   }
   .struck .n {
     text-decoration: line-through;
     text-decoration-thickness: 2px;
   }
-  .spinning {
-    animation: tumble 0.7s cubic-bezier(0.3, 0.6, 0.35, 1) both;
+
+  .spinning .inner {
+    animation: tumble 0.72s cubic-bezier(0.3, 0.55, 0.3, 1) both;
   }
   .spinning svg {
-    animation: wobble 0.7s ease-out both;
+    animation: squash 0.72s linear both;
+  }
+  .spinning .shadow {
+    animation: shadow 0.72s cubic-bezier(0.3, 0.55, 0.3, 1) both;
   }
   .spinning .n {
-    opacity: 0.75;
+    opacity: 0.8;
   }
   @keyframes tumble {
     0% {
-      transform: translate3d(0, -14px, 0) rotate(calc(var(--dir) * -200deg)) scale(0.6);
+      transform: translateY(-70%) rotateX(calc(var(--dir) * 320deg)) rotateY(calc(var(--dir) * 140deg)) rotateZ(calc(var(--dir) * -160deg)) scale(0.7);
     }
-    45% {
-      transform: translate3d(0, 6px, 0) rotate(calc(var(--dir) * 40deg)) scale(1.08);
+    38% {
+      transform: translateY(4%) rotateX(calc(var(--dir) * 40deg)) rotateY(calc(var(--dir) * 20deg)) rotateZ(calc(var(--dir) * 24deg)) scale(1.04);
     }
-    70% {
-      transform: translate3d(0, -3px, 0) rotate(calc(var(--dir) * -12deg)) scale(0.97);
+    56% {
+      transform: translateY(-16%) rotateX(calc(var(--dir) * -14deg)) rotateY(0) rotateZ(calc(var(--dir) * -10deg)) scale(1);
+    }
+    74% {
+      transform: translateY(2%) rotateX(4deg) rotateZ(calc(var(--dir) * 4deg));
+    }
+    86% {
+      transform: translateY(-4%) rotateZ(calc(var(--dir) * -2deg));
     }
     100% {
       transform: none;
     }
   }
-  @keyframes wobble {
+  /* приплющивание в момент ударов */
+  @keyframes squash {
     0%,
+    34%,
+    44%,
+    70%,
+    78%,
     100% {
       transform: none;
     }
-    20% {
-      transform: scale(1, 0.85);
+    38% {
+      transform: scale(1.12, 0.86);
     }
-    40% {
-      transform: scale(0.88, 1);
+    74% {
+      transform: scale(1.05, 0.95);
     }
-    60% {
-      transform: scale(1, 0.94);
+  }
+  @keyframes shadow {
+    0% {
+      transform: scale(0.4);
+      opacity: 0.3;
+    }
+    38% {
+      transform: scale(1.1);
+      opacity: 1;
+    }
+    56% {
+      transform: scale(0.75);
+      opacity: 0.6;
+    }
+    74%,
+    100% {
+      transform: none;
+      opacity: 1;
+    }
+  }
+
+  /* приземление: волна и пыль */
+  .land {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .wave {
+    position: absolute;
+    left: 50%;
+    bottom: -6%;
+    width: 110%;
+    height: 26%;
+    margin-left: -55%;
+    border-radius: 50%;
+    border: 2px solid var(--c);
+    opacity: 0;
+    animation: wave 0.55s ease-out;
+  }
+  @keyframes wave {
+    0% {
+      opacity: 0.8;
+      transform: scale(0.5);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.5);
+    }
+  }
+  .dust {
+    position: absolute;
+    left: 50%;
+    top: 92%;
+    width: 6px;
+    height: 6px;
+    margin: -3px;
+    border-radius: 50%;
+    background: var(--hi);
+    opacity: 0;
+    animation: dust 0.6s ease-out;
+  }
+  @keyframes dust {
+    0% {
+      opacity: 0.9;
+      transform: rotate(var(--a)) translateX(0) scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: rotate(var(--a)) translateX(calc(var(--size, 60px) * 0.55)) scale(0.3);
+    }
+  }
+  .dust {
+    --size: 90px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .spinning .inner,
+    .spinning svg,
+    .spinning .shadow,
+    .wave,
+    .dust {
+      animation: none !important;
     }
   }
 </style>
