@@ -76,6 +76,24 @@ export function resolveMode(oldText: string, newText: string, wanted: TextMode):
   return 'append';
 }
 
+const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/**
+ * Страховка к инструкции: известные имена (довідник + новые записи этого же обновления), написанные без @[…],
+ * превращаются в ссылки. Только точное совпадение целым словом — «Мірру» или «Бегафенський» не трогаем.
+ */
+export function autoLink(text: string, names: string[]): string {
+  if (!text) return text;
+  const list = [...new Set(names.map((n) => n.trim()).filter((n) => n.length >= 2))].sort((a, b) => b.length - a.length);
+  if (!list.length) return text;
+  const re = new RegExp(`(?<![\\p{L}\\p{N}@\\[])(${list.map(esc).join('|')})(?![\\p{L}\\p{N}])`, 'gu');
+  // уже оформленные упоминания не трогаем
+  return text
+    .split(/(@\[[^\]\n]+\])/)
+    .map((part, i) => (i % 2 ? part : part.replace(re, '@[$1]')))
+    .join('');
+}
+
 export function mergeText(oldText: string, newText: string, mode: MergeMode): string {
   if (mode === 'same') return oldText;
   if (mode === 'replace' || mode === 'new' || !oldText.trim()) return newText;
@@ -169,9 +187,11 @@ export function planUpdate(c: Character, codexItems: CodexEntry[], u: CharacterU
   const ops: Op[] = [];
   let k = 0;
   const id = () => `op${k++}`;
+  const names = [...codexItems.map((x) => x.name), ...u.codex.map((x) => x.name)];
+  const link = (s: string) => autoLink(s, names);
   if (u.journal || u.notes.length) {
     const notes = u.notes.length ? `\n\n${u.notes.map((n) => `— ${n}`).join('\n')}` : '';
-    const text = ((u.journal?.text ?? '') + notes).trim();
+    const text = link(((u.journal?.text ?? '') + notes).trim());
     const no = u.journal?.sessionNo ?? null;
     // сесія з тим самим номером уже є — дописуємо її, а не створюємо другу
     const ex = no ? journalEntries.find((e) => e.kind === 'session' && e.sessionNo === no) : undefined;
@@ -195,18 +215,19 @@ export function planUpdate(c: Character, codexItems: CodexEntry[], u: CharacterU
       let le = ex ? undefined : lib.find((e) => norm(e.n) === n || norm(e.en) === n);
       // «Potion of Healing» — описание-родитель: берём первый конкретный вариант
       if (le?.par) le = lib.find((e) => e.of === le!.id);
+      const text = link(i.text);
       ops.push({
         id: id(),
         type: 'item-add',
         name: ex?.name ?? le?.n ?? i.name,
         // для наявного предмета qty 0 — лише оновити опис
         qty: ex ? i.qty : i.qty || 1,
-        text: i.text,
+        text,
         magic: i.magic,
         existingId: ex?.id ?? null,
         libId: le?.id ?? null,
         wanted: i.mode,
-        mode: ex ? resolveMode(ex.text, i.text, i.mode) : 'new',
+        mode: ex ? resolveMode(ex.text, text, i.mode) : 'new',
       });
     }
   }
@@ -219,15 +240,16 @@ export function planUpdate(c: Character, codexItems: CodexEntry[], u: CharacterU
   for (const x of u.codex) {
     const n = x.name.toLowerCase();
     const ex = codexItems.find((e) => e.name.toLowerCase() === n);
+    const text = link(x.text);
     ops.push({
       id: id(),
       type: 'codex',
       kind: ex?.kind ?? x.kind,
       name: ex?.name ?? x.name,
-      text: x.text,
+      text,
       status: x.status,
       existingId: ex?.id ?? null,
-      mode: ex ? resolveMode(ex.text, x.text, x.mode) : 'new',
+      mode: ex ? resolveMode(ex.text, text, x.mode) : 'new',
     });
   }
   return ops;

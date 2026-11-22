@@ -19,12 +19,13 @@ const T: Record<Lang, { intro: string; rules: string[]; ctx: string; inv: string
   uk: {
     intro: 'Ти допомагаєш мені вести аркуш персонажа D&D. Після гри я надиктовую нотатки. Розклади їх по категоріях і поверни ЛИШЕ JSON у такому форматі (без пояснень, без тексту навколо):',
     rules: [
-      'journal.text — стислий опис подій сесії українською, від першої особи, по порядку. NPC, місця й завдання згадуй як @[Ім’я].',
+      'ПОСИЛАННЯ — СКРІЗЬ. У будь-якому тексті (journal.text, codex[].text, items[].text, notes) кожну згадку NPC, місця, завдання чи іншої сутності довідника пиши як @[Ім’я]. Це стосується й описів самих NPC, місць і завдань: якщо NPC пов’язаний з іншим NPC, місцем чи завданням, якщо завдання дав хтось або воно веде кудись, якщо предмет від когось — став посилання. У дужках ім’я в називному відмінку ТОЧНО як у довіднику нижче (або як ти назвав новий запис), а речення будуй так, щоб воно читалося з цією формою: «зустріли корчмарку @[Мірра]», «доручення від @[Мірра]», «дорога до @[Бегафен]». Якщо згадуєш когось чи щось, чого ще немає в довіднику, обов’язково додай для нього запис у codex — інакше посилання нікуди не веде.',
+      'journal.text — стислий опис подій сесії українською, від першої особи, по порядку (з посиланнями, див. правило 1).',
       'journal.date — дата гри, якщо я її назвав, інакше {today}. sessionNo — номер сесії, якщо я його назвав, інакше null.',
       'items — зміни спорядження: action "add" (знайшов, купив, отримав), "remove" (продав, втратив, використав, віддав) або "set" (точна кількість). qty — скільки. Для наявних предметів пиши назву ТОЧНО як у списку нижче. magic: true для чарівних. text — що відомо про предмет (властивості, звідки).',
       'coins — ЗМІНА монет за сесію: додатне — отримав, від’ємне — витратив. cp мідні, sp срібні, ep електрум, gp золоті, pp платинові.',
       'xp — скільки досвіду отримано (0, якщо не казав). hp — мої поточні ОЗ наприкінці, якщо я їх назвав, інакше null.',
-      'codex — нові або оновлені NPC (kind "npc"), місця ("place") і завдання ("quest"). text — що про них дізналися саме зараз. status — коротко, напр. «живий», «ворог», «активне», «виконане», або "". Для відомих — ім’я ТОЧНО як у списку нижче.',
+      'codex — нові або оновлені NPC (kind "npc"), місця ("place") і завдання ("quest"). text — що про них дізналися саме зараз, з посиланнями на пов’язаних NPC, місця й завдання. status — коротко, напр. «живий», «ворог», «активне», «виконане», або "". Для відомих — ім’я ТОЧНО як у списку нижче.',
       'mode — як записати text у вже наявний запис (довідник, предмет, сесію з тим самим номером): "append" — text містить ЛИШЕ нове, воно допишеться окремим абзацом (не повторюй те, що вже відомо); "replace" — text є ПОВНИМ новим описом і замінить старий (коли старе застаріло або треба переписати начисто). За замовчуванням — "append". Для нових записів mode не важливий.',
       'Щоб доповнити наявну сесію, вкажи її sessionNo; інакше створиться нова. Щоб лише оновити опис наявного предмета, не змінюючи кількість, — action "add" з qty 0.',
       'notes — усе, що не лягло в категорії або в чому ти не впевнений (нерозбірливо, суперечливо).',
@@ -41,12 +42,13 @@ const T: Record<Lang, { intro: string; rules: string[]; ctx: string; inv: string
   en: {
     intro: 'You help me keep my D&D character sheet. After a game I dictate notes. Sort them into categories and return ONLY JSON in this format (no explanations, no surrounding text):',
     rules: [
-      'journal.text — a concise account of the session in English, first person, in order. Mention NPCs, places and quests as @[Name].',
+      'LINKS EVERYWHERE. In any text (journal.text, codex[].text, items[].text, notes) write every mention of an NPC, place, quest or other codex entity as @[Name]. This includes the descriptions of NPCs, places and quests themselves: if an NPC is connected to another NPC, place or quest, if a quest was given by someone or leads somewhere, if an item came from someone — link them. Inside the brackets use the base form of the name EXACTLY as in the codex below (or as you named a new entry). If you mention someone or something that is not in the codex yet, you MUST add a codex entry for it — otherwise the link leads nowhere.',
+      'journal.text — a concise account of the session in English, first person, in order (with links, see rule 1).',
       'journal.date — the game date if I said it, otherwise {today}. sessionNo — the session number if I said it, otherwise null.',
       'items — gear changes: action "add" (found, bought, received), "remove" (sold, lost, used up, gave away) or "set" (exact quantity). qty — how many. For items I already have, use the name EXACTLY as in the list below. magic: true for magic items. text — what is known about the item.',
       'coins — the CHANGE in coins this session: positive — gained, negative — spent. cp, sp, ep, gp, pp.',
       'xp — experience gained (0 if not mentioned). hp — my current hit points at the end if I said them, otherwise null.',
-      'codex — new or updated NPCs (kind "npc"), places ("place") and quests ("quest"). text — what we learned about them now. status — short, e.g. “alive”, “enemy”, “active”, “done”, or "". For known ones use the name EXACTLY as listed below.',
+      'codex — new or updated NPCs (kind "npc"), places ("place") and quests ("quest"). text — what we learned about them now, with links to related NPCs, places and quests. status — short, e.g. “alive”, “enemy”, “active”, “done”, or "". For known ones use the name EXACTLY as listed below.',
       'mode — how to write text into an existing entry (codex, item, a session with the same number): "append" — text contains ONLY what is new, added as a separate paragraph (do not repeat what is already known); "replace" — text is the FULL new description replacing the old one (when the old one is outdated or needs a clean rewrite). Default is "append". For new entries mode does not matter.',
       'To add to an existing session, give its sessionNo; otherwise a new one is created. To only update an existing item’s description without changing quantity, use action "add" with qty 0.',
       'notes — anything that does not fit or that you are unsure about (inaudible, contradictory).',

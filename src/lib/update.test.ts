@@ -204,3 +204,48 @@ describe('доповнити чи перезаписати', () => {
     expect((ops3.find((o) => o.type === 'journal') as Extract<Op, { type: 'journal' }>)).toMatchObject({ existingId: null, mode: 'new' });
   });
 });
+
+import { autoLink } from './update';
+
+describe('посилання на NPC, місця й завдання', () => {
+  it('autoLink обгортає відомі імена, не чіпаючи вже позначені й частини слів', () => {
+    const names = ['Мірра', 'Три підкови', 'Бегафен'];
+    expect(autoLink('Мірра працює в Три підкови.', names)).toBe('@[Мірра] працює в @[Три підкови].');
+    expect(autoLink('Вже є @[Мірра] і Мірра.', names)).toBe('Вже є @[Мірра] і @[Мірра].');
+    expect(autoLink('Бегафенський сир, Мірру бачили.', names)).toBe('Бегафенський сир, Мірру бачили.');
+    expect(autoLink('', names)).toBe('');
+  });
+
+  it('у плані тексти довідника, предметів і журналу отримують посилання — і на нові записи з цього ж оновлення', () => {
+    const s = setup();
+    const ops = planUpdate(
+      s.c,
+      s.codex,
+      parseUpdate({
+        journal: { text: 'Говорили з Незнайомець у сірому плащі.' },
+        items: [{ action: 'add', name: 'Лист', text: 'Від Мірра до Гордa', qty: 1 }],
+        codex: [
+          { kind: 'npc', name: 'Мірра', text: 'Корчмарка в Три підкови, знає Горд' },
+          { kind: 'npc', name: 'Горд', text: 'Кузнець' },
+          { kind: 'quest', name: 'Знайти кузнеця', text: 'Мірра просить знайти Горд' },
+        ],
+      }),
+    );
+    const j = ops.find((o) => o.type === 'journal') as Extract<Op, { type: 'journal' }>;
+    expect(j.text).toBe('Говорили з @[Незнайомець у сірому плащі].');
+    const mirra = ops.find((o) => o.type === 'codex' && o.name === 'Мірра') as Extract<Op, { type: 'codex' }>;
+    expect(mirra.text).toBe('Корчмарка в @[Три підкови], знає @[Горд]');
+    const quest = ops.find((o) => o.type === 'codex' && o.name === 'Знайти кузнеця') as Extract<Op, { type: 'codex' }>;
+    expect(quest.text).toBe('@[Мірра] просить знайти @[Горд]');
+    const item = ops.find((o) => o.type === 'item-add') as Extract<Op, { type: 'item-add' }>;
+    expect(item.text).toBe('Від @[Мірра] до Гордa');
+  });
+
+  it('інструкція вимагає посилань скрізь і записів для нових імен', () => {
+    const { c, codex } = setup();
+    const p = buildUpdatePrompt(c, codex, '', 'uk');
+    expect(p).toMatch(/СКРІЗЬ/);
+    expect(p).toContain('називному відмінку');
+    expect(buildUpdatePrompt(c, codex, '', 'en')).toMatch(/EVERYWHERE/);
+  });
+});
