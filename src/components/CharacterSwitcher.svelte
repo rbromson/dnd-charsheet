@@ -91,14 +91,14 @@
           <!-- дії — розкриваються всередині картки, список не зсувається вбік -->
           {#if open}
             <div class="opts" transition:slide={{ duration: 180 }}>
-              <button class="opt" title={t('chars.duplicate')} onclick={() => charStore.duplicate(c.id).then(() => (menuFor = null))}
-                ><Icon name="copy" size={20} /><span>{t('chars.act.duplicate')}</span></button
-              >
               <button class="opt" title={t('chars.export')} onclick={() => doExport(c.id)}
                 ><Icon name="share" size={20} /><span>{t('chars.act.export')}</span></button
               >
               <button class="opt" title={t('chars.exportAi')} onclick={() => exportForAi(c.id)}
                 ><Icon name="sparkle" size={20} /><span>{t('chars.act.ai')}</span></button
+              >
+              <button class="opt" title={t('chars.duplicate')} onclick={() => charStore.duplicate(c.id).then(() => (menuFor = null))}
+                ><Icon name="copy" size={20} /><span>{t('chars.act.duplicate')}</span></button
               >
               <button class="opt danger" title={t('chars.delete')} onclick={() => remove(c.id, c.name)}
                 ><Icon name="trash" size={20} /><span>{t('chars.act.delete')}</span></button
