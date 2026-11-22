@@ -480,7 +480,8 @@
   .rc.embedded {
     width: 100%;
     max-height: none;
-    overflow: visible;
+    /* всплывающий итог на миг больше — не даём ему вызвать прокрутку лотка */
+    overflow: clip;
     background: none;
     border: none;
     border-radius: 0;
