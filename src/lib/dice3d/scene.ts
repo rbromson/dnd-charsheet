@@ -5,7 +5,7 @@
  */
 import * as THREE from 'three';
 
-import { ROLL_MS, type DieSpec, type Tone } from './spec';
+import { ROLL_MS, expandSpecs, type DieSpec, type PhysDie, type Tone } from './spec';
 export { SUPPORTED, ROLL_MS, type DieSpec, type Tone } from './spec';
 
 const TONES: Record<Tone, { bg: [string, string]; ink: string; edge: number; emissive: number }> = {
@@ -13,6 +13,7 @@ const TONES: Record<Tone, { bg: [string, string]; ink: string; edge: number; emi
   gold: { bg: ['#ffe39a', '#c8921e'], ink: '#2a1a04', edge: 0xfff0c2, emissive: 0x3a2804 },
   bad: { bg: ['#e98a76', '#9b3a28'], ink: '#fff4ef', edge: 0xf0a898, emissive: 0x2a0804 },
   dim: { bg: ['#6b5a48', '#3a2c22'], ink: '#d8c8ad', edge: 0x8a7458, emissive: 0x000000 },
+  wine: { bg: ['#c8607e', '#6e2440'], ink: '#fff2ea', edge: 0xf2b8c6, emissive: 0x200410 },
 };
 
 interface Face {
@@ -175,7 +176,7 @@ function faceTexture(label: string, tone: Tone, sides: number): THREE.CanvasText
   gr.addColorStop(1, t.bg[1]);
   g.fillStyle = gr;
   g.fillRect(0, 0, S, S);
-  const scale = sides === 4 ? 0.32 : sides === 20 ? 0.42 : sides === 12 ? 0.4 : sides === 6 ? 0.5 : 0.44;
+  const scale = (sides === 4 ? 0.32 : sides === 20 ? 0.42 : sides === 12 ? 0.4 : sides === 6 ? 0.5 : 0.44) * (label.length >= 2 && sides === 10 ? 0.6 : 1);
   g.font = `700 ${Math.round(S * scale)}px Alegreya, Georgia, serif`;
   g.textAlign = 'center';
   g.textBaseline = 'middle';
@@ -194,13 +195,11 @@ function faceTexture(label: string, tone: Tone, sides: number): THREE.CanvasText
   return tex;
 }
 
-/** Метки граней: значение i+1 на грани i (для d10 — 1…10). */
-const faceLabel = (sides: number, i: number) => String(i + 1);
 
 // ---------- сцена ----------
 
 interface Live {
-  spec: DieSpec;
+  spec: PhysDie;
   mesh: THREE.Mesh;
   edges: THREE.LineSegments;
   mats: THREE.MeshStandardMaterial[];
@@ -307,26 +306,26 @@ export class DiceScene {
     this.dice = [];
   }
 
-  private materials(spec: DieSpec): THREE.MeshStandardMaterial[] {
-    const tone = spec.struck ? 'dim' : (spec.tone ?? 'ember');
+  private materials(spec: PhysDie): THREE.MeshStandardMaterial[] {
+    const tone = spec.tone;
     const m = model(spec.sides);
     return m.faces.map(
       (_, i) =>
         new THREE.MeshStandardMaterial({
-          map: faceTexture(faceLabel(spec.sides, i), tone, spec.sides),
+          map: faceTexture(spec.labels[i] ?? String(i + 1), tone, spec.sides),
           roughness: 0.32,
           metalness: 0.12,
           emissive: TONES[tone].emissive,
-          transparent: !!spec.struck,
+          transparent: spec.struck,
           opacity: spec.struck ? 0.55 : 1,
         }),
     );
   }
 
   /** Ориентация, при которой грань со значением смотрит в камеру числом вверх. */
-  private targetFor(sides: number, value: number, pos: THREE.Vector3): THREE.Quaternion {
+  private targetFor(sides: number, faceIndex: number, pos: THREE.Vector3): THREE.Quaternion {
     const m = model(sides);
-    const face = m.faces[Math.max(0, Math.min(m.faces.length - 1, value - 1))];
+    const face = m.faces[Math.max(0, Math.min(m.faces.length - 1, faceIndex))];
     const D = this.camera.position.clone().sub(pos).normalize();
     const q1 = new THREE.Quaternion().setFromUnitVectors(face.normal, D);
     const up = face.up.clone().applyQuaternion(q1);
@@ -338,8 +337,9 @@ export class DiceScene {
     return new THREE.Quaternion().setFromAxisAngle(D, twist).multiply(q1).premultiply(tilt);
   }
 
-  private place(specs: DieSpec[]) {
+  private place(input: DieSpec[]) {
     this.clear();
+    const specs = expandSpecs(input);
     const n = specs.length;
     specs.forEach((spec, i) => {
       const m = model(spec.sides);
@@ -348,7 +348,7 @@ export class DiceScene {
       mesh.castShadow = true;
       const edges = new THREE.LineSegments(
         new THREE.EdgesGeometry(m.geometry, 10),
-        new THREE.LineBasicMaterial({ color: TONES[spec.struck ? 'dim' : (spec.tone ?? 'ember')].edge, transparent: true, opacity: 0.55 }),
+        new THREE.LineBasicMaterial({ color: TONES[spec.tone].edge, transparent: true, opacity: 0.55 }),
       );
       mesh.add(edges);
       const to = new THREE.Vector3((i - (n - 1) / 2) * 2.6, 0, 0);
@@ -369,7 +369,7 @@ export class DiceScene {
       });
     });
     this.frame();
-    for (const d of this.dice) d.target = this.targetFor(d.spec.sides, d.spec.value, d.to);
+    for (const d of this.dice) d.target = this.targetFor(d.spec.sides, d.spec.face, d.to);
   }
 
   /** Бросок: кости кувыркаются и ложатся заданными значениями. */
@@ -413,14 +413,15 @@ export class DiceScene {
 
   /** Обновить вид (крит/провал, отброшенная кость) без нового броска. */
   restyle(specs: DieSpec[]) {
+    const phys = expandSpecs(specs);
     this.dice.forEach((d, i) => {
-      const s = specs[i];
+      const s = phys[i];
       if (!s || (s.tone === d.spec.tone && s.struck === d.spec.struck)) return;
       d.spec = { ...d.spec, tone: s.tone, struck: s.struck };
       d.mats.forEach((m) => m.dispose());
       d.mats = this.materials(d.spec);
       d.mesh.material = d.mats;
-      (d.edges.material as THREE.LineBasicMaterial).color.setHex(TONES[s.struck ? 'dim' : (s.tone ?? 'ember')].edge);
+      (d.edges.material as THREE.LineBasicMaterial).color.setHex(TONES[s.tone].edge);
     });
     this.render();
   }
