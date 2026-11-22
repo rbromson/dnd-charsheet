@@ -69,7 +69,8 @@
 
     {#snippet footer()}
       <button class="btn btn-danger" onclick={remove}><Icon name="trash" size={20} />{t('common.delete')}</button>
-      <button class="btn btn-outline grow" onclick={() => ui.closeSheet()}>{t('common.done')}</button>
+      <div class="grow"></div>
+      <button class="btn btn-ink" onclick={() => ui.closeSheet()}><Icon name="check" size={20} />{t('common.done')}</button>
     {/snippet}
   </SheetFrame>
 {/if}

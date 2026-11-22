@@ -129,7 +129,7 @@
 
   <div class="rest">
     <button class="btn btn-outline" onclick={() => rest('short')}><Icon name="coffee" size={20} />{t('combat.restShort')}</button>
-    <button class="btn btn-ink" onclick={() => rest('long')}><Icon name="moon" size={20} />{t('combat.restLong')}</button>
+    <button class="btn btn-outline" onclick={() => rest('long')}><Icon name="moon" size={20} />{t('combat.restLong')}</button>
   </div>
 </section>
 

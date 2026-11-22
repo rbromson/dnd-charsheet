@@ -82,7 +82,7 @@
         >
       {/if}
       <button class="btn btn-danger" onclick={() => remove(viewing!)}><Icon name="trash" size={20} />{t('common.delete')}</button>
-      <button class="btn btn-primary" onclick={() => (viewing = null)}>{t('common.close')}</button>
+      <button class="btn btn-ink" onclick={() => (viewing = null)}>{t('common.close')}</button>
     </div>
   </div>
 {/if}

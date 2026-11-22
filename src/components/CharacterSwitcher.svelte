@@ -100,8 +100,8 @@
       {/each}
     </div>
     <div class="row actions">
-      <button class="btn btn-primary grow" onclick={() => charStore.create().then(() => (ui.switcherOpen = false))}><Icon name="plus" />{t('chars.new')}</button>
       <button class="btn btn-outline" disabled={busy} onclick={doImport}><Icon name="upload" size={20} />{t('chars.import')}</button>
+      <button class="btn btn-primary grow" onclick={() => charStore.create().then(() => (ui.switcherOpen = false))}><Icon name="plus" />{t('chars.new')}</button>
     </div>
     <button class="btn btn-ghost tpl" onclick={() => deliverFile(templateFile().blob, templateFile().name)}><Icon name="download" size={20} />{t('tpl.button')}</button>
     <p class="hint">{t('tpl.hint')}</p>

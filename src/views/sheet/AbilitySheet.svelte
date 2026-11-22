@@ -52,7 +52,7 @@
     <CalcLine parts={saveParts(c, ability)} total={saveAuto(c, ability)} override={c.saves[ability].override} />
 
     {#snippet footer()}
-      <button class="btn btn-outline grow" onclick={rollCheck}><Icon name="dice" size={20} />{t('sheet.check')} {fmt(m)}</button>
+      <button class="btn btn-ink grow" onclick={rollCheck}><Icon name="dice" size={20} />{t('sheet.check')} {fmt(m)}</button>
       <button class="btn btn-ink grow" onclick={rollSave}><Icon name="shield" size={20} />{t('sheet.rollSave')} {fmt(saveBonus(c, ability))}</button>
     {/snippet}
   </SheetFrame>

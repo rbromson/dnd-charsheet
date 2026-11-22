@@ -702,7 +702,9 @@
     outline: 1.5px solid #e3bd73;
     outline-offset: -1.5px;
     box-shadow: inset 0 1px 0 rgba(255, 225, 200, 0.6), inset 0 -3px 0 rgba(110, 35, 8, 0.3);
-    flex-grow: 1.6;
+    /* главное действие — отдельной строкой во всю ширину, под ним равная пара */
+    flex-basis: 100%;
+    min-height: 56px;
   }
   .act.pri.gold {
     background: linear-gradient(180deg, #ffe39a, var(--gold) 50%, #b8861e);
@@ -726,9 +728,6 @@
     z-index: -1;
     clip-path: polygon(6px 0, calc(100% - 6px) 0, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0 calc(100% - 6px), 0 6px);
     background: radial-gradient(ellipse 120% 100% at 50% 0%, #46342a, #1d140f);
-  }
-  .act.done {
-    flex-grow: 0.7;
   }
   .pv {
     font-size: 12.5px;
