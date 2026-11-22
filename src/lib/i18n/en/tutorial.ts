@@ -37,12 +37,12 @@ export default {
   'tut.3.title': 'Rolling',
   'tut.3.p1': 'Tap a stat to open the roll: choose Disadvantage, Normal or Advantage.',
   'tut.3.p2': 'Tap the die to roll — bonuses, minimums and rerolled 1s are applied for you.',
-  'tut.3.p3': 'After a roll you can add a resource die. “Dice” at the top is for any roll.',
+  'tut.3.p3': 'After a roll you can add a resource die. Any other roll — the “20” gem at the bottom right.',
 
   'tut.4.title': 'Combat',
   'tut.4.p1': 'Type a number and tap “Damage” or “Heal” — temporary HP go first.',
-  'tut.4.p2': 'Attacks: left button rolls to hit, right one rolls damage.',
-  'tut.4.p3': 'Short and long rests restore resources automatically.',
+  'tut.4.p2': 'Attacks: “Attack” rolls to hit, “Damage” rolls damage.',
+  'tut.4.p3': 'At 0 HP death saves appear: tap the sockets or use the big roll button.',
 
   'tut.5.title': 'Gear and spells',
   'tut.5.p1': '“From library” — 500+ items and 300+ SRD spells with numbers ready.',
@@ -63,4 +63,10 @@ export default {
   'tut.8.p1': 'Everything is stored on this device only.',
   'tut.8.p2': 'Use “Export to file” in the character menu — that is how you move data between phone and tablet.',
   'tut.8.p3': 'Interface language and this tutorial are at the bottom of the characters panel.',
+
+  'tut.9.ask': 'How do short and long rests work in D&D 5e: what each one restores, how to spend Hit Dice on a short rest and how many come back on a long one? When should a party rest, and when is it too risky?',
+  'tut.9.title': 'Dice and rest',
+  'tut.9.p1': 'The “20” gem at the bottom right is the dice tray: pick dice and roll, the result shows right there.',
+  'tut.9.p2': 'The campfire medallion above it is “Rest”: short or long, with a preview of what comes back.',
+  'tut.9.p3': 'Hit Dice are spent right there on a short rest. You can undo a rest from the toast.',
 } satisfies Record<string, string>;

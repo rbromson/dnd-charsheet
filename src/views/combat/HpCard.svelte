@@ -132,7 +132,7 @@
 
   <div class="pad">
     {#each keys as k (k)}
-      <button class="key" class:fn={k === 'C' || k === '⌫'} onclick={() => key(k)} aria-label={k === 'C' ? t('combat.clear') : k === '⌫' ? t('combat.backspace') : k}>
+      <button class="key key-tile" class:fn={k === 'C' || k === '⌫'} onclick={() => key(k)} aria-label={k === 'C' ? t('combat.clear') : k === '⌫' ? t('combat.backspace') : k}>
         {k}
       </button>
     {/each}
@@ -366,29 +366,13 @@
     grid-template-columns: repeat(3, 1fr);
     gap: 8px;
   }
+  /* клавиши — общая .key-tile (theme.css) */
   .key {
     height: 56px;
-    border-radius: 12px;
-    background: linear-gradient(180deg, #fbf4e6, var(--parch3));
-    box-shadow:
-      inset 0 0 0 1px var(--edge),
-      inset 0 -2px 0 rgba(150, 112, 62, 0.25),
-      0 2px 3px -1px rgba(80, 50, 20, 0.25);
-    font-size: 22px;
-    font-weight: 600;
-    color: var(--ink);
-    user-select: none;
-    transition:
-      transform 0.08s,
-      background 0.12s;
-  }
-  .key:active {
-    transform: translateY(1px) scale(0.97);
-    background: var(--edge);
-    box-shadow: inset 0 0 0 1px var(--edge);
+    font-size: 24px;
   }
   .key.fn {
-    font-size: 18px;
+    font-size: 19px;
     color: var(--ink2);
   }
   .acts {
@@ -399,7 +383,6 @@
   }
   .acts .btn {
     min-height: 56px;
-    border-radius: 14px;
     font-size: 16px;
     font-weight: 700;
     padding: 0 10px;
@@ -409,8 +392,5 @@
     grid-column: span 2;
     min-height: var(--tap);
     font-size: 14.5px;
-    background: linear-gradient(180deg, #5d84a3, var(--temp));
-    color: var(--parch3);
-    box-shadow: inset 0 1px 0 rgba(220, 240, 255, 0.3), 0 6px 16px -8px rgba(79, 115, 144, 0.7);
   }
 </style>

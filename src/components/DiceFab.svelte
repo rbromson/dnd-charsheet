@@ -78,7 +78,7 @@
     align-items: center;
     justify-content: center;
     color: #fff4e2;
-    background: radial-gradient(circle at 40% 30%, #f9ae78, #df6c33 60%, #b24a1c);
+    background: radial-gradient(circle at 40% 30%, #fbb886, #ea8148 60%, #c75c26);
     box-shadow: inset 0 0 0 1px rgba(255, 220, 180, 0.35);
   }
   /* «20», как на грани d20 */
@@ -88,10 +88,9 @@
     font-size: 21px;
     line-height: 1;
     letter-spacing: -0.02em;
-    color: #fff4e2;
-    text-shadow:
-      0 1px 0 rgba(90, 25, 0, 0.85),
-      0 -1px 0 rgba(255, 220, 180, 0.35);
+    /* как цифры на 3D-кубиках: тёмные чернила со светлым оттиском */
+    color: #2a1206;
+    text-shadow: 0 1px 0 rgba(255, 240, 220, 0.4);
     transform: translateY(1px);
   }
   .glint {

@@ -18,7 +18,7 @@
 
 <script lang="ts">
   /**
-   * Обучение: 8 карточек с анимированными сценами (чистый CSS, без картинок — работает офлайн).
+   * Обучение: 9 карточек с анимированными сценами (чистый CSS, без картинок — работает офлайн).
    * Первый запуск — открывается само; повтор — «Як користуватися» в панели персонажей и на стартовом экране.
    */
   import Icon from './Icon.svelte';
@@ -28,13 +28,15 @@
   import { shareOrCopy } from '../lib/session/share';
 
   async function ask() {
-    const q = `${t('tut.askIntro')}\n\n${t(`tut.${step + 1}.ask`)}`;
-    const r = await shareOrCopy(q, t(`tut.${step + 1}.title`));
+    const q = `${t('tut.askIntro')}\n\n${t(`tut.${id}.ask`)}`;
+    const r = await shareOrCopy(q, t(`tut.${id}.title`));
     if (r === 'copied') ui.toast(t('tut.askCopied'), undefined, 5000);
   }
   import { fade, fly } from 'svelte/transition';
 
-  const TOTAL = 8;
+  /** Порядок показа: id карточки (ключи tut.N.*, сцена sN). «Кубики й привал» (9) — сразу после «Бою». */
+  const ORDER = [1, 2, 3, 4, 9, 5, 6, 7, 8];
+  const TOTAL = ORDER.length;
   let step = $state(0);
   let dir = $state(1);
 
@@ -71,13 +73,14 @@
   };
 
   const n = $derived(step + 1);
+  const id = $derived(ORDER[step]);
 </script>
 
 <svelte:window onkeydown={onKey} />
 
 {#if ui.tutorialOpen}
   <div class="layer" transition:fade={{ duration: 160 }}>
-    <div class="box" role="dialog" tabindex="-1" aria-modal="true" aria-label={t(`tut.${n}.title`)} onpointerdown={down} onpointerup={up}>
+    <div class="box" role="dialog" tabindex="-1" aria-modal="true" aria-label={t(`tut.${id}.title`)} onpointerdown={down} onpointerup={up}>
       <div class="top">
         <span class="count">{t('tut.step', { n, total: TOTAL })}</span>
         <button class="skip" onclick={close}>{t('tut.skip')}</button>
@@ -85,8 +88,8 @@
 
       {#key step}
         <div class="slide" in:fly={{ x: 40 * dir, duration: 260 }}>
-          <div class="stage s{n}" aria-hidden="true">
-            {#if n === 1}
+          <div class="stage s{id}" aria-hidden="true">
+            {#if id === 1}
               <div class="glow"></div>
               <div class="die1"><DieShape sides={20} value="20" size={92} tone="ember" /></div>
               <div class="stack1">
@@ -94,13 +97,13 @@
                 <span class="mb b2"><Icon name="upload" size={14} />{t('chars.import')}</span>
                 <span class="mb b3"><Icon name="download" size={14} />{t('tpl.button')}</span>
               </div>
-            {:else if n === 2}
+            {:else if id === 2}
               <div class="seg2"><span class="sg">{t('mode.play')}</span><span class="sg">{t('mode.edit')}</span><span class="thumb"></span></div>
               <div class="row2 mcard"><span class="dot"></span>{t('skill.deception')}<b>+5</b></div>
               <div class="rolled2"><Icon name="dice" size={14} />17</div>
               <div class="sheet2 mcard"><span class="ln w60"></span><span class="ln w80"></span><span class="ln w40"></span></div>
               <div class="finger f2"><span class="ripple"></span><span class="ring"></span></div>
-            {:else if n === 3}
+            {:else if id === 3}
               <div class="tile3"><Icon name="dice" size={14} />{t('skill.deception')} <b>+5</b></div>
               <div class="prompt3">
                 <div class="chips3">
@@ -110,7 +113,7 @@
                 <div class="res3">22</div>
               </div>
               <div class="finger f3"><span class="ripple"></span></div>
-            {:else if n === 4}
+            {:else if id === 4}
               <div class="hp4 mcard">
                 <div class="hpn"><span class="a">35</span><span class="b">28</span><small>/ 43</small></div>
                 <div class="bar"><span></span></div>
@@ -121,7 +124,7 @@
               <div class="disp4">7</div>
               <span class="dmg4">{t('combat.damage')}</span>
               <div class="finger f4"><span class="ripple"></span></div>
-            {:else if n === 5}
+            {:else if id === 5}
               <div class="lib5 mcard">
                 <div class="hd"><Icon name="search" size={12} />{t('lib.open')}</div>
                 <div class="li">{t('tut.s5.sword')}<b>1к8</b></div>
@@ -135,7 +138,7 @@
                 <div class="gi new">{t('tut.s5.ring')}<span class="att">{t('gear.attunedShort')}</span></div>
               </div>
               <div class="ac5"><Icon name="shield" size={14} /><span class="a">14</span><span class="b">15</span></div>
-            {:else if n === 6}
+            {:else if id === 6}
               <div class="fab6"><Icon name="feather" size={20} stroke={2} /></div>
               <div class="note6 mcard">
                 <div class="hd"><Icon name="feather" size={12} />{t('journal.quick.title')}</div>
@@ -143,7 +146,7 @@
                 <div class="mic"><Icon name="mic" size={14} /><span class="w"></span><span class="w"></span></div>
               </div>
               <div class="finger f6"><span class="ripple"></span></div>
-            {:else if n === 7}
+            {:else if id === 7}
               <div class="n7 mcard"><Icon name="feather" size={12} /><span class="ln w80"></span><span class="ln w60"></span><span class="ln w70"></span></div>
               <div class="arrow7"><span></span><span></span><span></span></div>
               <div class="ai7"><Icon name="sparkle" size={18} /><span class="code">{'{ … }'}</span></div>
@@ -152,6 +155,22 @@
                 <div class="ck c2"><span class="cb"></span><Icon name="star" size={12} />+15 {t('gear.coin.gp')}</div>
                 <div class="ck c3"><span class="cb"></span><Icon name="users" size={12} />{t('tut.s6.npc')}</div>
               </div>
+            {:else if id === 9}
+              <div class="rest9"><Icon name="coffee" size={16} stroke={2} /></div>
+              <div class="gem9"><span>20</span></div>
+              <div class="tray9 ta">
+                <div class="th">{t('dice.tray.title')}</div>
+                <div class="tb">
+                  <DieShape sides={20} value="17" size={44} tone="ember" />
+                  <b class="num">17</b>
+                </div>
+              </div>
+              <div class="tray9 tr">
+                <div class="th">{t('rest.title')}</div>
+                <div class="seg9"><span class="on">{t('rest.short')}</span><span>{t('rest.long')}</span></div>
+                <div class="hd9"><Icon name="heart" size={11} />{t('combat.hitDice')} <b>+7</b></div>
+              </div>
+              <div class="finger f9"><span class="ripple"></span></div>
             {:else}
               <div class="dev8 tab"><Icon name="lock" size={20} /><span class="lbl">{t('tut.s8.tablet')}</span></div>
               <div class="dev8 ph"><Icon name="lock" size={16} /><span class="lbl">{t('tut.s8.phone')}</span></div>
@@ -160,11 +179,11 @@
             {/if}
           </div>
 
-          <h2 class="sc">{t(`tut.${n}.title`)}</h2>
+          <h2 class="sc">{t(`tut.${id}.title`)}</h2>
           <ul>
-            <li>{t(`tut.${n}.p1`)}</li>
-            <li>{t(`tut.${n}.p2`)}</li>
-            <li>{t(`tut.${n}.p3`)}</li>
+            <li>{t(`tut.${id}.p1`)}</li>
+            <li>{t(`tut.${id}.p2`)}</li>
+            <li>{t(`tut.${id}.p3`)}</li>
           </ul>
           <button class="ask" onclick={ask}><Icon name="sparkle" size={16} />{t('tut.ask')}<Icon name="copy" size={15} /></button>
         </div>
@@ -1688,6 +1707,239 @@
     }
   }
 
+
+  /* 9 — кубики й привал */
+  .s9 {
+    --T: 6s;
+  }
+  .rest9 {
+    position: absolute;
+    right: 9%;
+    bottom: 47%;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffd29a;
+    background:
+      radial-gradient(circle at 50% 78%, rgba(255, 140, 60, 0.55), transparent 55%),
+      radial-gradient(circle at 50% 50%, #3a2416 0 62%, transparent 64%),
+      linear-gradient(160deg, #f0cd85, #b07c38 35%, #6e4a1c 70%, #9b7440);
+    box-shadow: 0 3px 0 #4e3312, 0 6px 10px rgba(0, 0, 0, 0.5);
+    animation-name: press9b;
+  }
+  .gem9 {
+    position: absolute;
+    right: 7%;
+    bottom: 16%;
+    width: 38px;
+    height: 43px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+    background: conic-gradient(#f7a066 0 60deg, #d86a32 60deg 120deg, #8a3212 120deg 180deg, #a8441a 180deg 240deg, #e88450 240deg 300deg, #ffc08a 300deg 360deg);
+    animation-name: press9a;
+  }
+  .gem9 span {
+    font-family: var(--font-serif);
+    font-weight: 700;
+    font-size: 13px;
+    color: #2a1206;
+    padding: 4px 3px;
+    background: radial-gradient(circle, #fbb886, #ea8148);
+    clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+  }
+  @keyframes press9a {
+    0%,
+    12% {
+      transform: none;
+    }
+    15% {
+      transform: translateY(3px) scale(0.92);
+    }
+    19%,
+    100% {
+      transform: none;
+    }
+  }
+  @keyframes press9b {
+    0%,
+    58% {
+      transform: none;
+    }
+    61% {
+      transform: translateY(3px) scale(0.9);
+    }
+    65%,
+    100% {
+      transform: none;
+    }
+  }
+  .tray9 {
+    position: absolute;
+    left: 6%;
+    right: 26%;
+    bottom: 8%;
+    top: 14%;
+    border-radius: 10px;
+    padding: 6px 8px;
+    color: var(--parch);
+    background: linear-gradient(180deg, #2c1f18, #150e0b);
+    box-shadow:
+      inset 0 0 0 1px rgba(214, 170, 110, 0.35),
+      0 8px 18px -6px rgba(0, 0, 0, 0.8);
+    opacity: 0;
+  }
+  .th {
+    font-family: var(--font-sc);
+    font-weight: 700;
+    font-size: 12px;
+    margin-bottom: 4px;
+  }
+  .tb {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: calc(100% - 22px);
+  }
+  .tb b {
+    font-size: 30px;
+    color: var(--ember);
+    font-family: var(--font-serif);
+  }
+  .ta {
+    animation-name: tray9a;
+  }
+  .tr {
+    animation-name: tray9b;
+  }
+  @keyframes tray9a {
+    0%,
+    16% {
+      opacity: 0;
+      transform: translateY(30%);
+    }
+    22%,
+    46% {
+      opacity: 1;
+      transform: none;
+    }
+    52%,
+    100% {
+      opacity: 0;
+      transform: translateY(30%);
+    }
+  }
+  @keyframes tray9b {
+    0%,
+    62% {
+      opacity: 0;
+      transform: translateY(30%);
+    }
+    68%,
+    92% {
+      opacity: 1;
+      transform: none;
+    }
+    98%,
+    100% {
+      opacity: 0;
+      transform: translateY(30%);
+    }
+  }
+  .seg9 {
+    display: flex;
+    gap: 3px;
+    padding: 3px;
+    margin: 6px 0 8px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.4);
+    box-shadow: inset 0 0 0 1px rgba(155, 116, 64, 0.6);
+  }
+  .seg9 span {
+    flex: 1;
+    text-align: center;
+    padding: 3px 0;
+    font-family: var(--font-sc);
+    font-weight: 700;
+    font-size: 10.5px;
+    color: #a8916f;
+  }
+  .seg9 .on {
+    color: #ffe6b8;
+    background: linear-gradient(180deg, #4a372b, #24190f);
+    box-shadow: inset 0 0 0 1px #d6aa60;
+  }
+  .hd9 {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+  }
+  .hd9 b {
+    margin-left: auto;
+    color: #7fd37a;
+  }
+  .f9 {
+    animation-name: f9;
+  }
+  .f9 .ripple {
+    animation-name: rip9;
+  }
+  @keyframes f9 {
+    0% {
+      left: 40%;
+      top: 100%;
+    }
+    11%,
+    16% {
+      left: 87%;
+      top: 66%;
+    }
+    40% {
+      left: 70%;
+      top: 96%;
+    }
+    57%,
+    62% {
+      left: 88%;
+      top: 38%;
+    }
+    100% {
+      left: 70%;
+      top: 104%;
+    }
+  }
+  @keyframes rip9 {
+    0%,
+    12% {
+      opacity: 0;
+      transform: scale(0.6);
+    }
+    14% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    20%,
+    57% {
+      opacity: 0;
+      transform: scale(1.8);
+    }
+    59% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    66%,
+    100% {
+      opacity: 0;
+      transform: scale(1.8);
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .stage * {
       animation: none !important;
@@ -1696,6 +1948,7 @@
     .res3,
     .list7,
     .note6,
+    .ta,
     .gi.new {
       opacity: 1;
       transform: none;

@@ -18,9 +18,9 @@
 
   <div class="cols cols-2 combat-cols">
     <div class="stack">
+      <!-- рятунки від смерті — лише коли персонаж при смерті (0 ОЗ) -->
       {#if down}<DeathSaves />{/if}
       <HpCard />
-      {#if !down}<DeathSaves />{/if}
       <HitDiceCard />
     </div>
     <div class="stack">

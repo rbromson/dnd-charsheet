@@ -340,7 +340,8 @@ h3 {
 .btn-ink,
 .btn-outline,
 .btn-danger,
-.btn-good {
+.btn-good,
+.btn-temp {
   clip-path: var(--chamfer);
   background: var(--frame, var(--frame-gold));
 }
@@ -348,7 +349,8 @@ h3 {
 .btn-ink::before,
 .btn-outline::before,
 .btn-danger::before,
-.btn-good::before {
+.btn-good::before,
+.btn-temp::before {
   content: '';
   position: absolute;
   inset: 1.5px;
@@ -366,7 +368,8 @@ h3 {
 .btn-ink::after,
 .btn-outline::after,
 .btn-danger::after,
-.btn-good::after {
+.btn-good::after,
+.btn-temp::after {
   content: '';
   position: absolute;
   inset: 4px 5px;
@@ -382,7 +385,8 @@ h3 {
 .btn-ink:active::before,
 .btn-outline:active::before,
 .btn-danger:active::before,
-.btn-good:active::before {
+.btn-good:active::before,
+.btn-temp:active::before {
   filter: brightness(1.18);
 }
 @media (hover: hover) {
@@ -390,7 +394,8 @@ h3 {
   .btn-ink:hover::before,
   .btn-outline:hover::before,
   .btn-danger:hover::before,
-  .btn-good:hover::before {
+  .btn-good:hover::before,
+  .btn-temp:hover::before {
     filter: brightness(1.12);
   }
 }
@@ -443,12 +448,118 @@ h3 {
   text-shadow: 0 1px 0 rgba(10, 30, 5, 0.7);
   filter: drop-shadow(0 3px 6px rgba(127, 163, 107, 0.35));
 }
+.btn-temp {
+  --fill: radial-gradient(ellipse 120% 90% at 50% 0%, #7fa3c2 0%, #4f7390 45%, #24384a 100%);
+  --frame: var(--frame-bronze);
+  --orn: var(--ornament-bronze);
+  color: #eef6ff;
+  text-shadow: 0 1px 0 rgba(5, 15, 30, 0.7);
+  filter: drop-shadow(0 3px 6px rgba(79, 115, 144, 0.35));
+}
+/* текстовая: гравированная надпись без пластины, при наведении — отсвет */
 .btn-ghost {
-  color: inherit;
-  border-radius: 10px;
-  font-family: var(--font-sans);
-  font-weight: 600;
-  letter-spacing: 0;
+  color: #e3c48a;
+  border-radius: 4px;
+  font-family: var(--font-sc);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
+  transition:
+    background 0.15s,
+    color 0.15s,
+    transform 0.12s var(--ease);
+}
+.btn-ghost :where(svg) {
+  color: var(--gold);
+  opacity: 0.9;
+}
+@media (hover: hover) {
+  .btn-ghost:hover {
+    color: #f6dca6;
+    background: radial-gradient(ellipse 70% 90% at 50% 50%, rgba(232, 180, 90, 0.14), transparent 75%);
+  }
+}
+.btn-ghost:active {
+  background: radial-gradient(ellipse 70% 90% at 50% 50%, rgba(232, 180, 90, 0.22), transparent 75%);
+}
+/* на пергаменте — чернилами */
+.card .btn-ghost,
+.sheet .btn-ghost {
+  color: var(--ink2);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+.card .btn-ghost :where(svg),
+.sheet .btn-ghost :where(svg) {
+  color: #9a6a2a;
+}
+/*
+ * Клавиша-плитка: квадратные/числовые кнопки (цифры, −/+, кубики в лотке).
+ * Без орнамента — только оправа со срезанными углами и «толщина» снизу.
+ * На тёмном — тёмная пластина в бронзе, на пергаменте — светлая табличка; .on — золото и уголёк.
+ */
+.key-tile {
+  --cut: 6px;
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  clip-path: polygon(var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 calc(100% - var(--cut)), 0 var(--cut));
+  background: var(--frame-bronze);
+  color: #ecd8b4;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-variant-numeric: lining-nums tabular-nums;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.08s;
+}
+.key-tile::before {
+  content: '';
+  position: absolute;
+  inset: 1.5px 1.5px 3px;
+  z-index: -1;
+  clip-path: inherit;
+  background: radial-gradient(ellipse 120% 100% at 50% 0%, #46342a 0%, #2a1e17 55%, #17100c 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 236, 200, 0.14);
+  transition: background 0.15s;
+}
+.key-tile:active {
+  transform: translateY(1.5px);
+}
+.key-tile:active::before {
+  inset: 1.5px;
+  filter: brightness(1.2);
+}
+.key-tile.on {
+  background: var(--frame-gold);
+  color: #ffe6b8;
+}
+.key-tile.on::before {
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 110%, rgba(232, 116, 59, 0.7), transparent 70%),
+    radial-gradient(ellipse 120% 100% at 50% 0%, #4a372b, #24190f);
+}
+.card .key-tile,
+.sheet .key-tile {
+  background: linear-gradient(180deg, #c9a46a, #8a6434 60%, #6e4d24);
+  color: var(--ink);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+.card .key-tile::before,
+.sheet .key-tile::before {
+  background: radial-gradient(ellipse 120% 100% at 50% 0%, #fffaf0 0%, #f3e6cb 55%, #e2cfa8 100%);
+  box-shadow: inset 0 -6px 10px -6px rgba(110, 78, 40, 0.35);
+}
+.card .key-tile:active::before,
+.sheet .key-tile:active::before {
+  filter: none;
+  background: radial-gradient(ellipse 120% 100% at 50% 100%, #fff3dc 0%, #e8d6b0 70%, #d6be92 100%);
+}
+.key-tile[disabled] {
+  opacity: 0.4;
+  pointer-events: none;
 }
 .btn[disabled] {
   opacity: 0.45;

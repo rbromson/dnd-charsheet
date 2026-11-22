@@ -155,16 +155,39 @@
     gap: 6px;
   }
   .ch {
+    --cut: 10px;
+    position: relative;
+    isolation: isolate;
     display: flex;
     align-items: center;
-    border-radius: 14px;
-    border: 1.5px solid transparent;
-    padding: 6px;
+    padding: 6px 6px 6px 8px;
+    clip-path: polygon(var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 calc(100% - var(--cut)), 0 var(--cut));
   }
+  /* выбранный — как активные элементы: золотая оправа, тёмное дно, уголёк слева */
   .ch.on {
-    background: linear-gradient(100deg, rgba(232, 116, 59, 0.2), rgba(232, 116, 59, 0.06));
-    border-color: var(--ember);
-    box-shadow: 0 0 22px -6px var(--ember-glow);
+    background: var(--frame-gold);
+  }
+  .ch.on::before {
+    content: '';
+    position: absolute;
+    inset: 1.5px;
+    z-index: -1;
+    clip-path: inherit;
+    background:
+      radial-gradient(ellipse 60% 120% at 0% 50%, rgba(232, 116, 59, 0.38), transparent 70%),
+      radial-gradient(ellipse 120% 100% at 50% 0%, #46342a, #1d140f);
+    box-shadow: inset 0 1px 0 rgba(255, 236, 200, 0.15);
+  }
+  .ch.on::after {
+    content: '';
+    position: absolute;
+    left: 3px;
+    top: 50%;
+    width: 7px;
+    height: 7px;
+    transform: translateY(-50%) rotate(45deg);
+    background: linear-gradient(135deg, #f3d696, #b98436);
+    box-shadow: 0 0 6px rgba(240, 190, 100, 0.5);
   }
   .main {
     flex: 1;
@@ -194,9 +217,12 @@
   }
   .menu {
     margin: 0 0 4px 70px;
-    background: var(--bg3);
-    border: 1px solid var(--line);
-    border-radius: 12px;
+    background: radial-gradient(ellipse 120% 100% at 50% 0%, #3a2b22, #1a120e);
+    border: 1px solid rgba(155, 116, 64, 0.7);
+    border-radius: 3px;
+    box-shadow:
+      inset 0 0 0 1px rgba(0, 0, 0, 0.5),
+      0 10px 24px -10px rgba(0, 0, 0, 0.8);
     padding: 6px;
     display: flex;
     flex-direction: column;
@@ -207,11 +233,23 @@
     align-items: center;
     gap: 10px;
     padding: 0 10px;
-    border-radius: 8px;
-    color: #d9c7aa;
+    border-radius: 3px;
+    font-family: var(--font-sc);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: #e3c48a;
     text-align: left;
   }
-  .menu .danger {
+  .menu button :global(svg) {
+    color: var(--gold);
+  }
+  @media (hover: hover) {
+    .menu button:hover {
+      background: rgba(232, 180, 90, 0.1);
+    }
+  }
+  .menu .danger,
+  .menu .danger :global(svg) {
     color: #e07a66;
   }
   .actions {
@@ -220,7 +258,6 @@
   .tpl {
     align-self: flex-start;
     padding: 0 8px;
-    color: var(--ember);
   }
   .sp {
     flex: 1;

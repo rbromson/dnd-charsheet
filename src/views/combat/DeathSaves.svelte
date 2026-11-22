@@ -79,14 +79,15 @@
     gap: 6px;
   }
   .grp {
-    --c: var(--good);
+    /* на пергаменте нужен насыщеннее, чем общий --good */
+    --c: #3f8a34;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 2px;
   }
   .grp.ko {
-    --c: var(--bad);
+    --c: #b8412c;
   }
   .gl {
     display: inline-flex;
@@ -96,7 +97,7 @@
     font-weight: 700;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--c);
+    color: color-mix(in srgb, var(--c) 80%, #000);
   }
   .grp.big .gl {
     font-size: 12.5px;
@@ -142,7 +143,7 @@
     justify-content: center;
     color: #fff;
     background:
-      radial-gradient(circle at 50% 60%, color-mix(in srgb, var(--c) 22%, transparent), transparent 70%),
+      radial-gradient(circle at 50% 60%, color-mix(in srgb, var(--c) 30%, transparent), transparent 70%),
       radial-gradient(circle at 50% 35%, #d9c7a3, #b9a27a);
     box-shadow:
       inset 0 3px 5px rgba(60, 40, 15, 0.45),
