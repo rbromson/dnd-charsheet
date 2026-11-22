@@ -87,10 +87,14 @@
               ><Icon name="shield" size={18} />{t('combat.atkDc', { dc: attackSaveDc(c, a) })}</button
             >
           {:else}
-            <button class="btn btn-ink hit" onclick={() => rollAttack(a)}><Icon name="combat" size={18} />{fmt(attackBonus(c, a))}</button>
+            <button class="btn btn-ink hit" onclick={() => rollAttack(a)}
+              ><Icon name="combat" size={18} />{t('combat.atkRoll')}<span class="v num">{fmt(attackBonus(c, a))}</span></button
+            >
           {/if}
           {#if a.damage.trim()}
-            <button class="btn btn-outline dmg" onclick={() => rollDamage(a)}>{resolveDamageFormula(c, a)}</button>
+            <button class="btn btn-outline dmg" onclick={() => rollDamage(a)}
+              >{t('combat.damage')}<span class="v num">{resolveDamageFormula(c, a)}</span></button
+            >
           {/if}
         </div>
       {/if}
@@ -144,18 +148,27 @@
     font-style: italic;
     white-space: pre-line;
   }
+  /* кнопки — строкой под описанием, поровну */
   .btns {
+    flex-basis: 100%;
     display: flex;
     gap: 8px;
-    margin-left: auto;
+    padding-bottom: 4px;
   }
-  .hit {
-    font-weight: 700;
-    font-size: 16px;
+  .btns .btn {
+    flex: 1 1 0;
+    min-width: 0;
+    gap: 6px;
+    padding: 0 12px;
+    white-space: nowrap;
   }
-  .dmg {
+  .btns .btn :global(svg) {
+    flex-shrink: 0;
+  }
+  .v {
+    margin-left: 2px;
+    font-family: var(--font-sans);
     font-weight: 700;
-    font-size: 15px;
     font-variant-numeric: tabular-nums;
   }
   .add {
