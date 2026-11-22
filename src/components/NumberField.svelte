@@ -20,14 +20,26 @@
     onchange?: (v: number | null) => void;
   } = $props();
 
+  import { untrack } from 'svelte';
+
+  const parse = (s: string) => {
+    const t = s.trim().replace(',', '.').replace('−', '-');
+    return t === '' ? null : Number(t);
+  };
+
   let text = $state(value == null ? '' : String(value));
+  /** пока поле в фокусе, набранный текст не перетирается значением снаружи */
+  let editing = false;
+
+  // реагируем только на изменение value снаружи (текст не отслеживаем — иначе ввод откатывается)
   $effect(() => {
     const v = value;
-    const cur = text.trim() === '' ? null : Number(text.replace(',', '.').replace('−', '-'));
-    if (cur !== v) text = v == null ? '' : String(v);
+    untrack(() => {
+      if (!editing && parse(text) !== v) text = v == null ? '' : String(v);
+    });
   });
 
-  function commit() {
+  function commit(final = false) {
     const s = text.trim().replace(',', '.').replace('−', '-');
     let v: number | null;
     if (s === '' || s === '-') v = nullable ? null : (min ?? 0);
@@ -42,6 +54,15 @@
     }
     value = v;
     onchange?.(v);
+    if (final) text = v == null ? '' : String(v);
+  }
+
+  function onInput(e: Event) {
+    text = (e.currentTarget as HTMLInputElement).value;
+    const s = text.trim().replace('−', '-');
+    // промежуточные состояния («», «-») не сохраняем — только целые числа
+    if (/^-?\d+$/.test(s)) commit();
+    else if (s === '' && nullable) commit();
   }
 </script>
 
@@ -53,14 +74,16 @@
     inputmode="numeric"
     enterkeyhint="done"
     {placeholder}
-    bind:value={text}
-    oninput={() => {
-      const s = text.trim().replace('−', '-');
-      if (/^-?\d+$/.test(s)) commit();
-      else if (s === '' && nullable) commit();
+    value={text}
+    oninput={onInput}
+    onblur={() => {
+      editing = false;
+      commit(true);
     }}
-    onblur={commit}
-    onfocus={(e) => (e.currentTarget as HTMLInputElement).select()}
+    onfocus={(e) => {
+      editing = true;
+      (e.currentTarget as HTMLInputElement).select();
+    }}
   />
 </label>
 

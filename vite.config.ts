@@ -5,6 +5,8 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
   base: '/dnd-charsheet/',
+  // в тестах — браузерная сборка Svelte (mount компонентов в jsdom)
+  resolve: process.env.VITEST ? { conditions: ['browser'] } : undefined,
   plugins: [
     svelte(),
     VitePWA({
