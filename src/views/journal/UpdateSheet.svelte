@@ -14,7 +14,7 @@
   import { historyForPrompt } from '../../lib/digest';
   import Toggle from '../../components/Toggle.svelte';
   import { lang } from '../../lib/i18n';
-  import { extractJson, parseUpdate, planUpdate, applyOps, type Op } from '../../lib/update';
+  import { extractJson, parseUpdate, planUpdate, applyOps, type Op, type MergeMode } from '../../lib/update';
   import { loadItems } from '../../lib/library';
   import type { LibItem } from '../../lib/library/types';
   import { shareOrCopy, copyText } from '../../lib/session/share';
@@ -68,7 +68,7 @@
       return;
     }
     if (!lib.length) lib = await loadItems().catch(() => []);
-    const plan = planUpdate(c, codex.items, parseUpdate(data), lib);
+    const plan = planUpdate(c, codex.items, parseUpdate(data), lib, journal.entries);
     if (!plan.length) {
       ui.toast(t('upd.empty'));
       return;
@@ -93,6 +93,11 @@
           createCodex: (kind, name, init) => codex.create(kind, name, init),
           updateCodex: (id, patch) => codex.update(id, patch),
           getCodex: (id) => codex.get(id),
+          updateJournal: (id, patch) => {
+            journal.update(id, patch);
+            entryId = id;
+          },
+          getJournal: (id) => journal.get(id),
         }),
       { undo: t('upd.applied', { n: list.length }) },
     );
@@ -105,6 +110,8 @@
       .filter(([k, v]) => v && (!keys || keys.includes(k)))
       .map(([k, v]) => `${v > 0 ? '+' : ''}${v} ${t(`gear.coin.${k}`)}`)
       .join(', ');
+
+  const modeText = (m: MergeMode) => t(`upd.mode.${m}`);
 
   function title(o: Op): string {
     switch (o.type) {
@@ -129,15 +136,23 @@
   function sub(o: Op): string {
     switch (o.type) {
       case 'journal':
-        return o.text;
+        return [o.existingId ? `${t('upd.op.journalNo', { n: o.sessionNo ?? '' })}: ${modeText(o.mode)}` : '', o.mode === 'same' ? '' : o.text].filter(Boolean).join('\n');
       case 'item-add':
-        return [o.existingId ? t('upd.op.itemAddHave') : o.libId ? t('upd.op.itemAddLib') : t('upd.op.itemAddNew'), o.text].filter(Boolean).join(' · ');
+        return [
+          o.existingId ? (o.qty ? t('upd.op.itemAddHave') : '') : o.libId ? t('upd.op.itemAddLib') : t('upd.op.itemAddNew'),
+          o.existingId && o.text ? modeText(o.mode) : '',
+          o.text,
+        ]
+          .filter(Boolean)
+          .join(' · ');
       case 'item-remove':
         return !o.existingId ? t('upd.op.itemMissing') : o.have - o.qty <= 0 ? t('upd.op.itemRemoveAll') : t('upd.op.itemRemoveLeft', { n: o.have - o.qty });
       case 'coins':
         return o.short.length ? t('upd.op.coinsShort', { list: o.short.map((k) => t(`gear.coin.${k}`)).join(', ') }) : '';
       case 'codex':
-        return [o.existingId ? t('upd.op.codexUpd') : t('upd.op.codexNew'), o.status ? t('upd.status', { s: o.status }) : '', o.text].filter(Boolean).join(' · ');
+        return [o.existingId ? modeText(o.mode) : t('upd.op.codexNew'), o.status ? t('upd.status', { s: o.status }) : '', o.mode === 'same' ? '' : o.text]
+          .filter(Boolean)
+          .join(' · ');
       default:
         return '';
     }

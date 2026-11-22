@@ -6,12 +6,12 @@ import { todayDate } from './model/ids';
 const FORMAT = `{
   "taverna": "update",
   "version": 1,
-  "journal": { "title": "…", "sessionNo": null, "date": "YYYY-MM-DD", "text": "…" },
-  "items": [ { "action": "add", "name": "…", "qty": 1, "text": "…", "magic": false } ],
+  "journal": { "title": "…", "sessionNo": null, "date": "YYYY-MM-DD", "text": "…", "mode": "append" },
+  "items": [ { "action": "add", "name": "…", "qty": 1, "text": "…", "magic": false, "mode": "append" } ],
   "coins": { "cp": 0, "sp": 0, "ep": 0, "gp": 0, "pp": 0 },
   "xp": 0,
   "hp": null,
-  "codex": [ { "kind": "npc", "name": "…", "text": "…", "status": "" } ],
+  "codex": [ { "kind": "npc", "name": "…", "text": "…", "status": "", "mode": "append" } ],
   "notes": []
 }`;
 
@@ -25,6 +25,8 @@ const T: Record<Lang, { intro: string; rules: string[]; ctx: string; inv: string
       'coins — ЗМІНА монет за сесію: додатне — отримав, від’ємне — витратив. cp мідні, sp срібні, ep електрум, gp золоті, pp платинові.',
       'xp — скільки досвіду отримано (0, якщо не казав). hp — мої поточні ОЗ наприкінці, якщо я їх назвав, інакше null.',
       'codex — нові або оновлені NPC (kind "npc"), місця ("place") і завдання ("quest"). text — що про них дізналися саме зараз. status — коротко, напр. «живий», «ворог», «активне», «виконане», або "". Для відомих — ім’я ТОЧНО як у списку нижче.',
+      'mode — як записати text у вже наявний запис (довідник, предмет, сесію з тим самим номером): "append" — text містить ЛИШЕ нове, воно допишеться окремим абзацом (не повторюй те, що вже відомо); "replace" — text є ПОВНИМ новим описом і замінить старий (коли старе застаріло або треба переписати начисто). За замовчуванням — "append". Для нових записів mode не важливий.',
+      'Щоб доповнити наявну сесію, вкажи її sessionNo; інакше створиться нова. Щоб лише оновити опис наявного предмета, не змінюючи кількість, — action "add" з qty 0.',
       'notes — усе, що не лягло в категорії або в чому ти не впевнений (нерозбірливо, суперечливо).',
       'Не вигадуй того, чого я не казав. Порожні категорії залиш порожніми ([] або 0).',
     ],
@@ -45,6 +47,8 @@ const T: Record<Lang, { intro: string; rules: string[]; ctx: string; inv: string
       'coins — the CHANGE in coins this session: positive — gained, negative — spent. cp, sp, ep, gp, pp.',
       'xp — experience gained (0 if not mentioned). hp — my current hit points at the end if I said them, otherwise null.',
       'codex — new or updated NPCs (kind "npc"), places ("place") and quests ("quest"). text — what we learned about them now. status — short, e.g. “alive”, “enemy”, “active”, “done”, or "". For known ones use the name EXACTLY as listed below.',
+      'mode — how to write text into an existing entry (codex, item, a session with the same number): "append" — text contains ONLY what is new, added as a separate paragraph (do not repeat what is already known); "replace" — text is the FULL new description replacing the old one (when the old one is outdated or needs a clean rewrite). Default is "append". For new entries mode does not matter.',
+      'To add to an existing session, give its sessionNo; otherwise a new one is created. To only update an existing item’s description without changing quantity, use action "add" with qty 0.',
       'notes — anything that does not fit or that you are unsure about (inaudible, contradictory).',
       'Do not invent anything I did not say. Leave empty categories empty ([] or 0).',
     ],

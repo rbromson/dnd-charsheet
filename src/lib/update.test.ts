@@ -141,3 +141,66 @@ describe('історія персонажа для ШІ', () => {
     expect(historyForPrompt([], [], 'uk')).toBe('');
   });
 });
+
+describe('доповнити чи перезаписати', () => {
+  const OLD = 'Трактир у Бегафені. Фрідо виграв на нього купчу, але ще жодного разу там не був.';
+  const plan = (raw: unknown, journalEntries: JournalEntry[] = []) => {
+    const s = setup();
+    s.codex[1].text = OLD;
+    const ops = planUpdate(s.c, s.codex, parseUpdate(raw), [], journalEntries);
+    return { ...s, ops };
+  };
+  const cxOp = (ops: Op[]) => ops.find((o) => o.type === 'codex') as Extract<Op, { type: 'codex' }>;
+
+  it('нова інформація — новим абзацом', () => {
+    const { ops, ctx, codex } = plan({ codex: [{ kind: 'place', name: 'Три підкови', text: 'Над дверима висить підкова.' }] });
+    expect(cxOp(ops).mode).toBe('append');
+    applyOps(ops, ctx);
+    expect(codex[1].text).toBe(`${OLD}\n\nНад дверима висить підкова.`);
+  });
+
+  it('явне replace — замінює опис', () => {
+    const { ops, ctx, codex } = plan({ codex: [{ kind: 'place', name: 'Три підкови', text: 'Згорілий трактир.', mode: 'replace' }] });
+    expect(cxOp(ops).mode).toBe('replace');
+    applyOps(ops, ctx);
+    expect(codex[1].text).toBe('Згорілий трактир.');
+  });
+
+  it('ШІ повернув повний текст зі старим — це перезапис, а не дубль', () => {
+    const full = `${OLD} Над дверима висить підкова.`;
+    const { ops, ctx, codex } = plan({ codex: [{ kind: 'place', name: 'Три підкови', text: full, mode: 'append' }] });
+    expect(cxOp(ops).mode).toBe('replace');
+    applyOps(ops, ctx);
+    expect(codex[1].text).toBe(full);
+    expect(codex[1].text.split('жодного разу').length).toBe(2);
+  });
+
+  it('нічого нового — опис не змінюється, статус оновлюється', () => {
+    const { ops, ctx, codex } = plan({ codex: [{ kind: 'place', name: 'Три підкови', text: 'трактир у Бегафені', status: 'знайдено' }] });
+    expect(cxOp(ops).mode).toBe('same');
+    applyOps(ops, ctx);
+    expect(codex[1]).toMatchObject({ text: OLD, status: 'знайдено' });
+  });
+
+  it('опис наявного предмета теж: доповнити або перезаписати', () => {
+    const s = setup();
+    const pan = s.c.equipment.find((i) => i.name === 'Пательня')!;
+    const old = pan.text;
+    applyOps(planUpdate(s.c, s.codex, parseUpdate({ items: [{ action: 'add', name: 'Пательня', qty: 0, text: 'Тепер з гравіюванням.' }] })), s.ctx);
+    expect(pan.text).toBe(`${old}\n\nТепер з гравіюванням.`);
+    expect(pan.qty).toBe(1);
+    applyOps(planUpdate(s.c, s.codex, parseUpdate({ items: [{ action: 'add', name: 'Пательня', qty: 0, text: 'Нова пательня.', mode: 'replace' }] })), s.ctx);
+    expect(pan.text).toBe('Нова пательня.');
+  });
+
+  it('сесія з тим самим номером дописується, а не дублюється', () => {
+    const existing: JournalEntry = { id: 'j2', characterId: 'c', kind: 'session', sessionNo: 2, date: '2026-11-22', title: 'Дорога', text: 'Ми дісталися міста.', secret: '', pinned: false, images: [], transcript: [], createdAt: '', updatedAt: '' };
+    const { ops } = plan({ journal: { sessionNo: 2, text: 'Увечері купили мотузку.' } }, [existing]);
+    const j = ops.find((o) => o.type === 'journal') as Extract<Op, { type: 'journal' }>;
+    expect(j).toMatchObject({ existingId: 'j2', mode: 'append' });
+    const { ops: ops2 } = plan({ journal: { sessionNo: 2, text: 'Ми дісталися міста. Увечері купили мотузку.' } }, [existing]);
+    expect((ops2.find((o) => o.type === 'journal') as Extract<Op, { type: 'journal' }>).mode).toBe('replace');
+    const { ops: ops3 } = plan({ journal: { sessionNo: 7, text: 'Нова сесія.' } }, [existing]);
+    expect((ops3.find((o) => o.type === 'journal') as Extract<Op, { type: 'journal' }>)).toMatchObject({ existingId: null, mode: 'new' });
+  });
+});

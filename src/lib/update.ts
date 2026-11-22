@@ -5,12 +5,13 @@
  * Формат (усі поля необов’язкові):
  * {
  *   "taverna": "update", "version": 1,
- *   "journal": { "title": "…", "sessionNo": 3, "date": "2026-11-22", "text": "події, @[Ім’я] для згадок" },
- *   "items":   [ { "action": "add" | "remove" | "set", "name": "…", "qty": 1, "text": "…", "magic": false } ],
+ *   "journal": { "title": "…", "sessionNo": 3, "date": "2026-11-22", "text": "події, @[Ім’я] для згадок", "mode": "append" | "replace" },
+ *   "items":   [ { "action": "add" | "remove" | "set", "name": "…", "qty": 1, "text": "…", "magic": false, "mode": "append" | "replace" } ],
  *   "coins":   { "cp": 0, "sp": 0, "ep": 0, "gp": 0, "pp": 0 },   // зміна: + отримав, − витратив
  *   "xp": 300,                                                    // отриманий досвід
  *   "hp": 12,                                                     // поточні ОЗ наприкінці (або null)
- *   "codex":   [ { "kind": "npc" | "place" | "quest", "name": "…", "text": "що дізналися", "status": "…" } ],
+ *   "codex":   [ { "kind": "npc" | "place" | "quest", "name": "…", "text": "…", "status": "…", "mode": "append" | "replace" } ],
+ *   // mode: append — text лише нове, дописується абзацом; replace — text повний новий опис замість старого
  *   "notes":   [ "що не лягло в категорії" ]
  * }
  */
@@ -20,6 +21,7 @@ import { addLibItem } from './library/apply';
 import type { LibItem } from './library/types';
 import { removeItem } from './rules/weapons';
 import { norm } from './library';
+import { MENTION_RE } from './mentions';
 
 export type CoinKey = 'cp' | 'sp' | 'ep' | 'gp' | 'pp';
 const COINS: CoinKey[] = ['cp', 'sp', 'ep', 'gp', 'pp'];
@@ -27,25 +29,58 @@ const COINS: CoinKey[] = ['cp', 'sp', 'ep', 'gp', 'pp'];
 const REMOVE_RE = /^(remove|del|lost|los|used|use|spent|spend|sold|sell|gave|give|consum|drop|broke|−|-|прибра|видал|втрат|загуб|продав|прода|використ|витрат|віддав|відда|зламав)/;
 const KINDS: CodexKind[] = ['npc', 'place', 'quest'];
 
+/** Чего хочет ШІ для текста: дописать новое или заменить целиком. */
+export type TextMode = 'append' | 'replace';
+/** Что реально произойдёт с текстом записи. */
+export type MergeMode = 'new' | 'append' | 'replace' | 'same';
+
 export interface CharacterUpdate {
-  journal: { title: string; sessionNo: number | null; date: string; text: string } | null;
-  items: { action: 'add' | 'remove' | 'set'; name: string; qty: number; text: string; magic: boolean }[];
+  journal: { title: string; sessionNo: number | null; date: string; text: string; mode: TextMode } | null;
+  items: { action: 'add' | 'remove' | 'set'; name: string; qty: number; text: string; magic: boolean; mode: TextMode }[];
   coins: Record<CoinKey, number>;
   xp: number;
   hp: number | null;
-  codex: { kind: CodexKind; name: string; text: string; status: string }[];
+  codex: { kind: CodexKind; name: string; text: string; status: string; mode: TextMode }[];
   notes: string[];
 }
 
 export type Op =
-  | { id: string; type: 'journal'; title: string; sessionNo: number | null; date: string; text: string }
-  | { id: string; type: 'item-add'; name: string; qty: number; text: string; magic: boolean; existingId: string | null; libId: string | null }
+  | { id: string; type: 'journal'; title: string; sessionNo: number | null; date: string; text: string; existingId: string | null; mode: MergeMode }
+  | { id: string; type: 'item-add'; name: string; qty: number; text: string; magic: boolean; existingId: string | null; libId: string | null; wanted: TextMode; mode: MergeMode }
   | { id: string; type: 'item-remove'; name: string; qty: number; existingId: string | null; have: number }
   | { id: string; type: 'item-set'; name: string; qty: number; existingId: string | null }
   | { id: string; type: 'coins'; delta: Record<CoinKey, number>; short: CoinKey[] }
   | { id: string; type: 'xp'; delta: number }
   | { id: string; type: 'hp'; value: number; max: number }
-  | { id: string; type: 'codex'; kind: CodexKind; name: string; text: string; status: string; existingId: string | null };
+  | { id: string; type: 'codex'; kind: CodexKind; name: string; text: string; status: string; existingId: string | null; mode: MergeMode };
+
+/** Текст для сравнения: без разметки упоминаний, регистра, пунктуации и лишних пробелов. */
+const flat = (s: string) =>
+  norm(s.replace(MENTION_RE, '$1'))
+    .replace(/[«»"“”„.,!?;:()\[\]—–-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+/**
+ * Как объединить старый и новый текст. ШІ часто возвращает полный обновлённый текст вместо «только нового» —
+ * тогда это перезапись (иначе получится дубль). Если нового ничего нет — текст не трогаем.
+ */
+export function resolveMode(oldText: string, newText: string, wanted: TextMode): Exclude<MergeMode, 'new'> {
+  if (!newText.trim()) return 'same';
+  if (!oldText.trim()) return 'append';
+  if (wanted === 'replace') return 'replace';
+  const o = flat(oldText);
+  const n = flat(newText);
+  if (o.includes(n)) return 'same';
+  if (n.includes(o)) return 'replace';
+  return 'append';
+}
+
+export function mergeText(oldText: string, newText: string, mode: MergeMode): string {
+  if (mode === 'same') return oldText;
+  if (mode === 'replace' || mode === 'new' || !oldText.trim()) return newText;
+  return `${oldText}\n\n${newText}`;
+}
 
 /** Достаёт JSON из ответа ШІ: чистий JSON, блок ```json … ``` або текст навколо. */
 export function extractJson(text: string): unknown {
@@ -76,6 +111,7 @@ const num = (v: unknown, d = 0): number => {
 };
 const obj = (v: unknown): Record<string, unknown> => (v && typeof v === 'object' && !Array.isArray(v) ? (v as Record<string, unknown>) : {});
 const arr = (v: unknown): unknown[] => (Array.isArray(v) ? v : []);
+const textMode = (v: unknown): TextMode => (/^(replace|rewrite|overwrite|перезап|замін|замен)/i.test(str(v)) ? 'replace' : 'append');
 
 /** Нормалізує сирий об’єкт від ШІ (рядки замість чисел, пропущені поля, синоніми дій). */
 export function parseUpdate(raw: unknown): CharacterUpdate {
@@ -84,21 +120,33 @@ export function parseUpdate(raw: unknown): CharacterUpdate {
   const jText = str(j.text);
   const journal =
     jText || str(j.title)
-      ? { title: str(j.title), sessionNo: j.sessionNo == null || j.sessionNo === '' ? null : num(j.sessionNo, 0) || null, date: /^\d{4}-\d{2}-\d{2}$/.test(str(j.date)) ? str(j.date) : '', text: jText }
+      ? {
+          title: str(j.title),
+          sessionNo: j.sessionNo == null || j.sessionNo === '' ? null : num(j.sessionNo, 0) || null,
+          date: /^\d{4}-\d{2}-\d{2}$/.test(str(j.date)) ? str(j.date) : '',
+          text: jText,
+          mode: textMode(j.mode),
+        }
       : null;
   const items = arr(r.items)
     .map(obj)
     .map((i) => {
       const a = str(i.action).toLowerCase();
       const action: 'add' | 'remove' | 'set' = REMOVE_RE.test(a) ? 'remove' : /^(set|=)/.test(a) ? 'set' : 'add';
-      return { action, name: str(i.name), qty: Math.max(0, num(i.qty, 1)), text: str(i.text ?? i.description), magic: i.magic === true };
+      return { action, name: str(i.name), qty: Math.max(0, num(i.qty, 1)), text: str(i.text ?? i.description), magic: i.magic === true, mode: textMode(i.mode) };
     })
     .filter((i) => i.name);
   const c = obj(r.coins);
   const coins = Object.fromEntries(COINS.map((k) => [k, num(c[k], 0)])) as Record<CoinKey, number>;
   const codex = arr(r.codex)
     .map(obj)
-    .map((x) => ({ kind: (KINDS.includes(str(x.kind) as CodexKind) ? str(x.kind) : 'npc') as CodexKind, name: str(x.name), text: str(x.text), status: str(x.status) }))
+    .map((x) => ({
+      kind: (KINDS.includes(str(x.kind) as CodexKind) ? str(x.kind) : 'npc') as CodexKind,
+      name: str(x.name),
+      text: str(x.text),
+      status: str(x.status),
+      mode: textMode(x.mode),
+    }))
     .filter((x) => x.name);
   return {
     journal,
@@ -117,13 +165,26 @@ function findItem(c: Character, name: string) {
 }
 
 /** План змін для попереднього перегляду. Нічого не змінює. */
-export function planUpdate(c: Character, codexItems: CodexEntry[], u: CharacterUpdate, lib: LibItem[] = []): Op[] {
+export function planUpdate(c: Character, codexItems: CodexEntry[], u: CharacterUpdate, lib: LibItem[] = [], journalEntries: JournalEntry[] = []): Op[] {
   const ops: Op[] = [];
   let k = 0;
   const id = () => `op${k++}`;
   if (u.journal || u.notes.length) {
     const notes = u.notes.length ? `\n\n${u.notes.map((n) => `— ${n}`).join('\n')}` : '';
-    ops.push({ id: id(), type: 'journal', title: u.journal?.title ?? '', sessionNo: u.journal?.sessionNo ?? null, date: u.journal?.date ?? '', text: (u.journal?.text ?? '') + notes });
+    const text = ((u.journal?.text ?? '') + notes).trim();
+    const no = u.journal?.sessionNo ?? null;
+    // сесія з тим самим номером уже є — дописуємо її, а не створюємо другу
+    const ex = no ? journalEntries.find((e) => e.kind === 'session' && e.sessionNo === no) : undefined;
+    ops.push({
+      id: id(),
+      type: 'journal',
+      title: u.journal?.title ?? '',
+      sessionNo: no,
+      date: u.journal?.date ?? '',
+      text,
+      existingId: ex?.id ?? null,
+      mode: ex ? resolveMode(ex.text, text, u.journal?.mode ?? 'append') : 'new',
+    });
   }
   for (const i of u.items) {
     const ex = findItem(c, i.name);
@@ -134,7 +195,19 @@ export function planUpdate(c: Character, codexItems: CodexEntry[], u: CharacterU
       let le = ex ? undefined : lib.find((e) => norm(e.n) === n || norm(e.en) === n);
       // «Potion of Healing» — описание-родитель: берём первый конкретный вариант
       if (le?.par) le = lib.find((e) => e.of === le!.id);
-      ops.push({ id: id(), type: 'item-add', name: ex?.name ?? le?.n ?? i.name, qty: i.qty || 1, text: i.text, magic: i.magic, existingId: ex?.id ?? null, libId: le?.id ?? null });
+      ops.push({
+        id: id(),
+        type: 'item-add',
+        name: ex?.name ?? le?.n ?? i.name,
+        // для наявного предмета qty 0 — лише оновити опис
+        qty: ex ? i.qty : i.qty || 1,
+        text: i.text,
+        magic: i.magic,
+        existingId: ex?.id ?? null,
+        libId: le?.id ?? null,
+        wanted: i.mode,
+        mode: ex ? resolveMode(ex.text, i.text, i.mode) : 'new',
+      });
     }
   }
   if (COINS.some((x) => u.coins[x])) {
@@ -146,7 +219,16 @@ export function planUpdate(c: Character, codexItems: CodexEntry[], u: CharacterU
   for (const x of u.codex) {
     const n = x.name.toLowerCase();
     const ex = codexItems.find((e) => e.name.toLowerCase() === n);
-    ops.push({ id: id(), type: 'codex', kind: ex?.kind ?? x.kind, name: ex?.name ?? x.name, text: x.text, status: x.status, existingId: ex?.id ?? null });
+    ops.push({
+      id: id(),
+      type: 'codex',
+      kind: ex?.kind ?? x.kind,
+      name: ex?.name ?? x.name,
+      text: x.text,
+      status: x.status,
+      existingId: ex?.id ?? null,
+      mode: ex ? resolveMode(ex.text, x.text, x.mode) : 'new',
+    });
   }
   return ops;
 }
@@ -155,6 +237,8 @@ export interface ApplyCtx {
   character: Character;
   lib: LibItem[];
   createJournal: (init: Partial<JournalEntry>) => void;
+  updateJournal?: (id: string, patch: Partial<JournalEntry>) => void;
+  getJournal?: (id: string) => JournalEntry | undefined;
   createCodex: (kind: CodexKind, name: string, init: Partial<CodexEntry>) => void;
   updateCodex: (id: string, patch: Partial<CodexEntry>) => void;
   getCodex: (id: string) => CodexEntry | undefined;
@@ -166,6 +250,13 @@ export function applyOps(ops: Op[], ctx: ApplyCtx): void {
   for (const op of ops) {
     switch (op.type) {
       case 'journal': {
+        const ex = op.existingId ? ctx.getJournal?.(op.existingId) : undefined;
+        if (ex && ctx.updateJournal) {
+          const patch: Partial<JournalEntry> = { text: mergeText(ex.text, op.text, op.mode) };
+          if (op.title && !ex.title.trim()) patch.title = op.title;
+          ctx.updateJournal(ex.id, patch);
+          break;
+        }
         const init: Partial<JournalEntry> = { title: op.title, text: op.text };
         if (op.date) init.date = op.date;
         if (op.sessionNo) init.sessionNo = op.sessionNo;
@@ -180,7 +271,7 @@ export function applyOps(ops: Op[], ctx: ApplyCtx): void {
           findItem(c, op.name);
         if (ex) {
           ex.qty += op.qty;
-          if (op.text && !ex.text.includes(op.text)) ex.text = ex.text ? `${ex.text}\n\n${op.text}` : op.text;
+          ex.text = mergeText(ex.text, op.text, resolveMode(ex.text, op.text, op.wanted));
           break;
         }
         const le = op.libId ? ctx.lib.find((e) => e.id === op.libId) : undefined;
@@ -217,7 +308,7 @@ export function applyOps(ops: Op[], ctx: ApplyCtx): void {
         const ex = op.existingId ? ctx.getCodex(op.existingId) : undefined;
         if (ex) {
           const patch: Partial<CodexEntry> = {};
-          if (op.text && !ex.text.includes(op.text)) patch.text = ex.text ? `${ex.text}\n\n${op.text}` : op.text;
+          if (op.mode !== 'same') patch.text = mergeText(ex.text, op.text, op.mode);
           if (op.status) patch.status = op.status;
           ctx.updateCodex(ex.id, patch);
         } else ctx.createCodex(op.kind, op.name, { text: op.text, ...(op.status ? { status: op.status } : {}) });
