@@ -104,6 +104,4 @@ export default {
   'combat.atkDamageLabel': '{name}: шкода',
 
   // кубики
-  'combat.history': 'Останні кидки',
-  'combat.historyEmpty': 'Ще нічого не кидали. Тап по атаці, навичці чи ініціативі — кидок.',
 } satisfies Record<string, string>;

@@ -6,7 +6,6 @@
   import HitDiceCard from './HitDiceCard.svelte';
   import ResourcesCard from './ResourcesCard.svelte';
   import AttacksCard from './AttacksCard.svelte';
-  import DicePanel from './DicePanel.svelte';
   import { charStore } from '../../lib/stores/characters.svelte';
   import { t } from '../../lib/i18n';
 
@@ -17,7 +16,7 @@
 <div class="view">
   <StatTiles />
 
-  <div class="cols cols-3 combat-cols">
+  <div class="cols cols-2 combat-cols">
     <div class="stack">
       {#if down}<DeathSaves />{/if}
       <HpCard />
@@ -28,16 +27,13 @@
       <ResourcesCard />
       <AttacksCard />
     </div>
-    <div class="stack">
-      <DicePanel />
-    </div>
   </div>
 </div>
 
 <style>
   @container (min-width: 1040px) {
     .combat-cols {
-      grid-template-columns: 1fr 1.3fr 0.9fr;
+      grid-template-columns: 1fr 1.3fr;
     }
   }
 </style>

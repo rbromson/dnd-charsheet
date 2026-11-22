@@ -104,6 +104,4 @@ export default {
   'combat.atkDamageLabel': '{name}: damage',
 
   // dice
-  'combat.history': 'Recent rolls',
-  'combat.historyEmpty': 'No rolls yet. Tap an attack, skill, or Initiative to roll.',
 } satisfies Record<string, string>;

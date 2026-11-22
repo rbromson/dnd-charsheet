@@ -150,12 +150,33 @@
   .ib.qn {
     clip-path: none;
     border-radius: 47% 53% 50% 50% / 52% 46% 54% 48%;
-    background: radial-gradient(circle at 36% 30%, #f6a36c, var(--ember) 45%, #a8401a 80%, #7a2a10);
-    color: #3a1206;
+    background:
+      radial-gradient(circle at 50% 50%, transparent 52%, rgba(90, 24, 6, 0.35) 56%, transparent 60%),
+      radial-gradient(circle at 36% 28%, #ffb27c, var(--ember) 42%, #b4481c 72%, #7a2a10);
+    color: #4a1606;
     border: none;
+    margin-bottom: 4px;
     box-shadow:
-      inset 0 1px 0 rgba(255, 225, 200, 0.55),
-      0 4px 14px -4px var(--ember-glow);
+      inset 0 2px 2px rgba(255, 228, 200, 0.6),
+      inset 0 -4px 6px rgba(90, 24, 6, 0.55),
+      0 4px 0 #6a240c,
+      0 5px 0 #4a1806,
+      0 9px 14px rgba(0, 0, 0, 0.5),
+      0 0 14px var(--ember-glow);
+    transition:
+      transform 0.12s var(--ease),
+      box-shadow 0.12s var(--ease);
+  }
+  .ib.qn :global(svg) {
+    filter: drop-shadow(0 1px 0 rgba(255, 210, 170, 0.55)) drop-shadow(0 -1px 0 rgba(70, 16, 2, 0.5));
+  }
+  .ib.qn:active {
+    transform: translateY(4px) rotate(-4deg);
+    box-shadow:
+      inset 0 2px 2px rgba(255, 228, 200, 0.5),
+      inset 0 -3px 5px rgba(90, 24, 6, 0.55),
+      0 1px 0 #6a240c,
+      0 3px 8px rgba(0, 0, 0, 0.45);
   }
   .ib.pen.on {
     color: #ffe6b8;

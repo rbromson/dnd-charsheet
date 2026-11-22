@@ -166,24 +166,41 @@
     width: 60px;
     height: 60px;
     flex-shrink: 0;
-    /* сургучная печать с пером */
+    /* сургучная печать с пером: выпуклый бортик, оттиск в центре, толщина снизу */
     border-radius: 47% 53% 50% 50% / 52% 46% 54% 48%;
-    background: radial-gradient(circle at 36% 30%, #f6a36c, var(--ember) 45%, #a8401a 80%, #7a2a10);
-    color: #3a1206;
+    background:
+      radial-gradient(circle at 50% 50%, transparent 52%, rgba(90, 24, 6, 0.35) 56%, transparent 60%),
+      radial-gradient(circle at 36% 28%, #ffb27c, var(--ember) 42%, #b4481c 72%, #7a2a10);
+    color: #4a1606;
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow:
-      inset 0 0 0 5px rgba(122, 42, 16, 0.25),
-      inset 0 0 0 7px rgba(255, 200, 160, 0.18),
-      inset 0 2px 2px rgba(255, 230, 200, 0.5),
-      0 0 0 3px rgba(232, 116, 59, 0.12),
-      0 8px 22px var(--ember-glow);
-    margin-top: 6px;
-    transition: transform 0.15s var(--ease-spring);
+      inset 0 3px 2px rgba(255, 228, 200, 0.6),
+      inset 0 -5px 7px rgba(90, 24, 6, 0.55),
+      inset 0 0 0 3px rgba(255, 190, 140, 0.12),
+      0 5px 0 #6a240c,
+      0 6px 0 #4a1806,
+      0 12px 20px rgba(0, 0, 0, 0.55),
+      0 0 22px var(--ember-glow);
+    margin: 6px 0 6px;
+    transition:
+      transform 0.12s var(--ease),
+      box-shadow 0.12s var(--ease);
+  }
+  /* перо — оттиснуто в воске */
+  .fab :global(svg) {
+    filter: drop-shadow(0 1px 0 rgba(255, 210, 170, 0.55)) drop-shadow(0 -1px 0 rgba(70, 16, 2, 0.5));
   }
   .fab:active {
-    transform: scale(0.92) rotate(-6deg);
+    transform: translateY(5px) rotate(-4deg);
+    box-shadow:
+      inset 0 3px 2px rgba(255, 228, 200, 0.5),
+      inset 0 -4px 6px rgba(90, 24, 6, 0.55),
+      inset 0 0 0 3px rgba(255, 190, 140, 0.12),
+      0 1px 0 #6a240c,
+      0 4px 10px rgba(0, 0, 0, 0.5),
+      0 0 16px var(--ember-glow);
   }
 
   /* ===== Телефон: нижняя панель + плавающие кнопки ===== */
