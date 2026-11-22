@@ -284,7 +284,14 @@ h3 {
 }
 
 /* ===== Кнопки ===== */
-/* Кнопки — «кованые таблички» со срезанными углами. Внешняя тень — через drop-shadow (clip-path режет box-shadow). */
+/* ===== Кнопки в духе RPG-интерфейсов (BG3, Pillars): пластина в золотой рамке со срезанными углами,
+   ромбы-орнаменты по бокам, надпись капителью. Слои: фон кнопки — рамка, ::before — заливка, ::after — орнамент. */
+:root {
+  --ornament-gold: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M5 0L10 5L5 10L0 5Z' fill='%23e3bd73'/%3E%3Cpath d='M5 2.6L7.4 5L5 7.4L2.6 5Z' fill='%23fff1c9'/%3E%3C/svg%3E");
+  --ornament-bronze: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M5 0L10 5L5 10L0 5Z' fill='%236b4a22'/%3E%3Cpath d='M5 2.6L7.4 5L5 7.4L2.6 5Z' fill='%23c9a05a'/%3E%3C/svg%3E");
+  --frame-gold: linear-gradient(180deg, #f2d48e 0%, #a87a34 45%, #6e4a1c 55%, #d8ad62 100%);
+  --frame-bronze: linear-gradient(180deg, #9b7440 0%, #5a3d1a 50%, #8a6434 100%);
+}
 .btn {
   --cut: 7px;
   --chamfer: polygon(
@@ -297,25 +304,37 @@ h3 {
     0 calc(100% - var(--cut)),
     0 var(--cut)
   );
+  --inner: polygon(
+    calc(var(--cut) - 0.6px) 0,
+    calc(100% - var(--cut) + 0.6px) 0,
+    100% calc(var(--cut) - 0.6px),
+    100% calc(100% - var(--cut) + 0.6px),
+    calc(100% - var(--cut) + 0.6px) 100%,
+    calc(var(--cut) - 0.6px) 100%,
+    0 calc(100% - var(--cut) + 0.6px),
+    0 calc(var(--cut) - 0.6px)
+  );
   position: relative;
   isolation: isolate;
   min-height: var(--tap);
   min-width: var(--tap);
-  padding: 0 16px;
+  padding: 0 18px;
   border-radius: 2px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  font-weight: 600;
-  font-size: 15px;
-  letter-spacing: 0.01em;
+  font-family: var(--font-sc);
+  font-weight: 700;
+  font-size: 15.5px;
+  letter-spacing: 0.03em;
   user-select: none;
   transition:
     transform 0.12s var(--ease),
-    filter 0.15s,
-    box-shadow 0.2s,
-    background-color 0.2s;
+    filter 0.15s;
+}
+.btn:active {
+  transform: scale(0.97);
 }
 .btn-primary,
 .btn-ink,
@@ -323,116 +342,118 @@ h3 {
 .btn-danger,
 .btn-good {
   clip-path: var(--chamfer);
+  background: var(--frame, var(--frame-gold));
 }
-.btn:active {
-  transform: scale(0.96);
+.btn-primary::before,
+.btn-ink::before,
+.btn-outline::before,
+.btn-danger::before,
+.btn-good::before {
+  content: '';
+  position: absolute;
+  inset: 1.5px;
+  z-index: -2;
+  clip-path: var(--inner);
+  background: var(--fill);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 236, 200, 0.22),
+    inset 0 -6px 10px -6px rgba(0, 0, 0, 0.55),
+    inset 0 0 14px rgba(0, 0, 0, 0.25);
+  transition: filter 0.15s;
 }
-/* гравировка: тонкая внутренняя линия по контуру таблички */
+/* орнамент: ромбы по бокам + гравированные линии сверху и снизу, затухающие к краям */
 .btn-primary::after,
 .btn-ink::after,
+.btn-outline::after,
 .btn-danger::after,
 .btn-good::after {
   content: '';
   position: absolute;
-  inset: 3px;
-  --c2: calc(var(--cut) - 2px);
-  clip-path: polygon(
-    var(--c2) 0,
-    calc(100% - var(--c2)) 0,
-    100% var(--c2),
-    100% calc(100% - var(--c2)),
-    calc(100% - var(--c2)) 100%,
-    var(--c2) 100%,
-    0 calc(100% - var(--c2)),
-    0 var(--c2)
-  );
-  background:
-    linear-gradient(var(--line-c), var(--line-c)) top / 100% 1px no-repeat,
-    linear-gradient(var(--line-c), var(--line-c)) bottom / 100% 1px no-repeat,
-    linear-gradient(var(--line-c), var(--line-c)) left / 1px 100% no-repeat,
-    linear-gradient(var(--line-c), var(--line-c)) right / 1px 100% no-repeat;
+  inset: 4px 5px;
+  z-index: -1;
   pointer-events: none;
-  opacity: 0.9;
+  background:
+    var(--orn, var(--ornament-gold)) left center / 7px 7px no-repeat,
+    var(--orn, var(--ornament-gold)) right center / 7px 7px no-repeat,
+    linear-gradient(90deg, transparent 6%, var(--engrave, rgba(227, 189, 115, 0.45)) 30%, var(--engrave, rgba(227, 189, 115, 0.45)) 70%, transparent 94%) top / 100% 1px no-repeat,
+    linear-gradient(90deg, transparent 6%, var(--engrave, rgba(227, 189, 115, 0.3)) 30%, var(--engrave, rgba(227, 189, 115, 0.3)) 70%, transparent 94%) bottom / 100% 1px no-repeat;
 }
+.btn-primary:active::before,
+.btn-ink:active::before,
+.btn-outline:active::before,
+.btn-danger:active::before,
+.btn-good:active::before {
+  filter: brightness(1.18);
+}
+@media (hover: hover) {
+  .btn-primary:hover::before,
+  .btn-ink:hover::before,
+  .btn-outline:hover::before,
+  .btn-danger:hover::before,
+  .btn-good:hover::before {
+    filter: brightness(1.12);
+  }
+}
+/* главная: раскалённая медь в золоте */
 .btn-primary {
-  --line-c: rgba(255, 228, 200, 0.45);
-  background: linear-gradient(180deg, #f39a62, var(--ember) 50%, #cf5a26);
-  color: var(--ember-ink);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 225, 200, 0.6),
-    inset 0 -3px 0 rgba(110, 35, 8, 0.3);
-  filter: drop-shadow(0 4px 8px rgba(232, 116, 59, 0.35));
+  --fill: radial-gradient(ellipse 120% 90% at 50% 0%, #f39a5c 0%, #d2622c 40%, #8f3412 100%);
+  color: #fff3e0;
+  text-shadow: 0 1px 0 rgba(70, 18, 0, 0.7);
+  filter: drop-shadow(0 3px 8px rgba(232, 116, 59, 0.4));
 }
 .btn-primary:active {
-  filter: drop-shadow(0 0 14px rgba(232, 116, 59, 0.6)) brightness(1.08);
+  filter: drop-shadow(0 0 16px rgba(255, 140, 70, 0.7));
 }
-.btn-ink {
-  --line-c: rgba(214, 170, 110, 0.35);
-  background: var(--pores), linear-gradient(180deg, #46332620, transparent), linear-gradient(180deg, #43302440, #2b1d15 40%, #1d130e);
-  background-size: 140px 140px, 100% 100%, 100% 100%;
-  color: var(--parch);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 215, 165, 0.16),
-    inset 0 -2px 0 rgba(0, 0, 0, 0.4);
-  filter: drop-shadow(0 3px 5px rgba(40, 20, 5, 0.5));
-}
-/* контурная — рамка рисуется фоном кнопки, а заливка — псевдоэлементом внутри (рамка идёт и по срезам углов) */
+/* тёмная пластина */
+.btn-ink,
 .btn-outline {
-  --frame: rgba(214, 170, 110, 0.5);
-  --fill: linear-gradient(180deg, #2e231c, #1e1612);
-  color: var(--parch);
-  background: var(--frame);
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45));
+  --fill: radial-gradient(ellipse 120% 100% at 50% 0%, #46342a 0%, #2a1e17 50%, #17100c 100%);
+  color: #f0dcb6;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.7);
+  filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.5));
 }
-.btn-outline::before {
-  content: '';
-  position: absolute;
-  inset: 1.5px;
-  z-index: -1;
-  --c2: calc(var(--cut) - 0.6px);
-  clip-path: polygon(
-    var(--c2) 0,
-    calc(100% - var(--c2)) 0,
-    100% var(--c2),
-    100% calc(100% - var(--c2)),
-    calc(100% - var(--c2)) 100%,
-    var(--c2) 100%,
-    0 calc(100% - var(--c2)),
-    0 var(--c2)
-  );
-  background: var(--fill);
-  box-shadow: inset 0 1px 0 rgba(255, 220, 170, 0.08);
+/* контурная — та же пластина, но рамка приглушённая бронза */
+.btn-outline {
+  --frame: var(--frame-bronze);
+  --fill: radial-gradient(ellipse 120% 100% at 50% 0%, #3a2b22 0%, #231912 60%, #18110d 100%);
+  --orn: var(--ornament-bronze);
+  --engrave: rgba(201, 160, 90, 0.3);
+  color: #e6d2b0;
 }
-/* на пергаменте — табличка, «оттиснутая» в бумаге */
-.card .btn-outline {
-  --frame: rgba(110, 78, 40, 0.6);
-  --fill: linear-gradient(180deg, #fbf3e2, #efe2c6);
+/* на пергаменте — светлая табличка в бронзе */
+.card .btn-outline,
+.sheet .btn-outline {
+  --frame: var(--frame-bronze);
+  --fill: radial-gradient(ellipse 120% 100% at 50% 0%, #fffaf0 0%, #f1e4c8 60%, #e1cda6 100%);
+  --orn: var(--ornament-bronze);
+  --engrave: rgba(110, 78, 40, 0.35);
   color: var(--ink);
-  filter: drop-shadow(0 1px 1.5px rgba(80, 50, 20, 0.25));
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+  filter: drop-shadow(0 1px 2px rgba(80, 50, 20, 0.3));
 }
 .btn-danger {
-  --line-c: rgba(255, 215, 205, 0.4);
-  background: linear-gradient(180deg, #d66f5a, var(--bad) 55%, #a33f2d);
-  color: #fff;
-  box-shadow: inset 0 1px 0 rgba(255, 210, 200, 0.35);
-  filter: drop-shadow(0 4px 6px rgba(192, 83, 63, 0.35));
+  --fill: radial-gradient(ellipse 120% 90% at 50% 0%, #d6604a 0%, #a3382a 45%, #5a160e 100%);
+  color: #fff0ea;
+  text-shadow: 0 1px 0 rgba(60, 5, 0, 0.7);
+  filter: drop-shadow(0 3px 6px rgba(192, 83, 63, 0.35));
 }
 .btn-good {
-  --line-c: rgba(235, 255, 220, 0.4);
-  background: linear-gradient(180deg, #96bb83, var(--good) 55%, #648a52);
-  color: #fff;
-  box-shadow: inset 0 1px 0 rgba(230, 255, 210, 0.35);
-  filter: drop-shadow(0 4px 6px rgba(127, 163, 107, 0.35));
+  --fill: radial-gradient(ellipse 120% 90% at 50% 0%, #92b97e 0%, #5d8a4b 45%, #2d4a22 100%);
+  color: #f3ffe9;
+  text-shadow: 0 1px 0 rgba(10, 30, 5, 0.7);
+  filter: drop-shadow(0 3px 6px rgba(127, 163, 107, 0.35));
 }
 .btn-ghost {
   color: inherit;
   border-radius: 10px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  letter-spacing: 0;
 }
 .btn[disabled] {
-  opacity: 0.4;
+  opacity: 0.45;
   pointer-events: none;
-  box-shadow: none;
-  filter: saturate(0.6);
+  filter: saturate(0.4);
 }
 .tap {
   min-width: var(--tap);
@@ -544,42 +565,56 @@ textarea.field {
 }
 
 /* ===== Мелочи ===== */
+/* Чипы — маленькие таблички с той же рамкой: выключенный — бронза, включённый — золото и угли */
 .chip {
+  --cut: 5px;
+  --frame: var(--frame-bronze);
+  --fill: linear-gradient(180deg, #2c2119, #1b130e);
+  position: relative;
+  isolation: isolate;
   min-height: 40px;
   padding: 0 14px;
-  border-radius: 20px;
-  border: 1px solid #4a3828;
+  border-radius: 2px;
+  clip-path: polygon(var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 calc(100% - var(--cut)), 0 var(--cut));
   display: inline-flex;
   align-items: center;
   gap: 6px;
   color: #d9c7aa;
   font-size: 14px;
-  font-weight: 500;
-  background: #1f1713;
-  transition:
-    background-color 0.15s,
-    color 0.15s,
-    border-color 0.15s,
-    transform 0.12s var(--ease);
+  font-weight: 600;
+  background: var(--frame);
+  transition: transform 0.12s var(--ease), color 0.15s;
+}
+.chip::before {
+  content: '';
+  position: absolute;
+  inset: 1.2px;
+  z-index: -1;
+  clip-path: polygon(calc(var(--cut) - 0.5px) 0, calc(100% - var(--cut) + 0.5px) 0, 100% calc(var(--cut) - 0.5px), 100% calc(100% - var(--cut) + 0.5px), calc(100% - var(--cut) + 0.5px) 100%, calc(var(--cut) - 0.5px) 100%, 0 calc(100% - var(--cut) + 0.5px), 0 calc(var(--cut) - 0.5px));
+  background: var(--fill);
+  box-shadow: inset 0 1px 0 rgba(255, 230, 190, 0.1);
 }
 .chip:active {
   transform: scale(0.95);
 }
 .chip.on {
-  border-color: var(--ember);
-  color: var(--ember);
-  background: var(--ember-soft);
+  --frame: var(--frame-gold);
+  --fill: radial-gradient(ellipse 120% 100% at 50% 0%, #b8562a 0%, #6e2a10 70%, #3e1608 100%);
+  color: #ffe9c4;
+  text-shadow: 0 1px 0 rgba(40, 10, 0, 0.6);
 }
-.card .chip {
-  background: transparent;
+.card .chip,
+.sheet .chip {
+  --frame: var(--frame-bronze);
+  --fill: linear-gradient(180deg, #fffaf0, #ecdcba);
   color: var(--ink);
-  border-color: var(--edge);
 }
-.card .chip.on {
-  background: var(--ink);
-  color: var(--parch);
-  border-color: var(--ink);
-  box-shadow: inset 0 1px 0 rgba(255, 230, 200, 0.12);
+.card .chip.on,
+.sheet .chip.on {
+  --frame: var(--frame-gold);
+  --fill: radial-gradient(ellipse 120% 100% at 50% 0%, #46342a 0%, #24180f 100%);
+  color: #f2d48e;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
 }
 .tag {
   font-size: 10.5px;

@@ -172,8 +172,10 @@
   }
   .chips .chip {
     min-height: var(--tap);
-    padding: 0 16px;
-    border-radius: 24px;
+    padding: 0 18px;
+    font-family: var(--font-sc);
+    font-weight: 700;
+    font-size: 15px;
   }
   .chip.on :global(svg) {
     filter: drop-shadow(0 0 4px var(--ember-glow));

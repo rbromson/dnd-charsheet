@@ -62,22 +62,6 @@
   .sheet :global(.label) {
     color: var(--ink2);
   }
-  .sheet :global(.chip) {
-    background: transparent;
-    color: var(--ink);
-    border-color: var(--edge);
-  }
-  .sheet :global(.chip.on) {
-    background: var(--ink);
-    color: var(--parch);
-    border-color: var(--ink);
-  }
-  .sheet :global(.btn-outline) {
-    --frame: rgba(110, 78, 40, 0.6);
-    --fill: linear-gradient(180deg, #fbf3e2, #efe2c6);
-    color: var(--ink);
-    filter: drop-shadow(0 1px 1.5px rgba(80, 50, 20, 0.25));
-  }
   .sheet :global(.muted) {
     color: var(--ink2);
   }

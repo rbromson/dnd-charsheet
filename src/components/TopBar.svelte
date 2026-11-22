@@ -120,27 +120,34 @@
     display: none;
   }
   .ib {
+    position: relative;
+    isolation: isolate;
     width: var(--tap);
     height: var(--tap);
     border-radius: 2px;
-    clip-path: polygon(7px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 7px), calc(100% - 7px) 100%, 7px 100%, 0 calc(100% - 7px), 0 7px);
+    clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px);
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    color: var(--parch);
-    background: var(--pores), linear-gradient(180deg, #3d2c21, #241812);
-    background-size: 140px 140px, 100% 100%;
+    color: #f0dcb6;
+    background: var(--frame-gold);
     border: none;
-    box-shadow: inset 0 1px 0 rgba(255, 220, 180, 0.06);
-    transition:
-      transform 0.15s var(--ease-spring),
-      background 0.2s,
-      color 0.2s;
+  }
+  .ib::before {
+    content: '';
+    position: absolute;
+    inset: 1.5px;
+    z-index: -1;
+    clip-path: polygon(7px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 7px), calc(100% - 7px) 100%, 7px 100%, 0 calc(100% - 7px), 0 7px);
+    background: radial-gradient(ellipse 120% 100% at 50% 0%, #46342a, #1d140f);
   }
   .ib:active {
     transform: scale(0.9);
   }
   /* сургучная печать */
+  .ib.qn::before {
+    display: none;
+  }
   .ib.qn {
     clip-path: none;
     border-radius: 47% 53% 50% 50% / 52% 46% 54% 48%;
@@ -153,9 +160,13 @@
   }
   .ib.dice.on,
   .ib.pen.on {
-    background: var(--ember-soft);
-    color: var(--ember);
-    border-color: var(--ember);
+    color: #ffe6b8;
+  }
+  .ib.dice.on::before,
+  .ib.pen.on::before {
+    background:
+      radial-gradient(ellipse 90% 70% at 50% 110%, rgba(232, 116, 59, 0.7), transparent 70%),
+      radial-gradient(ellipse 120% 100% at 50% 0%, #4a372b, #24190f);
   }
   @media (max-width: 640px) {
     .top {

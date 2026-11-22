@@ -52,7 +52,7 @@
     background-size: 140px 140px, 300px 300px, 100% 100%;
     border-right: 1px solid #0a0605;
     box-shadow:
-      inset -1px 0 0 rgba(255, 210, 160, 0.07),
+      inset -1px 0 0 rgba(222, 176, 96, 0.2),
       inset -7px 0 0 -6px var(--stitch),
       8px 0 24px -12px rgba(0, 0, 0, 0.85);
     display: flex;
@@ -83,56 +83,84 @@
   }
   .it {
     position: relative;
-    width: 84px;
-    min-height: 60px;
+    width: 86px;
+    min-height: 64px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 4px;
-    color: #a08b72;
-    font-size: 11.5px;
-    font-weight: 500;
+    gap: 5px;
+    color: #9a8468;
+    font-family: var(--font-sc);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
     transition: color 0.2s;
   }
+  /* ячейка как слот панели умений: бронзовая рамка со срезанными углами, тёмное дно */
   .pl {
-    padding: 5px 18px;
-    border-radius: 16px;
+    --cut: 9px;
+    position: relative;
+    isolation: isolate;
+    width: 56px;
+    height: 40px;
     display: flex;
+    align-items: center;
+    justify-content: center;
+    clip-path: polygon(var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 calc(100% - var(--cut)), 0 var(--cut));
+    background: transparent;
     transition:
-      background 0.25s var(--ease),
-      box-shadow 0.25s var(--ease),
+      opacity 0.2s,
       transform 0.2s var(--ease-spring);
+  }
+  .pl::before {
+    content: '';
+    position: absolute;
+    inset: 1.5px;
+    z-index: -1;
+    clip-path: polygon(calc(var(--cut) - 0.6px) 0, calc(100% - var(--cut) + 0.6px) 0, 100% calc(var(--cut) - 0.6px), 100% calc(100% - var(--cut) + 0.6px), calc(100% - var(--cut) + 0.6px) 100%, calc(var(--cut) - 0.6px) 100%, 0 calc(100% - var(--cut) + 0.6px), 0 calc(var(--cut) - 0.6px));
+    background:
+      radial-gradient(ellipse 90% 70% at 50% 0%, rgba(255, 220, 170, 0.07), transparent 70%),
+      linear-gradient(180deg, #1b130e, #0e0907);
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.8);
+    opacity: 0;
+    transition: opacity 0.25s var(--ease);
+  }
+  .it:hover {
+    color: #c9b08c;
   }
   .it:active .pl {
     transform: scale(0.9);
   }
   .it.on {
-    color: var(--ember);
+    color: #e9c98c;
   }
   .it.on .pl {
-    background: linear-gradient(180deg, rgba(232, 116, 59, 0.28), rgba(232, 116, 59, 0.12));
-    box-shadow:
-      inset 0 0 0 1px rgba(232, 116, 59, 0.35),
-      0 0 18px rgba(232, 116, 59, 0.22);
+    color: #f6dcaa;
+    background: linear-gradient(180deg, rgba(214, 170, 96, 0.75), rgba(120, 84, 38, 0.6));
   }
-  /* метка активного раздела у края панели */
+  .it.on .pl::before {
+    opacity: 1;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 100%, rgba(232, 116, 59, 0.32), transparent 70%),
+      linear-gradient(180deg, #24170f, #140d09);
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.7);
+  }
+  /* золотой ромб-указатель у края панели */
   .it.on::before {
     content: '';
     position: absolute;
-    left: -6px;
-    top: 14px;
-    width: 4px;
-    height: 26px;
-    border-radius: 0 3px 3px 0;
-    background: var(--ember);
-    box-shadow: 0 0 10px var(--ember-glow);
+    left: -2px;
+    top: 26px;
+    width: 7px;
+    height: 7px;
+    transform: rotate(45deg);
+    background: linear-gradient(135deg, #f3d696, #b98436);
+    box-shadow: 0 0 6px rgba(240, 190, 100, 0.45);
   }
   .lb {
     white-space: nowrap;
-  }
-  .it.on .lb {
-    font-weight: 700;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.7);
   }
   .sp {
     flex: 1;
@@ -176,9 +204,12 @@
       padding: 0 2px env(safe-area-inset-bottom);
       gap: 0;
       border-right: none;
-      border-top: 1px solid #2a1f19;
+      border-top: none;
       background:
-        linear-gradient(180deg, rgba(26, 19, 15, 0.9), rgba(13, 9, 7, 0.97));
+        linear-gradient(90deg, transparent, rgba(210, 165, 90, 0.35) 20%, rgba(230, 190, 120, 0.5) 50%, rgba(210, 165, 90, 0.35) 80%, transparent) top / 100% 1.5px no-repeat,
+        var(--pores),
+        linear-gradient(180deg, rgba(36, 26, 20, 0.94), rgba(13, 9, 7, 0.98));
+      background-size: 100% 1.5px, 140px 140px, 100% 100%;
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       box-shadow: 0 -10px 30px -10px rgba(0, 0, 0, 0.8);
@@ -187,11 +218,8 @@
     }
     .it.on::before {
       left: 50%;
-      top: -1px;
-      width: 28px;
-      height: 3px;
-      margin-left: -14px;
-      border-radius: 0 0 3px 3px;
+      margin-left: -3.5px;
+      top: -4px;
     }
     .who,
     .sp {
@@ -205,8 +233,11 @@
       width: auto;
       min-width: 0;
       min-height: 60px;
+      font-family: inherit;
       font-size: 10px;
-      gap: 2px;
+      font-weight: 600;
+      letter-spacing: 0;
+      gap: 3px;
     }
     .lb {
       max-width: 100%;
@@ -214,7 +245,9 @@
       text-overflow: ellipsis;
     }
     .pl {
-      padding: 4px 12px;
+      --cut: 7px;
+      width: 46px;
+      height: 32px;
     }
     .fab,
     .it.dice {
