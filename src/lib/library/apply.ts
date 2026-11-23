@@ -6,6 +6,7 @@ import { addWeaponAttack } from '../rules/weapons';
 import type { LibItem, LibSpell, LibWeapon, LibArmor } from './types';
 import { t } from '../i18n';
 import { CHARGES, QTY, powersFor } from './powers';
+import { modsFor } from './mods';
 import { rollFormula } from '../dice/formula';
 import { cryptoRng } from '../dice/rng';
 
@@ -114,6 +115,9 @@ export function addLibItem(c: Character, e: LibItem, base?: LibItem, spells: Lib
   }
   // действия (выпить, потратить заряды…) — только тем, кому нужны
   item.powers = powersFor(e, spells);
+  item.mods = modsFor(e.id, e.of);
+  // предмет із пасивними ефектами одразу «надітий» (як перстень захисту)
+  if (item.mods.some((m) => !m.when)) item.equipped = true;
   const qf = QTY[e.id];
   if (qf) item.qty = Math.max(1, rollFormula(qf, { rng: cryptoRng }).total);
   // колоды (ілюзій, багатьох речей) — сразу с колодой карт; карты вписываются в её настройках

@@ -69,7 +69,7 @@ export function newCharacter(): Character {
 export function newItem(p: Partial<Item> & { name: string }): Item {
   return {
     id: uid(), qty: 1, text: '', magic: false, ref: null, en: '', equipped: false, attune: false, attuned: false, rarity: '',
-    weapon: null, armor: null, bonus: 0, acBonus: 0, saveBonus: 0, setAbility: null, setValue: 0, noArmor: false, resourceId: null, deckId: null, powers: [], draft: false,
+    weapon: null, armor: null, bonus: 0, acBonus: 0, saveBonus: 0, setAbility: null, setValue: 0, noArmor: false, resourceId: null, deckId: null, powers: [], draft: false, mods: [],
     ...p,
   };
 }

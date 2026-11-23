@@ -4,7 +4,7 @@
  */
 import type { Character, CodexEntry, JournalEntry } from './model/types';
 import { ABILITIES, SKILLS } from './model/types';
-import { abilityScore, armorClass, fmt, mod, profBonus, skillBonus } from './rules/calc';
+import { abilityScore, armorClass, fmt, mod, profBonus, skillBonus, walkSpeed } from './rules/calc';
 import { MENTION_RE } from './mentions';
 import { lang, t, type Lang } from './i18n';
 import { db, byCharacter } from './db';
@@ -105,7 +105,7 @@ export function characterDigest(c: Character, codex: CodexEntry[], journal: Jour
   out.push([c.race, `${c.className} ${T.level} ${c.level}`.trim(), c.background, c.alignment].filter(Boolean).join(' · '));
   out.push('', `## ${T.sheet}`);
   out.push(ABILITIES.map((a) => `${t(`abilityShort.${a}`)} ${abilityScore(c, a)} (${fmt(mod(c, a))})`).join(', '));
-  out.push(`${T.hp} ${c.hp.current}/${c.hp.max}${c.hp.temp ? ` +${c.hp.temp}` : ''} · ${T.ac} ${armorClass(c)} · ${T.speed} ${c.speed} · ${T.prof} ${fmt(profBonus(c))}`);
+  out.push(`${T.hp} ${c.hp.current}/${c.hp.max}${c.hp.temp ? ` +${c.hp.temp}` : ''} · ${T.ac} ${armorClass(c)} · ${T.speed} ${walkSpeed(c).text} · ${T.prof} ${fmt(profBonus(c))}`);
   const skills = SKILLS.filter((s) => c.skills[s.key].prof > 0).map((s) => `${t(`skill.${s.key}`)} ${fmt(skillBonus(c, s.key))}`);
   out.push(`${T.skills}: ${skills.length ? skills.join(', ') : T.none}`);
   if (c.attacks.length) out.push(`${T.attacks}: ${c.attacks.map((a) => `${a.name} (${a.damage} ${a.damageType})`.trim()).join('; ')}`);

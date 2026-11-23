@@ -209,6 +209,25 @@ export interface Item {
   powers: ItemPower[];
   /** черновик после «Додати» — ещё не подтверждён; при загрузке такие выбрасываются */
   draft: boolean;
+  /** пассивные модификаторы, пока предмет действует (надет/налаштований) */
+  mods: ItemMod[];
+}
+
+/**
+ * Пассивный модификатор предмета. t — на что:
+ * 'check' (всі перевірки), 'save', 'initiative', 'prof', 'spellAttack', 'spellDc', 'ac', 'acBase' (базовий КО без обладунку),
+ * 'ability:str'…, 'speed', 'fly' | 'swim' | 'climb' (0 — дорівнює ходьбі), 'darkvision', 'hpMax' (за рівень — perLevel).
+ * when — умова текстом: тоді число не рахується, а показується підказкою.
+ */
+export interface ItemMod {
+  id: string;
+  t: string;
+  op: 'add' | 'set' | 'min';
+  v: number;
+  /** предел: «+2, але не вище 20» */
+  cap: number | null;
+  perLevel: boolean;
+  when: string;
 }
 
 export interface Feature {

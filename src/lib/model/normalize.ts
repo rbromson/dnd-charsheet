@@ -1,4 +1,4 @@
-import type { ArmorStats, Attack, Character, CodexEntry, Deck, Feature, Item, ItemPower, JournalEntry, Resource, Risk, Spell, SpellSlot, WeaponStats } from './types';
+import type { ArmorStats, Attack, Character, CodexEntry, Deck, Feature, Item, ItemMod, ItemPower, JournalEntry, Resource, Risk, Spell, SpellSlot, WeaponStats } from './types';
 import { newCharacter } from './defaults';
 import { uid, nowIso, todayDate } from './ids';
 
@@ -30,11 +30,12 @@ const RESOURCE: Resource = { id: '', name: '', max: 1, current: 1, die: null, re
 const RISK: Risk = { die: 20, on: [1], kind: 'destroy', gain: '' };
 const POWER: ItemPower = { id: '', name: '', cost: 0, costMax: null, consume: false, dice: '', extra: '', result: 'info', self: true, dc: null, save: null, note: '', spell: null, level: 0, upcast: false, dcUser: false, attack: null };
 const RISK_KINDS = ['destroy', 'mundane', 'partial', 'gain'];
+const MOD: ItemMod = { id: '', t: 'check', op: 'add', v: 0, cap: null, perLevel: false, when: '' };
 const RESULTS = ['heal', 'temp', 'damage', 'info'];
 const SPELL: Spell = { id: '', level: 0, name: '', prepared: false, text: '' };
 const ITEM: Item = {
   id: '', name: '', qty: 1, text: '', magic: false, ref: null, en: '', equipped: false, attune: false, attuned: false, rarity: '',
-  weapon: null, armor: null, bonus: 0, acBonus: 0, saveBonus: 0, setAbility: null, setValue: 0, noArmor: false, resourceId: null, deckId: null, powers: [], draft: false,
+  weapon: null, armor: null, bonus: 0, acBonus: 0, saveBonus: 0, setAbility: null, setValue: 0, noArmor: false, resourceId: null, deckId: null, powers: [], draft: false, mods: [],
 };
 const WEAPON: WeaponStats = { dice: '', type: '', props: [], finesse: false, ranged: false, versatile: '', range: '', martial: false };
 const ARMOR: ArmorStats = { kind: 'light', base: 10, dexMax: null, strMin: 0, stealthDis: false };
@@ -85,6 +86,12 @@ export function normalizeCharacter(raw: unknown): Character {
       if (!RESULTS.includes(pw.result)) pw.result = 'info';
       if (pw.save && !ABIL.includes(pw.save)) pw.save = null;
       return pw;
+    });
+    it.mods = (Array.isArray(raw.mods) ? raw.mods.filter(isPlain) : []).map((m) => {
+      const md = mergeDefaults(MOD, m);
+      if (!md.id) md.id = uid();
+      if (!['add', 'set', 'min'].includes(md.op)) md.op = 'add';
+      return md;
     });
   });
   // черновики «Додати», які так і не підтвердили (закрили застосунок посеред картки)

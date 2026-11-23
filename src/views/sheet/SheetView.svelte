@@ -7,6 +7,7 @@
   import SavesCard from './SavesCard.svelte';
   import SkillsCard from './SkillsCard.svelte';
   import FeaturesCard from './FeaturesCard.svelte';
+  import ItemEffectsCard from './ItemEffectsCard.svelte';
   import TileSheet from './TileSheet.svelte';
   import PassiveSheet from './PassiveSheet.svelte';
   import { press } from '../../lib/actions/press';
@@ -59,6 +60,7 @@
           <div class="empty">{t('sheet.emptyText')}</div>
         {/if}
       </section>
+      <ItemEffectsCard />
       <FeaturesCard />
     </div>
   </div>

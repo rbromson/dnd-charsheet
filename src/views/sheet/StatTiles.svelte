@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { walkSpeed, itemSenses } from '../../lib/rules/calc';
+  import { modText } from '../gear/modText';
   /** Четыре цветные плитки: КО, ініціатива, швидкість, бонус майстерності. Общие для «Аркуш» и «Бій». */
   import Icon from '../../components/Icon.svelte';
   import NumberField from '../../components/NumberField.svelte';
@@ -17,6 +19,9 @@
   function rollInit() {
     dice.askCheck({ kind: 'init', label: t('sheet.tile.init'), bonus: initiative(c) });
   }
+  // швидкість і чуття з урахуванням предметів (чоботи, окуляри ночі…)
+  const spd = $derived(walkSpeed(c));
+  const senses = $derived(itemSenses(c).map((x) => modText({ id: '', t: x.key, op: 'set', v: x.v, cap: null, perLevel: false, when: '' })));
 </script>
 
 <div class="tiles">
@@ -64,8 +69,8 @@
     <button class="tile t-speed" use:press={{ onLong: () => open('speed') }}>
       <span class="ic"><Icon name="boot" size={18} stroke={2.2} /></span><span class="wm" aria-hidden="true"><Icon name="boot" size={86} stroke={1.4} /></span>
       <div class="k">{t('sheet.tile.speed')}</div>
-      <div class="v" class:long={c.speed.length > 4}>{c.speed || '—'}</div>
-      <div class="s">{t('sheet.tile.feet')}</div>
+      <div class="v" class:long={spd.text.length > 4}>{spd.text || '—'}</div>
+      <div class="s">{[t('sheet.tile.feet'), ...senses].join(' · ')}</div>
     </button>
   {/if}
 

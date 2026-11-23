@@ -16,6 +16,8 @@
   import DeckSheet from './DeckSheet.svelte';
   import ItemPowers from './ItemPowers.svelte';
   import ItemPowersEditor from './ItemPowersEditor.svelte';
+  import ItemModsEditor from './ItemModsEditor.svelte';
+  import { modText } from './modText';
   import { uid } from '../../lib/model/ids';
 
   /** fresh — только что созданный (вручну или из библиотеки): «Скасувати» / «Додати»; закрыли без «Додати» — предмета нет */
@@ -48,7 +50,7 @@
   const custom = $derived(!!item && (ui.editing || (fresh && !item.ref)));
   const charges = $derived(item?.resourceId ? charStore.current?.resources.find((r) => r.id === item.resourceId) : undefined);
   /** у предмета есть механика, которая что-то считает */
-  const hasEffect = $derived(!!item && !!(item.armor || item.bonus || item.acBonus || item.saveBonus || item.setAbility));
+  const hasEffect = $derived(!!item && !!(item.armor || item.bonus || item.acBonus || item.saveBonus || item.setAbility || item.mods.length));
   const showMech = $derived(!!item && (hasEffect || !!item.weapon || item.attune || !!item.resourceId));
 
   function armorLine(): string {
@@ -135,6 +137,7 @@
         {#if item.acBonus}<div class="ln">{t('gear.effAc')}: +{item.acBonus}{item.noArmor ? ` (${t('gear.effNoArmor')})` : ''}</div>{/if}
         {#if item.saveBonus}<div class="ln">{t('gear.effSave')}: +{item.saveBonus}</div>{/if}
         {#if item.setAbility}<div class="ln">{t('gear.effSet', { a: t(`ability.${item.setAbility}`), n: item.setValue })}</div>{/if}
+        {#each item.mods as m (m.id)}<div class="ln" class:muted={!!m.when}>{modText(m)}</div>{/each}
         {#if item.resourceId}<div class="ln muted">{t('gear.effCharges')}</div>{/if}
         {#if item.armor && !charStore.current?.acAuto}<div class="ln muted small">{t('gear.armorAcHint')}</div>{/if}
         {#if hasEffect && !itemActive(item)}
@@ -158,6 +161,7 @@
         </div>
       {/if}
     {/if}
+    {#if custom && item.magic}<ItemModsEditor itemId={item.id} />{/if}
     <Toggle bind:checked={item.magic} label={t('gear.magicToggle')} />
     <!-- колода — лише свій чарівний предмет у правці, або якщо вона вже є -->
     {#if (item.magic && custom) || item.deckId}

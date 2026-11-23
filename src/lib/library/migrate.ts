@@ -5,8 +5,9 @@
 import type { Character } from '../model/types';
 import type { LibItem, LibSpell } from './types';
 import { CHARGES, hasSpells, powersFor } from './powers';
+import { modsFor } from './mods';
 
-export const MECH_VERSION = 2;
+export const MECH_VERSION = 3;
 
 export function migrateMechanics(c: Character, lib: LibItem[], spells: LibSpell[] = []): boolean {
   if (c.rules.mech >= MECH_VERSION) return false;
@@ -17,6 +18,8 @@ export function migrateMechanics(c: Character, lib: LibItem[], spells: LibSpell[
     // v2: жезли й посохи отримують справжні заклинання замість «8к6»
     const old = c.rules.mech;
     if (!it.powers.length || (old < 2 && hasSpells(e.id) && !it.powers.some((p) => p.spell !== null))) it.powers = powersFor(e, spells);
+    // v3: пасивні модифікатори (швидкість, чуття, +N до перевірок…)
+    if (!it.mods.length) it.mods = modsFor(e.id, e.of);
     const r = it.resourceId ? c.resources.find((x) => x.id === it.resourceId) : undefined;
     const cm = CHARGES[e.id] ?? (e.of ? CHARGES[e.of] : undefined);
     if (r && cm) {
