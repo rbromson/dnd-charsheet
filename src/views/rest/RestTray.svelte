@@ -13,19 +13,20 @@
   import { charStore } from '../../lib/stores/characters.svelte';
   import { applyRest, restPreview, type RestKind } from '../../lib/rules/rest';
   import { applyHeal } from '../../lib/rules/hp';
+  import { pools, spendHitDie } from '../../lib/rules/hitdice';
   import { mod } from '../../lib/rules/calc';
   import { dieText, has, t } from '../../lib/i18n';
 
   let kind = $state<RestKind>('short');
 
   const c = $derived(charStore.current);
-  const die = $derived((c?.hitDice.die || 'd8').toLowerCase());
-  const left = $derived(c ? Math.max(0, c.hitDice.total - c.hitDice.used) : 0);
-  const formula = $derived.by(() => {
+  // мультиклас — кілька пулів (d10 воїна, d6 чарівника), кожен зі своєю кнопкою
+  const hdPools = $derived(c ? pools(c) : []);
+  const formulaFor = (die: string) => {
     if (!c) return '';
     const m = mod(c, 'con');
-    return `1${die}${m > 0 ? `+${m}` : m < 0 ? `-${-m}` : ''}`;
-  });
+    return `1${(die || 'd8').toLowerCase()}${m > 0 ? `+${m}` : m < 0 ? `-${-m}` : ''}`;
+  };
 
   const rows = $derived(
     c
@@ -44,13 +45,13 @@
   }
 
   /** Кубик здоров'я: бросок сразу, а лечение и подсказка — когда кость приземлится (без спойлера в ОЗ). */
-  let pendingHeal = $state<{ seq: number; gain: number } | null>(null);
+  let pendingHeal = $state<{ seq: number; gain: number; pool: string } | null>(null);
 
-  function spendHitDie() {
-    if (!c || left <= 0 || pendingHeal) return;
-    const e = dice.rollDamage(t('combat.hitDieLabel'), formula, false, true);
+  function rollHitDie(pool: string, die: string) {
+    if (!c || pendingHeal) return;
+    const e = dice.rollDamage(t('combat.hitDieLabel'), formulaFor(die), false, true);
     const gain = e.type === 'formula' ? Math.max(0, e.roll.total) : 0;
-    pendingHeal = { seq: dice.seq, gain };
+    pendingHeal = { seq: dice.seq, gain, pool };
   }
 
   function applyPendingHeal() {
@@ -62,7 +63,7 @@
     const next = applyHeal(ch0.hp, p.gain);
     charStore.update(
       (ch) => {
-        ch.hitDice.used = Math.min(ch.hitDice.total, ch.hitDice.used + 1);
+        spendHitDie(ch, p.pool);
         ch.hp = next;
         if (from === 0 && next.current > 0) ch.deathSaves = { success: 0, fail: 0 };
       },
@@ -116,15 +117,18 @@
       <p class="about">{t(kind === 'short' ? 'rest.shortAbout' : 'rest.longAbout')}</p>
 
       {#if kind === 'short'}
-        <section class="hd">
-          <div class="hd-info">
-            <span class="hd-t">{t('combat.hitDice')} · {die}</span>
-            <span class="hd-s">{left}/{c.hitDice.total} · {t('rest.hpNow', { cur: c.hp.current, max: c.hp.max })}</span>
-          </div>
-          <button class="btn btn-outline" disabled={left <= 0 || !!pendingHeal} onclick={spendHitDie}>
-            <Icon name="dice" size={18} />{t('rest.roll', { f: formula.replace('-', '−') })}
-          </button>
-        </section>
+        {#each hdPools as p (p.id)}
+          {@const pl = Math.max(0, p.total - p.used)}
+          <section class="hd">
+            <div class="hd-info">
+              <span class="hd-t">{t('combat.hitDice')} · {(p.die || 'd8').toLowerCase()}</span>
+              <span class="hd-s">{pl}/{p.total} · {t('rest.hpNow', { cur: c.hp.current, max: c.hp.max })}</span>
+            </div>
+            <button class="btn btn-outline" disabled={pl <= 0 || !!pendingHeal} onclick={() => rollHitDie(p.id, p.die)}>
+              <Icon name="dice" size={18} />{t('rest.roll', { f: formulaFor(p.die).replace('-', '−') })}
+            </button>
+          </section>
+        {/each}
       {/if}
 
       <section class="prev">

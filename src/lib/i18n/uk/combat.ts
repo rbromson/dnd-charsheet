@@ -94,6 +94,8 @@ export default {
   'combat.ammoCount': '{name}: {n}',
   'combat.ammoLeft': '{name}: лишилось {n}',
   'combat.ammoOut': '{name} скінчились',
+  'combat.dieMore': "Кубик іншого класу",
+  'combat.diePoolAdd': "Кубик іншого класу (мультиклас)",
   'combat.toastDamage': 'Шкода {n}: {from} → {to}',
   'combat.toastHeal': 'Лікування {n}: {from} → {to}',
   'combat.toastTemp': "Тимчасове здоров'я: {n}",

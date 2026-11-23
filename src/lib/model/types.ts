@@ -345,6 +345,8 @@ export interface Character {
   speed: string;
   hp: { max: number; current: number; temp: number };
   hitDice: { die: string; total: number; used: number };
+  /** мультиклас: кубики здоров'я інших класів (воїн d10 + чарівник d6) */
+  hitDiceMore: { id: string; die: string; total: number; used: number }[];
   deathSaves: { success: number; fail: number };
   attacks: Attack[];
   resources: Resource[];

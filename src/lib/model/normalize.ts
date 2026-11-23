@@ -148,6 +148,12 @@ export function normalizeCharacter(raw: unknown): Character {
   c.conditions = Array.isArray(r.conditions) ? [...new Set(r.conditions.filter((x): x is string => typeof x === 'string' && (CONDITIONS as readonly string[]).includes(x)))] : [];
   c.exhaustion = typeof r.exhaustion === 'number' && Number.isFinite(r.exhaustion) ? Math.min(6, Math.max(0, Math.round(r.exhaustion))) : 0;
   c.concentration = typeof r.concentration === 'string' && r.concentration.trim() ? r.concentration : null;
+  c.hitDiceMore = (Array.isArray(r.hitDiceMore) ? r.hitDiceMore.filter(isPlain) : []).map((p) => {
+    const x = mergeDefaults({ id: '', die: 'd8', total: 0, used: 0 }, p);
+    if (!x.id) x.id = uid();
+    x.used = Math.min(Math.max(0, x.used), x.total);
+    return x;
+  });
   c.features = list(r.features, FEATURE);
   c.decks = list(r.decks, DECK);
   // колода живёт у предмета: старые «отдельные» колоды привязываем к предмету с тем же именем или заводим предмет

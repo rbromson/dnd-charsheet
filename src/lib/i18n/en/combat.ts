@@ -94,6 +94,8 @@ export default {
   'combat.ammoCount': '{name}: {n}',
   'combat.ammoLeft': '{name}: {n} left',
   'combat.ammoOut': 'Out of {name}',
+  'combat.dieMore': "Another class’s die",
+  'combat.diePoolAdd': "Another class’s die (multiclass)",
   'combat.toastDamage': 'Damage {n}: {from} → {to}',
   'combat.toastHeal': 'Healed {n}: {from} → {to}',
   'combat.toastTemp': 'Temp HP: {n}',

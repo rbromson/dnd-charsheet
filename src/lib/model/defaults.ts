@@ -47,6 +47,7 @@ export function newCharacter(): Character {
     speed: '30',
     hp: { max: 10, current: 10, temp: 0 },
     hitDice: { die: 'd8', total: 1, used: 0 },
+    hitDiceMore: [],
     deathSaves: { success: 0, fail: 0 },
     attacks: [],
     resources: [],

@@ -6,6 +6,7 @@
   import TextField from '../../components/TextField.svelte';
   import Toggle from '../../components/Toggle.svelte';
   import Radar from './Radar.svelte';
+  import LevelUpSheet from './LevelUpSheet.svelte';
   import { charStore } from '../../lib/stores/characters.svelte';
   import { journal } from '../../lib/stores/journal.svelte';
   import { ui, buzz } from '../../lib/stores/ui.svelte';
@@ -25,6 +26,7 @@
   );
 
   const nf = new Intl.NumberFormat('uk-UA');
+  const openLevelUp = () => ui.openSheet(LevelUpSheet, {});
 
   // «Досвід до рівня» іде за рівнем, доки його не змінили вручну
   let prevLevel = untrack(() => c.level);
@@ -91,6 +93,9 @@
     </div>
     <p class="muted hint">{t('sheet.f.xpNextHint')}</p>
     <p class="muted hint">{t('sheet.f.classHint')}</p>
+    {#if c.level < 20}
+      <button class="btn btn-outline lvlbtn" onclick={openLevelUp}><Icon name="star" size={18} />{t('lvl.button', { n: c.level + 1 })}</button>
+    {/if}
     <!-- правило раси/риси, а не стан у грі — тому тут, у «Правці» -->
     <Toggle bind:checked={c.rules.rerollOnes} label={t('sheet.rerollOnesRule')} />
   </section>
@@ -113,6 +118,10 @@
           <span>{xpText}</span>
         </div>
       {/if}
+      <!-- досвіду вистачає — кнопка нового рівня (лише коли час) -->
+      {#if c.xpNext > 0 && c.xp >= c.xpNext && c.level < 20}
+        <button class="btn btn-primary lvlup" onclick={openLevelUp}><Icon name="star" size={16} />{t('lvl.button', { n: c.level + 1 })}</button>
+      {/if}
     </div>
     <div class="right">
       <Radar scores={c.abilities} />
@@ -121,6 +130,16 @@
 {/if}
 
 <style>
+  .lvlup {
+    margin-top: 8px;
+    min-height: 40px;
+    padding: 0 14px;
+    gap: 6px;
+  }
+  .lvlbtn {
+    align-self: flex-start;
+    gap: 6px;
+  }
   .hdr {
     display: flex;
     align-items: center;

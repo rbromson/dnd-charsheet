@@ -1,5 +1,6 @@
 import type { Character } from '../model/types';
 import { regainCharges } from './powers';
+import { hitDiceLeft, hitDiceTotal, regainHitDice } from './hitdice';
 
 export type RestKind = 'short' | 'long';
 
@@ -17,8 +18,7 @@ export function applyRest(c: Character, kind: RestKind): { name: string; regain:
   if (kind === 'long') {
     c.hp.current = c.hp.max;
     c.hp.temp = 0;
-    const regain = Math.max(1, Math.floor(c.hitDice.total / 2));
-    c.hitDice.used = Math.max(0, c.hitDice.used - regain);
+    regainHitDice(c);
     c.deathSaves = { success: 0, fail: 0 };
     for (const s of c.spellcasting.slots) s.used = 0;
     // 8 годин минули: дія зілль закінчилась, перемикачі (чоботи, крила, клинок) вимкнені
@@ -43,9 +43,8 @@ export function restPreview(c: Character, kind: RestKind): [string, string][] {
   if (kind === 'long') {
     if (c.hp.current < c.hp.max) out.push(['hp', `${c.hp.current} → ${c.hp.max}`]);
     if (c.hp.temp > 0) out.push(['temp', `${c.hp.temp} → 0`]);
-    const regain = Math.max(1, Math.floor(c.hitDice.total / 2));
-    const left = c.hitDice.total - c.hitDice.used;
-    const after = c.hitDice.total - Math.max(0, c.hitDice.used - regain);
+    const left = hitDiceLeft(c);
+    const after = Math.min(hitDiceTotal(c), left + Math.max(1, Math.floor(hitDiceTotal(c) / 2)));
     if (after !== left) out.push(['hitDice', `${left} → ${after}`]);
     const usedSlots = c.spellcasting.slots.reduce((s, x) => s + x.used, 0);
     if (usedSlots > 0) out.push(['slots', `−${usedSlots} → 0`]);
