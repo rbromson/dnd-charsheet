@@ -28,4 +28,6 @@ export default {
   'dice.tray.historyEmpty': 'Тут з’являться ваші кидки',
   'dice.tray.dieHint': 'Тап — додати кістку, затиснути — прибрати',
   'dice.tray.count': '{die}, {n} шт.',
+  'roll.prompt.useInsp': 'Витратити натхнення — перевага',
+  'roll.prompt.inspSpent': 'Натхнення витрачено',
 } satisfies Record<string, string>;

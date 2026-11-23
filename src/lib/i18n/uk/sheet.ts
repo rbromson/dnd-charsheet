@@ -5,7 +5,8 @@ export default {
   'sheet.xp': '{xp} / {next} до {lvl}-го рівня',
   'sheet.xpPlain': '{xp} / {next} досвіду',
   'sheet.inspiration': 'Натхнення',
-  'sheet.rerollOnes': 'Переброс 1',
+  'sheet.inspirationHint': 'Натхнення від майстра: тап — є/немає. Витратити — у вікні кидка (перевага).',
+  'sheet.rerollOnesRule': 'Перекидати одиниці на к20 (напр. «Везучий» напіврослика)',
   'sheet.unnamed': 'Без імені',
 
   // поля шапки (режим правки)

@@ -5,7 +5,8 @@ export default {
   'sheet.xp': '{xp} / {next} to level {lvl}',
   'sheet.xpPlain': '{xp} / {next} XP',
   'sheet.inspiration': 'Inspiration',
-  'sheet.rerollOnes': 'Reroll 1s',
+  'sheet.inspirationHint': 'Inspiration from the DM: tap to toggle. Spend it in the roll window (advantage).',
+  'sheet.rerollOnesRule': 'Reroll 1s on the d20 (e.g. halfling Lucky)',
   'sheet.unnamed': 'Unnamed',
 
   // header fields (edit mode)

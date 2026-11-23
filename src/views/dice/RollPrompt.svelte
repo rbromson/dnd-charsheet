@@ -30,12 +30,37 @@
     { value: 'adv', label: 'roll.adv', icon: 'plus' },
   ];
 
+  /** Натхнення: можна витратити на перевагу; знімається лише коли кидок справді зроблено. */
+  const inspired = $derived(!!charStore.current?.inspiration);
+  let useInsp = $state(false);
+  $effect(() => {
+    void req;
+    useInsp = false;
+  });
+  function toggleInsp() {
+    useInsp = !useInsp;
+    dice.mode = useInsp ? 'adv' : 'normal';
+  }
+  function roll() {
+    const spend = useInsp && dice.mode === 'adv';
+    dice.confirmPending();
+    if (spend) {
+      charStore.update(
+        (ch) => {
+          ch.inspiration = false;
+        },
+        { undo: t('roll.prompt.inspSpent') },
+      );
+    }
+    useInsp = false;
+  }
+
   function onKey(e: KeyboardEvent) {
     if (!p) return;
     if (e.key === 'Escape') dice.cancelPending();
     else if (e.key === 'Enter') {
       e.preventDefault();
-      dice.confirmPending();
+      roll();
     }
   }
 </script>
@@ -57,7 +82,10 @@
             class:on={dice.mode === m.value}
             role="radio"
             aria-checked={dice.mode === m.value}
-            onclick={() => (dice.mode = m.value)}
+            onclick={() => {
+              dice.mode = m.value;
+              if (m.value !== 'adv') useInsp = false;
+            }}
           >
             <Icon name={m.icon} size={18} stroke={2.2} />
             <span>{t(m.label)}</span>
@@ -65,7 +93,13 @@
         {/each}
       </div>
 
-      <button class="throw" class:two class:adv={dice.mode === 'adv'} class:dis={dice.mode === 'dis'} onclick={() => dice.confirmPending()}>
+      {#if inspired}
+        <button class="insp" class:on={useInsp} aria-pressed={useInsp} onclick={toggleInsp}>
+          <Icon name="sparkle" size={16} fill={useInsp} />{t('roll.prompt.useInsp')}
+        </button>
+      {/if}
+
+      <button class="throw" class:two class:adv={dice.mode === 'adv'} class:dis={dice.mode === 'dis'} onclick={roll}>
         {#if can3d([{ sides: 20 }])}
           <span class="d3">
             {#key two}
@@ -245,6 +279,24 @@
       radial-gradient(ellipse 120% 100% at 50% 0%, #4a3a22, #1f170c);
   }
 
+  .insp {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    padding: 6px 12px;
+    border-radius: 3px;
+    font-family: var(--font-sc);
+    font-weight: 700;
+    font-size: 13.5px;
+    color: #e3c48a;
+    box-shadow: inset 0 0 0 1px rgba(214, 170, 110, 0.4);
+  }
+  .insp.on {
+    color: #2a1206;
+    background: radial-gradient(ellipse 120% 100% at 50% 0%, #ffe39a, #e6b450 55%, #b8861e);
+    box-shadow: 0 0 12px rgba(240, 190, 100, 0.55);
+  }
   .throw {
     display: flex;
     flex-direction: column;

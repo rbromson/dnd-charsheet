@@ -28,4 +28,6 @@ export default {
   'dice.tray.historyEmpty': 'Your rolls will appear here',
   'dice.tray.dieHint': 'Tap to add a die, hold to remove',
   'dice.tray.count': '{die}, ×{n}',
+  'roll.prompt.useInsp': 'Spend inspiration — advantage',
+  'roll.prompt.inspSpent': 'Inspiration spent',
 } satisfies Record<string, string>;

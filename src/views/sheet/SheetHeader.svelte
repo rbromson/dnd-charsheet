@@ -4,6 +4,7 @@
   import Icon from '../../components/Icon.svelte';
   import NumberField from '../../components/NumberField.svelte';
   import TextField from '../../components/TextField.svelte';
+  import Toggle from '../../components/Toggle.svelte';
   import Radar from './Radar.svelte';
   import { charStore } from '../../lib/stores/characters.svelte';
   import { journal } from '../../lib/stores/journal.svelte';
@@ -79,10 +80,18 @@
       <NumberField label={t('sheet.f.xpNext')} bind:value={c.xpNext} min={0} placeholder="0" />
     </div>
     <p class="muted hint">{t('sheet.f.xpNextHint')}</p>
+    <!-- правило раси/риси, а не стан у грі — тому тут, у «Правці» -->
+    <Toggle bind:checked={c.rules.rerollOnes} label={t('sheet.rerollOnesRule')} />
   </section>
 {:else}
   <section class="hdr">
-    <Portrait id={c.portraitId} name={c.name} size={72} />
+    <!-- натхнення — стрічка на портреті: стан персонажа, тратиться в вікні кидка -->
+    <div class="pwrap">
+      <Portrait id={c.portraitId} name={c.name} size={72} />
+      <button class="insp" class:on={c.inspiration} aria-pressed={c.inspiration} title={t('sheet.inspirationHint')} onclick={toggleInspiration}>
+        <Icon name="sparkle" size={12} fill={c.inspiration} />{t('sheet.inspiration')}
+      </button>
+    </div>
     <div class="id">
       {#if kicker}<div class="greet">{kicker}</div>{/if}
       <h2 class="nm serif">{c.name || t('sheet.unnamed')}</h2>
@@ -96,14 +105,6 @@
     </div>
     <div class="right">
       <Radar scores={c.abilities} />
-      <div class="chips">
-        <button class="chip" class:on={c.inspiration} aria-pressed={c.inspiration} onclick={toggleInspiration}>
-          <Icon name="sparkle" size={18} fill={c.inspiration} />{t('sheet.inspiration')}
-        </button>
-        <button class="chip" class:on={c.rules.rerollOnes} aria-pressed={c.rules.rerollOnes} onclick={() => (c.rules.rerollOnes = !c.rules.rerollOnes)}>
-          <Icon name="reroll" size={18} />{t('sheet.rerollOnes')}
-        </button>
-      </div>
     </div>
   </section>
 {/if}
@@ -165,20 +166,49 @@
     margin-left: auto;
     flex-wrap: wrap;
   }
-  .chips {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
+  .pwrap {
+    position: relative;
+    flex-shrink: 0;
+    padding-bottom: 12px;
   }
-  .chips .chip {
-    min-height: var(--tap);
-    padding: 0 18px;
+  /* стрічка «Натхнення»: тьмяна бронза — немає, золото з жаром — є */
+  .insp {
+    --cut: 5px;
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    min-height: 24px;
+    padding: 0 8px;
+    white-space: nowrap;
     font-family: var(--font-sc);
     font-weight: 700;
-    font-size: 15px;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+    color: #b59a72;
+    clip-path: polygon(var(--cut) 0, calc(100% - var(--cut)) 0, 100% 50%, calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 50%);
+    background:
+      linear-gradient(180deg, #3a2b22, #1d140f) padding-box,
+      var(--frame-bronze) border-box;
+    border: 1.5px solid transparent;
+    transition:
+      color 0.2s,
+      filter 0.2s;
   }
-  .chip.on :global(svg) {
-    filter: drop-shadow(0 0 4px var(--ember-glow));
+  .insp::before {
+    content: '';
+    position: absolute;
+    inset: -8px -2px;
+  }
+  .insp.on {
+    color: #2a1206;
+    background:
+      radial-gradient(ellipse 120% 100% at 50% 0%, #ffe39a, #e6b450 55%, #b8861e) padding-box,
+      var(--frame-gold) border-box;
+    filter: drop-shadow(0 0 8px rgba(240, 190, 100, 0.65));
   }
 
   .hdr-edit {
@@ -220,14 +250,6 @@
     }
     .right {
       width: 100%;
-    }
-    .chips {
-      flex-direction: row;
-      width: 100%;
-    }
-    .chips .chip {
-      flex: 1;
-      justify-content: center;
     }
     .nm {
       font-size: 28px;
