@@ -133,31 +133,38 @@
         </button>
         <div class="grow">
           <div class="nm serif">{c.name || '—'}</div>
-          <div class="kd">{t(`journal.codex.kind.${c.kind}`)}</div>
+          <div class="kd">
+            {t(`journal.codex.kind.${c.kind}`)}
+            {#if c.status && !editing}<span class="st {statusTone(c.status)}">{c.status}</span>{/if}
+          </div>
         </div>
+        {#if !ui.editing}{@render editBtn()}{/if}
         {#if onclose}
           <button class="btn btn-ghost x" aria-label={t('common.close')} onclick={onclose}><Icon name="close" /></button>
         {/if}
       </div>
     {/if}
 
-    <div class="bar">
-      {#if !header}
+    {#snippet editBtn()}
+      {#if localEdit}
+        <button class="btn btn-ink" onclick={() => (localEdit = false)}><Icon name="check" size={20} />{t('journal.done')}</button>
+      {:else}
+        <button class="btn btn-outline" onclick={() => (localEdit = true)}><Icon name="edit" size={20} />{t('common.edit')}</button>
+      {/if}
+    {/snippet}
+
+    <!-- без шапки (вбудована картка): аватар, статус і кнопка — одним рядком -->
+    {#if !header}
+      <div class="bar">
         <button class="avb" aria-label={t('journal.codex.avatar')} onclick={pickAvatar}>
           <CodexAvatar entry={c} size={56} radius={14} />
           <span class="cam"><Icon name="camera" size={13} /></span>
         </button>
-      {/if}
-      {#if c.status && !editing}<span class="st {statusTone(c.status)}">{c.status}</span>{/if}
-      <div class="grow"></div>
-      {#if !ui.editing}
-        {#if localEdit}
-          <button class="btn btn-ink" onclick={() => (localEdit = false)}><Icon name="check" size={20} />{t('journal.done')}</button>
-        {:else}
-          <button class="btn btn-outline" onclick={() => (localEdit = true)}><Icon name="edit" size={20} />{t('common.edit')}</button>
-        {/if}
-      {/if}
-    </div>
+        {#if c.status && !editing}<span class="st {statusTone(c.status)}">{c.status}</span>{/if}
+        <div class="grow"></div>
+        {#if !ui.editing}{@render editBtn()}{/if}
+      </div>
+    {/if}
 
     {#if editing}
       <label class="blk">
@@ -275,11 +282,21 @@
     font-size: 20px;
   }
   .kd {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
     font-size: 12px;
     color: var(--ink2);
     letter-spacing: 0.06em;
     text-transform: uppercase;
     font-weight: 600;
+  }
+  .kd .st {
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 12px;
+    padding: 2px 8px;
   }
   .x {
     align-self: flex-start;

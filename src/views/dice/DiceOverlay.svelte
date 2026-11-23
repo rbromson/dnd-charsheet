@@ -380,11 +380,13 @@
       <!-- Итог -->
       <div class="tot-wrap" class:hidden={phase === 'spin'}>
         {#key popKey}
-          <div class="tot num" class:bump={phase === 'idle'}>{totalText}</div>
+          <!-- пока кость катится, числа в DOM нет: ни спойлера, ни выделения/«поиска» по долгому тапу -->
+          <div class="tot num" class:bump={phase === 'idle'}>{phase === 'spin' ? '\u00a0' : totalText}</div>
         {/key}
       </div>
 
       <div class="after" class:hidden={phase === 'spin'}>
+        {#if phase === 'spin'}<div class="bd">&nbsp;</div>{:else}
         {#if crit}<div class="plate plate-gold">{t('dice.crit')}</div>{/if}
         {#if fumble}<div class="plate plate-bad">{t('dice.fumble')}</div>{/if}
         {#if breakdown}<div class="bd num">{breakdown}</div>{/if}
@@ -395,6 +397,7 @@
               <span class="rule" class:off={!c.kept}>{chipText(c)}</span>
             {/each}
           </div>
+        {/if}
         {/if}
       </div>
 
@@ -455,6 +458,10 @@
   .rc {
     pointer-events: auto;
     position: relative;
+    /* результат — не текст для выделения: на Android долгий тап иначе открывает «Найти в Google» */
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
     width: min(460px, 100%);
     max-height: calc(100dvh - 32px);
     overflow-x: hidden;

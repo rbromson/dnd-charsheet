@@ -1,6 +1,6 @@
 import { zipSync, unzipSync, strToU8, strFromU8 } from 'fflate';
 import type { Character, CodexEntry, JournalEntry, MediaRecord } from './model/types';
-import { normalizeCharacter } from './model/normalize';
+import { normalizeCharacter, normalizeEntry, normalizeCodex } from './model/normalize';
 import { uid, nowIso, todayDate } from './model/ids';
 import { db, byCharacter, putCharacter, putJournal, putCodex, putMediaRecord, setMeta } from './db';
 import { charStore } from './stores/characters.svelte';
@@ -104,7 +104,9 @@ export async function importManifest(manifest: BackupManifest, blobs: Map<string
   c.gallery = c.gallery.map(mapId).filter((x): x is string => !!x);
   c.updatedAt = nowIso();
   await putCharacter(c);
-  for (const e of manifest.journal ?? []) {
+  for (const raw of manifest.journal ?? []) {
+    // недостающие поля (старые копии, ответ ИИ) — значениями по умолчанию, иначе запись падает при открытии
+    const e = normalizeEntry(raw);
     await putJournal({
       ...e,
       id: uid(),
@@ -113,7 +115,8 @@ export async function importManifest(manifest: BackupManifest, blobs: Map<string
       transcript: (e.transcript ?? []).map((s) => ({ ...s, audioId: mapId(s.audioId) })),
     });
   }
-  for (const e of manifest.codex ?? []) {
+  for (const raw of manifest.codex ?? []) {
+    const e = normalizeCodex(raw);
     await putCodex({ ...e, id: uid(), characterId: newId, images: (e.images ?? []).map(mapId).filter((x): x is string => !!x), portraitId: mapId(e.portraitId ?? null) });
   }
   return c;

@@ -149,6 +149,8 @@
     padding: 0 6px;
   }
   .search {
+    /* в колонке с прокруткой поиск и вкладки не должны сжиматься */
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -183,9 +185,16 @@
     align-items: center;
     justify-content: center;
   }
+  .tabs {
+    flex-shrink: 0;
+  }
+  .tabs :global(.seg) {
+    width: 100%;
+  }
   .tabs :global(.seg button) {
     padding: 0 4px;
     font-size: 13.5px;
+    white-space: nowrap;
   }
   .items {
     display: flex;

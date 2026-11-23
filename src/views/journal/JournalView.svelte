@@ -199,12 +199,12 @@
 <style>
   .grid {
     display: grid;
-    grid-template-columns: minmax(280px, 330px) minmax(0, 1fr);
+    grid-template-columns: minmax(330px, 400px) minmax(0, 1fr);
     gap: 16px;
     align-items: start;
   }
   .grid.three {
-    grid-template-columns: 330px minmax(0, 1fr) 300px;
+    grid-template-columns: 380px minmax(0, 1fr) 300px;
   }
   .lcol,
   .rcol {

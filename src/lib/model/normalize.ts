@@ -1,6 +1,6 @@
-import type { ArmorStats, Attack, Character, Deck, Feature, Item, Resource, Spell, SpellSlot, WeaponStats } from './types';
+import type { ArmorStats, Attack, Character, CodexEntry, Deck, Feature, Item, JournalEntry, Resource, Spell, SpellSlot, WeaponStats } from './types';
 import { newCharacter } from './defaults';
-import { uid } from './ids';
+import { uid, nowIso, todayDate } from './ids';
 
 type Plain = Record<string, unknown>;
 const isPlain = (v: unknown): v is Plain => typeof v === 'object' && v !== null && !Array.isArray(v) && !(v instanceof Blob);
@@ -75,4 +75,49 @@ export function normalizeCharacter(raw: unknown): Character {
   c.spellcasting.slots = Array.from({ length: 10 }, (_, i) => mergeDefaults(SLOT, slots[i]));
   c.gallery = Array.isArray(r.gallery) ? r.gallery.filter((x): x is string => typeof x === 'string') : [];
   return c;
+}
+
+const str = (v: unknown, d = '') => (typeof v === 'string' ? v : d);
+const strArr = (v: unknown) => (Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : []);
+
+/** Запись журнала с недостающими полями (старые копии, ответ ИИ, ручной импорт) — значения по умолчанию. */
+export function normalizeEntry(input: Partial<JournalEntry> | null | undefined): JournalEntry {
+  const raw = (input ?? {}) as Partial<JournalEntry>;
+  const now = nowIso();
+  return {
+    ...raw,
+    id: str(raw.id, uid()),
+    characterId: str(raw.characterId),
+    kind: raw.kind === 'note' ? 'note' : 'session',
+    sessionNo: typeof raw.sessionNo === 'number' ? raw.sessionNo : null,
+    date: str(raw.date, todayDate()),
+    title: str(raw.title),
+    text: str(raw.text),
+    secret: str(raw.secret),
+    pinned: raw.pinned === true,
+    images: strArr(raw.images),
+    transcript: Array.isArray(raw.transcript) ? raw.transcript : [],
+    createdAt: str(raw.createdAt, now),
+    updatedAt: str(raw.updatedAt, now),
+  };
+}
+
+/** Запись довідника с недостающими полями — значения по умолчанию. */
+export function normalizeCodex(input: Partial<CodexEntry> | null | undefined): CodexEntry {
+  const raw = (input ?? {}) as Partial<CodexEntry>;
+  const now = nowIso();
+  return {
+    ...raw,
+    id: str(raw.id, uid()),
+    characterId: str(raw.characterId),
+    kind: raw.kind === 'place' || raw.kind === 'quest' ? raw.kind : 'npc',
+    name: str(raw.name),
+    text: str(raw.text),
+    status: str(raw.status),
+    secret: str(raw.secret),
+    images: strArr(raw.images),
+    portraitId: typeof raw.portraitId === 'string' ? raw.portraitId : null,
+    createdAt: str(raw.createdAt, now),
+    updatedAt: str(raw.updatedAt, now),
+  };
 }

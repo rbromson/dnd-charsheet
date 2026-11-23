@@ -180,7 +180,8 @@
   .eh {
     display: flex;
     gap: 12px;
-    align-items: flex-start;
+    /* кнопки — по центру шапки (рядок «вид · дата» + заголовок), а не прилипшие к верху */
+    align-items: center;
   }
   .kicker {
     font-size: 10.5px;

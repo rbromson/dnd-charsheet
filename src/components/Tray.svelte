@@ -26,6 +26,9 @@
 <style>
   .tray {
     position: fixed;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
     right: 12px;
     bottom: 12px;
     width: 396px;

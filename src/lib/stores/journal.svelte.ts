@@ -3,6 +3,7 @@ import { uid, nowIso, todayDate } from '../model/ids';
 import { byCharacter, putJournal, deleteFrom } from '../db';
 import { charStore } from './characters.svelte';
 import { createListSaver } from './persist';
+import { normalizeEntry } from '../model/normalize';
 import { ui } from './ui.svelte';
 import { t } from '../i18n';
 import { deleteMedia } from './media';
@@ -24,7 +25,7 @@ class JournalStore {
 
   async load(characterId: string) {
     await this.#saver.flush();
-    const list = await byCharacter('journal', characterId);
+    const list = (await byCharacter('journal', characterId)).map((e) => normalizeEntry(e));
     this.#saver.prime(list);
     this.characterId = characterId;
     this.entries = list;

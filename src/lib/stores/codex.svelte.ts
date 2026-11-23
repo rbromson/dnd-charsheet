@@ -4,6 +4,7 @@ import { byCharacter, putCodex, deleteFrom } from '../db';
 import { charStore } from './characters.svelte';
 import { journal } from './journal.svelte';
 import { createListSaver } from './persist';
+import { normalizeCodex } from '../model/normalize';
 import { renameMentions, hasMention, snippetAround } from '../mentions';
 import { ui } from './ui.svelte';
 import { t } from '../i18n';
@@ -26,7 +27,7 @@ class CodexStore {
 
   async load(characterId: string) {
     await this.#saver.flush();
-    const list = await byCharacter('codex', characterId);
+    const list = (await byCharacter('codex', characterId)).map((e) => normalizeCodex(e));
     this.#saver.prime(list);
     this.#characterId = characterId;
     this.items = list;

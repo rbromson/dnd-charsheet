@@ -124,6 +124,9 @@
   }
   .box {
     pointer-events: auto;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
     position: relative;
     width: min(440px, 100%);
     max-height: calc(100dvh - 32px);
