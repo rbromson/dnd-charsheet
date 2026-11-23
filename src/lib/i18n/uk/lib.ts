@@ -25,7 +25,6 @@ export default {
   'lib.weight': '{n} фнт',
   'lib.pickBase': 'Оберіть основу',
   'lib.addItem': 'Додати до спорядження',
-  'lib.added': 'Додано «{name}»',
   'lib.cantrip': 'Заговір',
   'lib.cantripsShort': 'Заг.',
   'lib.level': '{n} рівень',
@@ -44,8 +43,6 @@ export default {
   'lib.higher': 'На вищих рівнях.',
   'lib.addSpell': 'Додати',
   'lib.addSpellAtk': 'Додати й в атаки',
-  'lib.addedSpell': 'Заклинання «{name}» додано',
-  'lib.addedSpellAtk': '«{name}» додано в заклинання та атаки',
 
   'gear.equipped': 'Вдягнено / в руках',
   'gear.equippedShort': 'вдягнено',

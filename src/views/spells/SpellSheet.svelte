@@ -5,11 +5,32 @@
   import Segmented from '../../components/Segmented.svelte';
   import Toggle from '../../components/Toggle.svelte';
   import Icon from '../../components/Icon.svelte';
+  import { onDestroy, untrack } from 'svelte';
   import { charStore } from '../../lib/stores/characters.svelte';
   import { ui } from '../../lib/stores/ui.svelte';
   import { t } from '../../lib/i18n';
 
-  let { id }: { id: string } = $props();
+  /** fresh — только что созданное: «Скасувати» / «Додати»; attackId — атака, созданная вместе с ним (уберём при отмене) */
+  let { id, fresh = false, attackId = null }: { id: string; fresh?: boolean; attackId?: string | null } = $props();
+  let confirmed = false;
+  // черновик: в списке не показываем, пока не нажали «Додати»
+  untrack(() => {
+    if (fresh) ui.draft = id;
+  });
+
+  onDestroy(() => {
+    if (ui.draft === id) ui.draft = null;
+    const ch = charStore.current;
+    if (!fresh || confirmed || !ch) return;
+    ch.spells = ch.spells.filter((x) => x.id !== id);
+    if (attackId) ch.attacks = ch.attacks.filter((a) => a.id !== attackId);
+  });
+
+  function confirmAdd() {
+    confirmed = true;
+    ui.toast(t('add.added', { name: s?.name.trim() || t('spells.unnamed') }));
+    ui.closeSheet();
+  }
 
   const c = $derived(charStore.current);
   const s = $derived(c?.spells.find((x) => x.id === id));
@@ -47,9 +68,14 @@
     <TextField bind:value={s.text} label={t('spells.text')} placeholder={t('spells.textPlaceholder')} multiline rows={8} serif />
 
     {#snippet footer()}
-      <button class="btn btn-danger" onclick={remove}><Icon name="trash" size={20} />{t('common.delete')}</button>
-      <div class="grow"></div>
-      <button class="btn btn-ink" onclick={() => ui.closeSheet()}><Icon name="check" size={20} />{t('common.done')}</button>
+      {#if fresh}
+        <button class="btn btn-outline" onclick={() => ui.closeSheet()}>{t('common.cancel')}</button>
+        <button class="btn btn-primary grow" onclick={confirmAdd}><Icon name="plus" size={20} />{t('add.confirm')}</button>
+      {:else}
+        <button class="btn btn-danger" onclick={remove}><Icon name="trash" size={20} />{t('common.delete')}</button>
+        <div class="grow"></div>
+        <button class="btn btn-ink" onclick={() => ui.closeSheet()}><Icon name="check" size={20} />{t('common.done')}</button>
+      {/if}
     {/snippet}
   </SheetFrame>
 {/if}

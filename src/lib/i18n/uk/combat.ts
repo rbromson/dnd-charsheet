@@ -60,9 +60,7 @@ export default {
   'combat.resEmpty': 'Ресурсів немає. Додайте в режимі правки.',
 
   // відпочинок
-  'combat.rest': 'Відпочинок',
   'combat.restNothing': 'Нічого не відновиться',
-  'combat.restOk': 'Відпочити',
   'combat.restDoneShort': 'Короткий відпочинок',
   'combat.restDoneLong': 'Довгий відпочинок',
   'combat.restKey.hp': "Поточне здоров'я",

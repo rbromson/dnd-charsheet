@@ -3,6 +3,7 @@
    * Лоток «Привал»: короткий / довгий відпочинок с предпросмотром того, что вернётся.
    * На коротком — трата кубиков здоров'я (бросок показывается здесь же, как в лотке кубиков).
    */
+  import { onDestroy, untrack } from 'svelte';
   import Tray from '../../components/Tray.svelte';
   import Segmented from '../../components/Segmented.svelte';
   import Icon from '../../components/Icon.svelte';
@@ -42,21 +43,41 @@
     ui.restOpen = false;
   }
 
+  /** Кубик здоров'я: бросок сразу, а лечение и подсказка — когда кость приземлится (без спойлера в ОЗ). */
+  let pendingHeal = $state<{ seq: number; gain: number } | null>(null);
+
   function spendHitDie() {
-    if (!c || left <= 0) return;
+    if (!c || left <= 0 || pendingHeal) return;
     const e = dice.rollDamage(t('combat.hitDieLabel'), formula, false, true);
     const gain = e.type === 'formula' ? Math.max(0, e.roll.total) : 0;
-    const from = c.hp.current;
-    const next = applyHeal(c.hp, gain);
+    pendingHeal = { seq: dice.seq, gain };
+  }
+
+  function applyPendingHeal() {
+    const p = pendingHeal;
+    const ch0 = charStore.current;
+    if (!p || !ch0) return;
+    pendingHeal = null;
+    const from = ch0.hp.current;
+    const next = applyHeal(ch0.hp, p.gain);
     charStore.update(
       (ch) => {
         ch.hitDice.used = Math.min(ch.hitDice.total, ch.hitDice.used + 1);
         ch.hp = next;
         if (from === 0 && next.current > 0) ch.deathSaves = { success: 0, fail: 0 };
       },
-      { undo: t('combat.hitDieToast', { n: gain, from, to: next.current }) },
+      { undo: t('combat.hitDieToast', { n: p.gain, from, to: next.current }) },
     );
   }
+
+  $effect(() => {
+    const l = dice.landed;
+    untrack(() => {
+      if (pendingHeal && l >= pendingHeal.seq) applyPendingHeal();
+    });
+  });
+  // закрыли «Привал», не дождавшись кости — лечение всё равно положено
+  onDestroy(() => applyPendingHeal());
 
   function rest() {
     const k = kind;
@@ -92,7 +113,7 @@
             <span class="hd-t">{t('combat.hitDice')} · {die}</span>
             <span class="hd-s">{left}/{c.hitDice.total} · {t('rest.hpNow', { cur: c.hp.current, max: c.hp.max })}</span>
           </div>
-          <button class="btn btn-outline" disabled={left <= 0} onclick={spendHitDie}>
+          <button class="btn btn-outline" disabled={left <= 0 || !!pendingHeal} onclick={spendHitDie}>
             <Icon name="dice" size={18} />{t('rest.roll', { f: formula.replace('-', '−') })}
           </button>
         </section>
@@ -102,7 +123,7 @@
         <h3 class="pt">{t('rest.restores')}</h3>
         {#if rows.length}
           <ul>
-            {#each rows as r (r.name)}
+            {#each rows as r, i (i)}
               <li><span class="pn">{r.name}</span><b class="num">{r.value}</b></li>
             {/each}
           </ul>
@@ -139,8 +160,18 @@
     border-radius: 50%;
     color: #ffc58e;
     background: radial-gradient(circle at 50% 70%, rgba(232, 116, 59, 0.45), rgba(232, 116, 59, 0.08) 60%, transparent 72%);
+    position: relative;
     filter: drop-shadow(0 0 10px rgba(232, 116, 59, 0.45));
+  }
+  /* мерцание костра — прозрачностью отдельного слоя (дёшево), а не анимацией filter */
+  .scene:not(.long)::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 70%, rgba(255, 150, 70, 0.35), transparent 65%);
     animation: flicker 2.4s ease-in-out infinite;
+    pointer-events: none;
   }
   .scene.long {
     color: #cfd8ff;
@@ -232,10 +263,10 @@
   @keyframes flicker {
     0%,
     100% {
-      filter: drop-shadow(0 0 10px rgba(232, 116, 59, 0.45));
+      opacity: 0.3;
     }
     50% {
-      filter: drop-shadow(0 0 18px rgba(232, 116, 59, 0.7));
+      opacity: 1;
     }
   }
 </style>

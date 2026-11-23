@@ -5,6 +5,7 @@
   import NumberField from '../../components/NumberField.svelte';
   import ItemSheet from './ItemSheet.svelte';
   import ItemLibrary from './ItemLibrary.svelte';
+  import AddChooser from '../../components/AddChooser.svelte';
   import { attunedCount, itemActive } from '../../lib/rules/calc';
   import { removeItem as removeItemWithAttack } from '../../lib/rules/weapons';
   import CoinSheet from './CoinSheet.svelte';
@@ -34,10 +35,20 @@
     if (ui.editing) itemSheet(id);
     else open[id] = !open[id];
   }
+  /** «Додати»: з бібліотеки або вручну — у будь-якому режимі; предмет з'явиться лише після «Додати» в картці. */
   function addItem() {
-    const id = uid();
-    c.equipment.push(newItem({ id, name: '' }));
-    itemSheet(id);
+    ui.openSheet(AddChooser, {
+      kicker: t('gear.itemKicker'),
+      title: t('add.item'),
+      librarySub: t('add.itemLibSub'),
+      manualSub: t('add.itemManualSub'),
+      onlibrary: () => ui.openSheet(ItemLibrary, {}),
+      onmanual: () => {
+        const id = uid();
+        c.equipment.push(newItem({ id, name: '' }));
+        ui.openSheet(ItemSheet, { id, fresh: true });
+      },
+    });
   }
   async function removeItem(id: string) {
     const it = c.equipment.find((x) => x.id === id);
@@ -65,7 +76,7 @@
 </script>
 
 <TopBar title={t('nav.gear')}>
-  <button class="btn btn-outline" onclick={() => ui.openSheet(ItemLibrary, {})}><Icon name="search" size={18} />{t('lib.open')}</button>
+  <button class="btn btn-primary" onclick={addItem}><Icon name="plus" size={20} />{t('add.confirm')}</button>
 </TopBar>
 <div class="view">
   <div class="cols cols-3">
@@ -77,7 +88,7 @@
       {#if c.equipment.length}
         <ul class="list">
           {#each c.equipment as it, i (it.id)}
-            <li class:open={open[it.id] && !ui.editing}>
+            <li class:open={open[it.id] && !ui.editing} hidden={it.id === ui.draft}>
               <div class="line">
                 <button
                   class="name"
@@ -120,9 +131,8 @@
       {:else}
         <div class="empty">{t('gear.emptyItems')}</div>
       {/if}
-      {#if ui.editing}
-        <button class="btn btn-ghost addbtn" onclick={addItem}><Icon name="plus" size={20} />{t('gear.addItem')}</button>
-      {:else if c.equipment.length}
+      <button class="btn btn-ghost addbtn" onclick={addItem}><Icon name="plus" size={20} />{t('gear.addItem')}</button>
+      {#if !ui.editing && c.equipment.length}
         <p class="foot muted">{t('gear.itemHint')}</p>
       {/if}
     </section>

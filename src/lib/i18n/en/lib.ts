@@ -25,7 +25,6 @@ export default {
   'lib.weight': '{n} lb.',
   'lib.pickBase': 'Choose a base item',
   'lib.addItem': 'Add to gear',
-  'lib.added': 'Added “{name}”',
   'lib.cantrip': 'Cantrip',
   'lib.cantripsShort': 'Cant.',
   'lib.level': 'Level {n}',
@@ -44,8 +43,6 @@ export default {
   'lib.higher': 'At Higher Levels.',
   'lib.addSpell': 'Add',
   'lib.addSpellAtk': 'Add to attacks too',
-  'lib.addedSpell': 'Spell “{name}” added',
-  'lib.addedSpellAtk': '“{name}” added to spells and attacks',
 
   'gear.equipped': 'Equipped / in hand',
   'gear.equippedShort': 'equipped',

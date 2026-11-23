@@ -1,7 +1,7 @@
 /**
  * Шаблон персонажа для заполнения внешним ИИ (ChatGPT, Claude…).
  * Это обычный лист персонажа в JSON + поле `_instructions` с подсказками.
- * Заполненный файл загружается через «Імпорт» (.json) — лишние поля игнорируются, неверные типы заменяются значениями по умолчанию.
+ * Заполненный файл загружается через «Новий персонаж → З файлу» (.json) — лишние поля игнорируются, неверные типы заменяются значениями по умолчанию.
  */
 import type { Character } from './model/types';
 import { newCharacter } from './model/defaults';
@@ -15,7 +15,7 @@ const TEXT: Record<Lang, { intro: string[]; fields: Record<string, string>; exam
       'ЗАВДАННЯ ДЛЯ ШІ: заповни цей JSON даними персонажа з доданого листа (PDF, фото чи тексту). Відповідь — лише готовий JSON, без пояснень.',
       'Не змінюй назви ключів і структуру. Числа пиши числами, не рядками. Чого немає в листі — залиш порожнім або за замовчуванням.',
       'Поля, що починаються з «_», застосунок ігнорує — їх можна лишити.',
-      'Готовий файл збережи з розширенням .json і завантаж у застосунку: панель персонажів → «Імпорт».',
+      'Готовий файл збережи з розширенням .json і завантаж у застосунку: «Новий персонаж» → «З файлу».',
     ],
     fields: {
       'abilities': 'значення характеристик (не модифікатори): str Сила, dex Вправність, con Статура, int Інтелект, wis Мудрість, cha Харизма',
@@ -53,7 +53,7 @@ const TEXT: Record<Lang, { intro: string[]; fields: Record<string, string>; exam
       'TASK FOR THE AI: fill this JSON with the character from the attached sheet (PDF, photo or text). Reply with the finished JSON only, no explanations.',
       'Do not rename keys or change the structure. Write numbers as numbers, not strings. Leave anything missing empty or at its default.',
       'Keys starting with “_” are ignored by the app — you may keep them.',
-      'Save the result with a .json extension and load it in the app: characters panel → “Import”.',
+      'Save the result with a .json extension and load it in the app: “New character” → “From file”.',
     ],
     fields: {
       'abilities': 'ability scores (not modifiers): str, dex, con, int, wis, cha',

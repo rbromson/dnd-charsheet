@@ -5,6 +5,7 @@
   import Stepper from '../../components/Stepper.svelte';
   import Toggle from '../../components/Toggle.svelte';
   import Icon from '../../components/Icon.svelte';
+  import { onDestroy, untrack } from 'svelte';
   import { charStore } from '../../lib/stores/characters.svelte';
   import { ui } from '../../lib/stores/ui.svelte';
   import { t } from '../../lib/i18n';
@@ -12,7 +13,25 @@
   import { attackBonus, resolveDamageFormula, fmt, itemActive, attunedCount } from '../../lib/rules/calc';
   import AttackSheet from '../combat/AttackSheet.svelte';
 
-  let { id }: { id: string } = $props();
+  /** fresh — только что созданный (вручну или из библиотеки): «Скасувати» / «Додати»; закрыли без «Додати» — предмета нет */
+  let { id, fresh = false }: { id: string; fresh?: boolean } = $props();
+  let confirmed = false;
+  // черновик: в списке не показываем, пока не нажали «Додати»
+  untrack(() => {
+    if (fresh) ui.draft = id;
+  });
+
+  onDestroy(() => {
+    if (ui.draft === id) ui.draft = null;
+    const c = charStore.current;
+    if (fresh && !confirmed && c?.equipment.some((x) => x.id === id)) removeItem(c, id);
+  });
+
+  function confirmAdd() {
+    confirmed = true;
+    ui.toast(t('add.added', { name: item?.name.trim() || t('gear.unnamed') }));
+    ui.closeSheet();
+  }
 
   const item = $derived(charStore.current?.equipment.find((x) => x.id === id));
   const atk = $derived(charStore.current ? linkedAttack(charStore.current, id) : undefined);
@@ -112,9 +131,14 @@
     <TextField bind:value={item.text} label={t('gear.itemText')} placeholder={t('gear.itemTextPlaceholder')} multiline rows={6} serif />
 
     {#snippet footer()}
-      <button class="btn btn-danger" onclick={remove}><Icon name="trash" size={20} />{t('common.delete')}</button>
-      <div class="grow"></div>
-      <button class="btn btn-ink" onclick={() => ui.closeSheet()}><Icon name="check" size={20} />{t('common.done')}</button>
+      {#if fresh}
+        <button class="btn btn-outline" onclick={() => ui.closeSheet()}>{t('common.cancel')}</button>
+        <button class="btn btn-primary grow" onclick={confirmAdd}><Icon name="plus" size={20} />{t('add.confirm')}</button>
+      {:else}
+        <button class="btn btn-danger" onclick={remove}><Icon name="trash" size={20} />{t('common.delete')}</button>
+        <div class="grow"></div>
+        <button class="btn btn-ink" onclick={() => ui.closeSheet()}><Icon name="check" size={20} />{t('common.done')}</button>
+      {/if}
     {/snippet}
   </SheetFrame>
 {/if}

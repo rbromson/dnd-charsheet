@@ -60,9 +60,7 @@ export default {
   'combat.resEmpty': 'No resources. Add some in Edit mode.',
 
   // rest
-  'combat.rest': 'Rest',
   'combat.restNothing': 'Nothing will be restored',
-  'combat.restOk': 'Rest',
   'combat.restDoneShort': 'Short rest',
   'combat.restDoneLong': 'Long rest',
   'combat.restKey.hp': 'Current HP',

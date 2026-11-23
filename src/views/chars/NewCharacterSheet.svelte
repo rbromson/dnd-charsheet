@@ -5,6 +5,7 @@
    */
   import SheetFrame from '../../components/SheetFrame.svelte';
   import Icon from '../../components/Icon.svelte';
+  import Ways from '../../components/Ways.svelte';
   import { charStore } from '../../lib/stores/characters.svelte';
   import { ui } from '../../lib/stores/ui.svelte';
   import { pickFiles } from '../../lib/stores/media';
@@ -76,6 +77,9 @@
       const parsed = extractJson(raw);
       if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('not an object');
       data = parsed as Record<string, unknown>;
+      // хоть что-то от персонажа: имя, характеристики, класс или резервная копия — иначе это не ответ на шаблон
+      const ch = (data.app === 'taverna' ? data.character : data) as Record<string, unknown> | undefined;
+      if (!ch || !(ch.name || ch.abilities || ch.className)) throw new Error('no character');
     } catch {
       ui.toast(t('newc.parseError'), undefined, 6000);
       return;
@@ -98,21 +102,13 @@
 
 <SheetFrame kicker={t('newc.kicker')} title={t('newc.title')}>
   {#if mode === 'choose'}
-    <div class="ways">
-      <button class="way" onclick={manual}>
-        <span class="medal"><Icon name="edit" size={22} /></span>
-        <span class="wt"><b>{t('newc.manual')}</b><span>{t('newc.manualSub')}</span></span>
-      </button>
-      <button class="way ai" onclick={() => (mode = 'ai')}>
-        <span class="medal"><Icon name="sparkle" size={22} /></span>
-        <span class="wt"><b>{t('newc.ai')}</b><span>{t('newc.aiSub')}</span></span>
-        <Icon name="chevron" size={18} />
-      </button>
-      <button class="way" disabled={busy} onclick={fromFile}>
-        <span class="medal"><Icon name="upload" size={22} /></span>
-        <span class="wt"><b>{t('newc.file')}</b><span>{t('newc.fileSub')}</span></span>
-      </button>
-    </div>
+    <Ways
+      ways={[
+        { icon: 'edit', label: t('newc.manual'), sub: t('newc.manualSub'), onclick: manual },
+        { icon: 'sparkle', label: t('newc.ai'), sub: t('newc.aiSub'), onclick: () => (mode = 'ai'), accent: true, next: true },
+        { icon: 'upload', label: t('newc.file'), sub: t('newc.fileSub'), onclick: fromFile, disabled: busy },
+      ]}
+    />
   {:else}
     <section class="step">
       <h3 class="card-title">{t('newc.step1')}</h3>
@@ -142,88 +138,6 @@
 </SheetFrame>
 
 <style>
-  .ways {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  /* способ создания — табличка в бронзовой оправе со срезанными углами */
-  .way {
-    --cut: 9px;
-    position: relative;
-    isolation: isolate;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    width: 100%;
-    min-height: 76px;
-    padding: 10px 14px;
-    text-align: left;
-    color: var(--ink);
-    clip-path: polygon(var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 calc(100% - var(--cut)), 0 var(--cut));
-    background: var(--frame-bronze);
-    transition: transform 0.1s;
-  }
-  .way::before {
-    content: '';
-    position: absolute;
-    inset: 1.5px;
-    z-index: -1;
-    clip-path: inherit;
-    background: radial-gradient(ellipse 120% 100% at 50% 0%, #fffaf0 0%, #f3e6cb 55%, #e6d3ad 100%);
-    box-shadow: inset 0 -6px 10px -6px rgba(110, 78, 40, 0.3);
-  }
-  .way:active {
-    transform: scale(0.98);
-  }
-  .way[disabled] {
-    opacity: 0.5;
-  }
-  .way.ai {
-    background: var(--frame-gold);
-  }
-  .way.ai::before {
-    background:
-      radial-gradient(ellipse 60% 120% at 0% 50%, rgba(232, 116, 59, 0.22), transparent 70%),
-      radial-gradient(ellipse 120% 100% at 50% 0%, #fffaf0 0%, #f6e7c6 55%, #ead3a4 100%);
-  }
-  .medal {
-    flex-shrink: 0;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #ffd9a8;
-    background: radial-gradient(circle at 50% 35%, #4a372b, #1d140f);
-    box-shadow:
-      0 0 0 2px #b08a4a,
-      0 2px 4px rgba(60, 40, 15, 0.4);
-  }
-  .way.ai .medal {
-    color: #fff0d6;
-    background: radial-gradient(circle at 50% 35%, #f39a5c, #b0481c);
-    box-shadow:
-      0 0 0 2px #e3bd73,
-      0 0 12px rgba(232, 116, 59, 0.45);
-  }
-  .wt {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-  .wt b {
-    font-family: var(--font-sc);
-    font-size: 17px;
-  }
-  .wt span {
-    font-size: 13px;
-    line-height: 1.35;
-    color: var(--ink2);
-  }
   .step {
     display: flex;
     flex-direction: column;

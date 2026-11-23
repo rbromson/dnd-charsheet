@@ -6,6 +6,7 @@
   import SpellLevel from './SpellLevel.svelte';
   import SpellSheet from './SpellSheet.svelte';
   import SpellLibrary from './SpellLibrary.svelte';
+  import AddChooser from '../../components/AddChooser.svelte';
   import { charStore } from '../../lib/stores/characters.svelte';
   import { ui } from '../../lib/stores/ui.svelte';
   import { uid } from '../../lib/model/ids';
@@ -21,7 +22,7 @@
     [6, 7, 8, 9],
   ];
 
-  const count = (l: number) => c.spells.reduce((n, s) => n + (s.level === l ? 1 : 0), 0);
+  const count = (l: number) => c.spells.reduce((n, s) => n + (s.level === l && s.id !== ui.draft ? 1 : 0), 0);
   const hasSlots = (l: number) => l > 0 && c.spellcasting.slots[l].total > 0;
 
   const visible = $derived(LEVELS.filter((l) => count(l) > 0 || hasSlots(l)));
@@ -32,17 +33,26 @@
     return splitBalanced(weights, 3).map((g) => g.map((i) => visible[i]));
   });
 
+  /** «Додати»: з бібліотеки або вручну — у будь-якому режимі; заклинання з'явиться лише після «Додати» в картці. */
   function addSpell() {
-    const id = uid();
-    c.spells.push({ id, level: 0, name: '', prepared: false, text: '' });
-    ui.openSheet(SpellSheet, { id });
+    ui.openSheet(AddChooser, {
+      kicker: t('spells.kickerCantrip'),
+      title: t('add.spell'),
+      librarySub: t('add.spellLibSub'),
+      manualSub: t('add.spellManualSub'),
+      onlibrary: () => ui.openSheet(SpellLibrary, {}),
+      onmanual: () => {
+        const id = uid();
+        c.spells.push({ id, level: 0, name: '', prepared: false, text: '' });
+        ui.openSheet(SpellSheet, { id, fresh: true });
+      },
+    });
   }
 </script>
 
 <TopBar title={t('nav.spells')}>
-  <button class="btn btn-outline" onclick={() => ui.openSheet(SpellLibrary, {})}><Icon name="search" size={18} />{t('lib.open')}</button>
-  {#if ui.editing && c.spellcasting.enabled}
-    <button class="btn btn-outline" onclick={addSpell}><Icon name="plus" size={20} />{t('spells.add')}</button>
+  {#if c.spellcasting.enabled}
+    <button class="btn btn-primary" onclick={addSpell}><Icon name="plus" size={20} />{t('add.confirm')}</button>
   {/if}
 </TopBar>
 <div class="view">

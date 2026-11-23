@@ -9,6 +9,7 @@
   import { ui } from '../../lib/stores/ui.svelte';
   import { dieText, lang, t } from '../../lib/i18n';
   import { onMount } from 'svelte';
+  import SpellSheet from './SpellSheet.svelte';
 
   const PAGE = 60;
 
@@ -60,13 +61,18 @@
     const c = charStore.current;
     if (!c) return;
     c.spellcasting.enabled = true;
-    if (!have.has(s.n.trim().toLowerCase())) c.spells.push(spellFromLib(s));
+    // не добавляем сразу: заполненная карточка, «Скасувати» уберёт и заклинание, и атаку
+    const sp = spellFromLib(s);
+    c.spells.push(sp);
+    let attackId: string | null = null;
     if (asAttack) {
       const a = spellAttack(c, s);
-      if (a) c.attacks.push(a);
+      if (a) {
+        c.attacks.push(a);
+        attackId = a.id;
+      }
     }
-    ui.toast(t(asAttack ? 'lib.addedSpellAtk' : 'lib.addedSpell', { name: s.n }));
-    sel = null;
+    ui.openSheet(SpellSheet, { id: sp.id, fresh: true, attackId });
   }
 </script>
 

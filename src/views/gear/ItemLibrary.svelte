@@ -9,6 +9,7 @@
   import { ui } from '../../lib/stores/ui.svelte';
   import { dieText, lang, t } from '../../lib/i18n';
   import { onMount } from 'svelte';
+  import ItemSheet from './ItemSheet.svelte';
 
   type Cat = 'all' | 'weapon' | 'armor' | 'gear' | 'magic';
   const CATS: Cat[] = ['all', 'weapon', 'armor', 'gear', 'magic'];
@@ -72,12 +73,12 @@
     return [e.k, e.cost].filter(Boolean).join(' · ');
   }
 
+  /** Не добавляем сразу: создаём заполненную карточку — её можно поправить, а «Скасувати» уберёт предмет. */
   function add(e: LibItem, base?: LibItem) {
     const c = charStore.current;
     if (!c) return;
     const it = addLibItem(c, e, base);
-    ui.toast(t('lib.added', { name: it.name }));
-    sel = null;
+    ui.openSheet(ItemSheet, { id: it.id, fresh: true });
   }
 </script>
 

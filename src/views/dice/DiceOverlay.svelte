@@ -79,7 +79,10 @@
     if (!fresh || reducedMotion()) {
       phase = 'idle';
       addFrom = -1;
-      if (fresh) popKey++;
+      if (fresh) {
+        popKey++;
+        dice.landed = seq;
+      }
       return;
     }
 
@@ -95,6 +98,7 @@
         finishSpin = null;
         phase = 'idle';
         popKey++;
+        dice.landed = seq;
         if (e.type === 'd20' && (e.roll.crit || e.roll.fumble)) flashKey++;
         else buzz(8);
       };
@@ -125,6 +129,7 @@
         phase = 'idle';
         addFrom = -1;
         popKey++;
+        dice.landed = seq;
         if (!isAdd && e.type === 'd20' && (e.roll.crit || e.roll.fumble)) flashKey++;
         else buzz(8);
       },
@@ -258,7 +263,7 @@
 <svelte:window onkeydown={onKey} />
 
 {#if entry && embedded}
-  {#if flashKey && flashTone}
+  {#if flashKey && flashTone && landed}
     {#key flashKey}
       <div class="flash flash-{flashTone}" aria-hidden="true"></div>
     {/key}
@@ -268,7 +273,7 @@
   <div class="layer">
     <button class="scrim" aria-label={t('dice.close')} onclick={() => dice.close()}></button>
 
-    {#if flashKey && flashTone}
+    {#if flashKey && flashTone && landed}
       {#key flashKey}
         <div class="flash flash-{flashTone}" aria-hidden="true"></div>
       {/key}

@@ -14,7 +14,7 @@
 
   const c = $derived(charStore.current!);
   const slot = $derived(level > 0 ? c.spellcasting.slots[level] : null);
-  const spells = $derived(c.spells.filter((s) => s.level === level));
+  const spells = $derived(c.spells.filter((s) => s.level === level && s.id !== ui.draft));
   const left = $derived(slot ? Math.max(0, slot.total - slot.used) : 0);
 
   let open = $state<Record<string, boolean>>({});
