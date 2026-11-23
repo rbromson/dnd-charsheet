@@ -113,6 +113,86 @@ const SPELLS: Record<string, { dc: number | 'user' | null; list: SpellRow[] }> =
   'm:trident-of-fish-command': { dc: 15, list: [['dominate-beast', 1]] },
 };
 
+/**
+ * «Раз на день» (до світанку) і «раз на N днів»: властивості, які не витрачають заряди.
+ * spell — заклинання з бібліотеки (назва й кубики звідти); n — скільки разів; days — раз на скільки днів.
+ */
+type DailyDef = Omit<Def, 'name' | 'note'> & { name?: [string, string]; note?: [string, string]; n?: number; days?: number };
+const ELEMENTAL: DailyDef[] = [{ spell: 'conjure-elemental' }];
+const TRICKS: DailyDef[] = [{ name: ['Витягти звірятко', 'Pull a fuzzy object'], dice: '1d8', n: 3, note: ['к8 за таблицею мішка', 'd8 on the bag’s table'] }];
+const FIGURINE = (days: number, n = 1): DailyDef[] => [{ name: ['Оживити фігурку', 'Bring to life'], days, n }];
+const HORN = (dice: string): DailyDef[] => [{ name: ['Засурмити', 'Blow the horn'], dice, days: 7, note: ['стільки берсерків з’являється на 1 годину', 'berserkers appear for 1 hour'] }];
+const DAILY: Record<string, DailyDef[]> = {
+  'm:armor-of-invulnerability': [{ name: ['Невразливість', 'Invulnerability'], note: ['імунітет до немагічної шкоди на 10 хв', 'immune to nonmagical damage for 10 minutes'] }],
+  'm:bag-of-tricks': TRICKS,
+  'm:bowl-of-commanding-water-elementals': ELEMENTAL,
+  'm:brazier-of-commanding-fire-elementals': ELEMENTAL,
+  'm:censer-of-controlling-air-elementals': ELEMENTAL,
+  'm:stone-of-controlling-earth-elementals': ELEMENTAL,
+  'm:cape-of-the-mountebank': [{ spell: 'dimension-door' }],
+  'm:circlet-of-blasting': [{ spell: 'scorching-ray', attack: 5 }],
+  'm:cloak-of-arachnida': [{ spell: 'web', dc: 13 }],
+  'm:cloak-of-the-bat': [{ spell: 'polymorph', note: ['лише на себе — у кажана, у темряві', 'only yourself, into a bat, in dim light or darkness'] }],
+  'm:crystal-ball-of-telepathy': [{ spell: 'suggestion', dc: 17, note: ['через сенсор «Віддаленого бачення»', 'through the scrying sensor'] }],
+  'm:helm-of-telepathy': [{ spell: 'suggestion', dc: 13 }],
+  'm:plate-armor-of-etherealness': [{ spell: 'etherealness' }],
+  'm:wind-fan': [{ spell: 'gust-of-wind', dc: 13, note: ['повторно до світанку — 20% порватися (накопичується)', 'again before dawn: 20% cumulative chance to tear'] }],
+  'm:dagger-of-venom': [{ name: ['Отрута на клинку', 'Poison the blade'], dice: '2d10', result: 'damage', dc: 15, save: 'con', note: ['отрута, + отруєний на 1 хв', 'poison, + poisoned for 1 minute'] }],
+  'm:javelin-of-lightning': [{ name: ['Блискавка', 'Lightning bolt'], dice: '4d6', result: 'damage', dc: 13, save: 'dex', note: ['лінія 120 фт; ціль — атака списом +4к6', '120-ft line; the target takes the javelin attack +4d6'] }],
+  'm:dragon-scale-mail': [{ name: ['Чуття дракона', 'Sense dragon'], note: ['відстань і напрям до найближчого такого дракона в межах 30 миль', 'distance and direction to the closest such dragon within 30 miles'] }],
+  'm:iron-bands-of-binding': [{ name: ['Кинути', 'Throw'], note: ['атака: Спритність + майстерність; ціль схоплена (Сила СК 20)', 'attack: Dex + proficiency; target restrained (DC 20 Strength)'] }],
+  'm:luck-blade': [{ name: ['Удача', 'Luck'], note: ['перекинути атаку, перевірку чи рятунок', 'reroll an attack, check or save'] }],
+  'm:pearl-of-power': [{ name: ['Відновити комірку', 'Regain a slot'], note: ['одна витрачена комірка, не вище 3-го кола', 'one expended slot, 3rd level at most'] }],
+  'm:rod-of-alertness': [{ name: ['Захисна аура', 'Protective aura'], note: ['+1 до КО й рятунків союзникам у світлі, 10 хв', '+1 AC and saves for allies in the light, 10 minutes'] }],
+  'm:rod-of-lordly-might': [
+    { name: ['Висмоктати життя', 'Drain life'], dice: '4d6', result: 'damage', dc: 17, save: 'con', note: ['після влучання; лікуєшся на половину', 'on a hit; you regain half'] },
+    { name: ['Паралізувати', 'Paralyze'], dc: 17, save: 'str', note: ['після влучання, на 1 хв', 'on a hit, for 1 minute'] },
+    { name: ['Налякати', 'Terrify'], dc: 17, save: 'wis', note: ['усі в межах 30 фт, на 1 хв', 'everyone within 30 ft, for 1 minute'] },
+  ],
+  'm:rod-of-rulership': [{ name: ['Владарювати', 'Rulership'], dc: 15, save: 'wis', note: ['зачаровує в межах 120 фт на 8 годин', 'charms within 120 ft for 8 hours'] }],
+  'm:rod-of-security': [{ name: ['Рай', 'Paradise'], days: 10 }],
+  'm:staff-of-charming': [{ name: ['Відбити чари', 'Shrug off a charm'], note: ['провалений рятунок проти чар на тебе — успіх', 'turn a failed save against an enchantment into a success'] }],
+  'm:staff-of-thunder-and-lightning': [
+    { name: ['Блискавка', 'Lightning'], dice: '2d6', result: 'damage', note: ['після влучання посохом', 'on a melee hit'] },
+    { name: ['Грім', 'Thunder'], dc: 17, save: 'con', note: ['після влучання: приголомшений до кінця твого ходу', 'on a hit: stunned until the end of your next turn'] },
+    { name: ['Удар блискавки', 'Lightning strike'], dice: '9d6', result: 'damage', dc: 17, save: 'dex', note: ['лінія 120 фт', '120-ft line'] },
+    { name: ['Громовий удар', 'Thunderclap'], dice: '2d6', result: 'damage', dc: 17, save: 'con', note: ['усі в межах 60 фт, оглушені на 1 хв', 'everyone within 60 ft, deafened for 1 minute'] },
+    { name: ['Грім і блискавка', 'Thunder and lightning'], note: ['удар блискавки й громовий удар разом, не витрачаючи їх', 'strike and thunderclap at once without spending them'] },
+  ],
+  'm:horn-of-valhalla-silver': HORN('2d4+2'),
+  'm:horn-of-valhalla-brass': HORN('3d4+3'),
+  'm:horn-of-valhalla-bronze': HORN('4d4+4'),
+  'm:horn-of-valhalla-iron': HORN('5d4+5'),
+  'm:figurine-of-wondrous-power-bronze-griffon': FIGURINE(5),
+  'm:figurine-of-wondrous-power-ebony-fly': FIGURINE(2),
+  'm:figurine-of-wondrous-power-golden-lions': FIGURINE(7, 2),
+  'm:figurine-of-wondrous-power-marble-elephant': FIGURINE(7),
+  'm:figurine-of-wondrous-power-obsidian-steed': FIGURINE(5),
+  'm:figurine-of-wondrous-power-onyx-dog': FIGURINE(7),
+  'm:figurine-of-wondrous-power-serpentine-owl': FIGURINE(2),
+  'm:figurine-of-wondrous-power-silver-raven': FIGURINE(2),
+};
+
+export function dailyPowers(e: LibItem, spells: LibSpell[]): ItemPower[] {
+  const defs = DAILY[e.id] ?? (e.of ? DAILY[e.of] : undefined);
+  if (!defs) return [];
+  const byId = new Map(spells.map((x) => [x.id, x]));
+  const en = lang === 'en' ? 1 : 0;
+  return defs.map(({ n, days, note, name, ...d }) => {
+    const lib = d.spell ? byId.get(d.spell) : undefined;
+    const p = make({
+      ...d,
+      name: name ?? [lib?.n ?? d.spell ?? '', lib?.en ?? d.spell ?? ''],
+      save: d.save ?? lib?.sv ?? null,
+      note: note ? note[en] : '',
+    });
+    p.uses = { max: n ?? 1, used: 0, days: days ?? 1 };
+    return p;
+  });
+}
+
+export const hasDaily = (e: LibItem): boolean => e.id in DAILY || (!!e.of && e.of in DAILY);
+
 /** Сувої: коло, СК і бонус атаки за таблицею SRD; заклинання обирається в картці. */
 const SCROLLS: Record<string, [number, number, number]> = {
   'm:spell-scroll-cantrip': [0, 13, 5],
@@ -158,11 +238,16 @@ function make(d: Def): ItemPower {
     dcUser: d.dcUser ?? false,
     attack: d.attack ?? null,
     effect: d.effect ?? null,
+    uses: d.uses ?? null,
   };
 }
 
 /** Действия для предмета из библиотеки; [] — предмету они не нужны. spells — чтобы подписать заклинания по-людськи. */
 export function powersFor(e: LibItem, spells: LibSpell[] = []): ItemPower[] {
+  return [...basePowers(e, spells), ...dailyPowers(e, spells)];
+}
+
+function basePowers(e: LibItem, spells: LibSpell[]): ItemPower[] {
   const cur = CURATED[e.id];
   if (cur) return cur.map(make);
   const sp = SPELLS[e.id];

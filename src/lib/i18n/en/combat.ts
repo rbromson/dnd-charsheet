@@ -70,6 +70,7 @@ export default {
   'combat.restKey.hitDice': 'Hit Dice',
   'combat.restKey.effects': 'Potion effects end',
   'combat.restKey.slots': 'Spell slots used',
+  'combat.restKey.daily': 'Item “once a day” powers',
 
   // attacks
   'combat.attacks': 'Attacks & Spells',

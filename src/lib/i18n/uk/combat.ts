@@ -70,6 +70,7 @@ export default {
   'combat.restKey.hitDice': "Кубики здоров'я",
   'combat.restKey.effects': 'Дія зілль закінчиться',
   'combat.restKey.slots': 'Витрачено слотів',
+  'combat.restKey.daily': 'Дії предметів «раз на день»',
 
   // атаки
   'combat.attacks': 'Атаки та заклинання',

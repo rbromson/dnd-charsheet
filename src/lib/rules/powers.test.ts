@@ -8,7 +8,7 @@ import { powersFor, CHARGES } from '../library/powers';
 import type { LibItem } from '../library/types';
 
 const P = (p: Partial<ItemPower>): ItemPower => ({
-  id: 'p', name: 'x', cost: 0, costMax: null, consume: false, dice: '', extra: '', result: 'info', self: true, dc: null, save: null, note: '', spell: null, level: 0, upcast: false, dcUser: false, attack: null, effect: null, ...p,
+  id: 'p', name: 'x', cost: 0, costMax: null, consume: false, dice: '', extra: '', result: 'info', self: true, dc: null, save: null, note: '', spell: null, level: 0, upcast: false, dcUser: false, attack: null, effect: null, uses: null, ...p,
 });
 
 describe('item powers', () => {
@@ -112,5 +112,42 @@ describe('spells from items', () => {
     expect(p.dc).toBe(15);
     expect(p.attack).toBe(7);
     expect(p.consume).toBe(true);
+  });
+});
+
+describe('once a day', () => {
+  const lib = (id: string, of?: string): LibItem => ({ id, n: id, en: id, c: 'magic', k: '', t: '', of }) as unknown as LibItem;
+
+  it('blocks a daily power once used; a long rest brings back «until dawn» but not «7 days»', () => {
+    const c = newCharacter();
+    const it = newItem({ id: 'd', name: 'Кинджал отрути' });
+    const venom = P({ id: 'v', dice: '2d10', result: 'damage', uses: { max: 1, used: 0, days: 1 } });
+    const horn = P({ id: 'h', dice: '2d4+2', uses: { max: 1, used: 0, days: 7 } });
+    it.powers = [venom, horn];
+    c.equipment.push(it);
+    expect(canUse(c, it, it.powers[0], 1)).toBe(true);
+    spendPower(c, 'd', it.powers[0], 1);
+    spendPower(c, 'd', it.powers[1], 1);
+    expect(it.powers[0].uses?.used).toBe(1);
+    expect(canUse(c, it, it.powers[0], 1)).toBe(false);
+    expect(costRange(c, it, it.powers[0])[1]).toBe(0);
+    applyRest(c, 'short');
+    expect(it.powers[0].uses?.used).toBe(1);
+    applyRest(c, 'long');
+    expect(it.powers[0].uses?.used).toBe(0);
+    expect(it.powers[1].uses?.used).toBe(1);
+  });
+
+  it('library: bag of tricks 3 per dawn via its parent; staff of charming keeps spells and adds the daily save', () => {
+    const bag = powersFor(lib('m:bag-of-tricks-gray', 'm:bag-of-tricks'));
+    expect(bag).toHaveLength(1);
+    expect(bag[0].uses).toEqual({ max: 3, used: 0, days: 1 });
+    expect(bag[0].dice).toBe('1d8');
+    const staff = powersFor(lib('m:staff-of-charming'));
+    expect(staff.filter((p) => p.spell)).toHaveLength(3);
+    expect(staff.filter((p) => p.uses)).toHaveLength(1);
+    const horn = powersFor(lib('m:horn-of-valhalla-iron', 'm:horn-of-valhalla'));
+    expect(horn[0].uses?.days).toBe(7);
+    expect(horn[0].dice).toBe('5d4+5');
   });
 });

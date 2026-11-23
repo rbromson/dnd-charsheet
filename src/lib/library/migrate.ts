@@ -4,11 +4,11 @@
  */
 import type { Character } from '../model/types';
 import type { LibItem, LibSpell } from './types';
-import { CHARGES, hasSpells, powersFor } from './powers';
+import { CHARGES, dailyPowers, hasDaily, hasSpells, powersFor } from './powers';
 import { modsFor } from './mods';
 import { extraFor, potionEffect, togglesFor } from './effects';
 
-export const MECH_VERSION = 4;
+export const MECH_VERSION = 5;
 
 export function migrateMechanics(c: Character, lib: LibItem[], spells: LibSpell[] = []): boolean {
   if (c.rules.mech >= MECH_VERSION) return false;
@@ -18,7 +18,10 @@ export function migrateMechanics(c: Character, lib: LibItem[], spells: LibSpell[
     if (!e) continue;
     // v2: жезли й посохи отримують справжні заклинання замість «8к6»
     const old = c.rules.mech;
+    const had = it.powers.length > 0;
     if (!it.powers.length || (old < 2 && hasSpells(e.id) && !it.powers.some((p) => p.spell !== null))) it.powers = powersFor(e, spells);
+    // v5: «раз на день» — дописати до вже наявних дій (заряди посоха лишаються)
+    if (had && hasDaily(e) && !it.powers.some((p) => p.uses)) it.powers.push(...dailyPowers(e, spells));
     // v3: пасивні модифікатори (швидкість, чуття, +N до перевірок…)
     if (!it.mods.length) it.mods = modsFor(e.id, e.of);
     // v4: перемикачі, доп. урон зброї, ефекти зілль

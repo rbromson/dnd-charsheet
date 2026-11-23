@@ -21,8 +21,13 @@ export function costRange(c: Character, item: Item, p: ItemPower): [number, numb
   let max = p.costMax ?? min;
   if (p.cost > 0 && item.resourceId) max = Math.min(max, chargesOf(c, item)?.current ?? 0);
   if (p.consume) max = Math.min(max, item.qty);
+  // «раз на день» вичерпано — до світанку (або поки не минуть дні)
+  if (p.uses && p.uses.used >= p.uses.max) max = 0;
   return [min, Math.max(0, max)];
 }
+
+/** Скільки разів ще можна (null — без обмеження). */
+export const usesLeft = (p: ItemPower): number | null => (p.uses ? Math.max(0, p.uses.max - p.uses.used) : null);
 
 /** Можно ли использовать с ценой n. */
 export function canUse(c: Character, item: Item, p: ItemPower, n: number): boolean {
@@ -54,6 +59,9 @@ export function spendPower(c: Character, itemId: string, p: ItemPower, n: number
       if (r.current === 0) emptied = r;
     }
   }
+  // одне застосування — незалежно від ціни в зарядах
+  const own = item.powers.find((x) => x.id === p.id);
+  if (own?.uses) own.uses.used = Math.min(own.uses.max, own.uses.used + 1);
   let usedUp = false;
   if (p.consume) {
     item.qty = Math.max(0, item.qty - n);

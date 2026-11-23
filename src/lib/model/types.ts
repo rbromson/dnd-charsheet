@@ -129,6 +129,15 @@ export interface ItemPower {
   attack: number | null;
   /** выпить/нанести — и на персонаже появляется временный эффект (зілля сили, польоту…) */
   effect: { name: string; mods: ItemMod[]; duration: string } | null;
+  /** «раз на день»: скільки разів до світанку (days = 1) або раз на N днів (ріг Валгалли — 7) */
+  uses: PowerUses | null;
+}
+
+export interface PowerUses {
+  max: number;
+  used: number;
+  /** 1 — відновлюється на довгому привалі («до світанку»); більше — вручну, коли минуть дні */
+  days: number;
 }
 
 export interface SpellSlot {

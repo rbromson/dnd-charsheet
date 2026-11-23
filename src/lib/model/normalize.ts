@@ -28,7 +28,7 @@ export function mergeDefaults<T>(defaults: T, raw: unknown): T {
 const ATTACK: Attack = { id: '', name: '', ability: 'str', prof: true, bonus: 0, override: null, damage: '1d6+МОД', damageType: '', note: '', itemId: null, save: null, saveDc: null };
 const RESOURCE: Resource = { id: '', name: '', max: 1, current: 1, die: null, recharge: 'long', maxPerRoll: null, regain: null, onEmpty: null };
 const RISK: Risk = { die: 20, on: [1], kind: 'destroy', gain: '' };
-const POWER: ItemPower = { id: '', name: '', cost: 0, costMax: null, consume: false, dice: '', extra: '', result: 'info', self: true, dc: null, save: null, note: '', spell: null, level: 0, upcast: false, dcUser: false, attack: null, effect: null };
+const POWER: ItemPower = { id: '', name: '', cost: 0, costMax: null, consume: false, dice: '', extra: '', result: 'info', self: true, dc: null, save: null, note: '', spell: null, level: 0, upcast: false, dcUser: false, attack: null, effect: null, uses: null };
 const RISK_KINDS = ['destroy', 'mundane', 'partial', 'gain'];
 const EXTRA: ExtraDamage = { id: '', dice: '', type: '', when: '', crit: false };
 const TOGGLE: ItemToggle = { id: '', name: '', on: false, mods: [], extra: [], note: '' };
@@ -119,6 +119,11 @@ export function normalizeCharacter(raw: unknown): Character {
     it.powers.forEach((pw, j) => {
       const e = rawPw[j]?.effect;
       pw.effect = isPlain(e) ? { name: typeof e.name === 'string' ? e.name : '', mods: mods(e.mods), duration: typeof e.duration === 'string' ? e.duration : '' } : null;
+      const ru = rawPw[j]?.uses;
+      const u = (isPlain(ru) ? ru : {}) as Record<string, unknown>;
+      const num = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? Math.round(v) : null);
+      const max = num(u.max) ? Math.max(1, num(u.max)!) : 0;
+      pw.uses = max ? { max, used: Math.min(max, Math.max(0, num(u.used) ?? 0)), days: Math.max(1, num(u.days) ?? 1) } : null;
     });
   });
   // черновики «Додати», які так і не підтвердили (закрили застосунок посеред картки)

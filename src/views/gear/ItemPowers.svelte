@@ -11,7 +11,7 @@
   import { dice } from '../../lib/stores/dice.svelte';
   import { ui } from '../../lib/stores/ui.svelte';
   import { applyHeal } from '../../lib/rules/hp';
-  import { canUse, chargesOf, costRange, powerFormula, spellCast, spendPower } from '../../lib/rules/powers';
+  import { canUse, chargesOf, costRange, powerFormula, spellCast, spendPower, usesLeft } from '../../lib/rules/powers';
   import { removeItem } from '../../lib/rules/weapons';
   import { rollFormula } from '../../lib/dice/formula';
   import { cryptoRng } from '../../lib/dice/rng';
@@ -64,6 +64,28 @@
     const [min, max] = costRange(c, item, p);
     return Math.min(Math.max(amount[p.id] ?? min, min), Math.max(min, max));
   };
+
+  /** «раз до світанку», «3 рази до світанку», «раз на 7 днів»; вичерпано — коли знову */
+  function usesText(p: ItemPower): string {
+    const u = p.uses;
+    if (!u) return '';
+    const few = u.days % 10 >= 2 && u.days % 10 <= 4 && (u.days < 10 || u.days > 20);
+    if (u.used >= u.max) return u.days === 1 ? t('pw.untilDawn') : t(few ? 'pw.waitDays2' : 'pw.waitDays', { n: u.days });
+    if (u.days > 1) return t(few ? 'pw.perDays2' : 'pw.perDays', { n: u.days });
+    return u.max === 1 ? t('pw.oncePerDawn') : t('pw.timesPerDawn', { n: u.max });
+  }
+
+  /** «Минули дні» — ріг Валгалли, фігурки: відновити вручну */
+  function resetUses(p: ItemPower) {
+    const name = item?.name.trim() || t('gear.unnamed');
+    charStore.update(
+      (ch) => {
+        const pw = ch.equipment.find((x) => x.id === itemId)?.powers.find((x) => x.id === p.id);
+        if (pw?.uses) pw.uses.used = 0;
+      },
+      { undo: t('pw.usesReset', { name: `${name}: ${p.name}` }) },
+    );
+  }
 
   function icon(p: ItemPower) {
     return p.result === 'heal' || p.result === 'temp' ? 'heart' : p.result === 'damage' ? 'combat' : p.consume ? 'sparkle' : 'dice';
@@ -133,6 +155,11 @@
           else if (total != null && p.self && p.result === 'temp') bits.push(t('pw.temp', { n: total }));
           if (p.cost > 0 && charges) bits.push(t('pw.chargesLeft', { n: res.emptied ? 0 : (charStore.current?.resources.find((r) => r.id === charges.id)?.current ?? 0) }));
           if (p.effect) bits.push(t('pw.effectOn', { name: p.effect.name || name, dur: p.effect.duration }));
+          if (p.uses) {
+            const pw = charStore.current?.equipment.find((x) => x.id === itemId)?.powers.find((x) => x.id === p.id);
+            const left = pw ? usesLeft(pw) : 0;
+            if (pw?.uses) bits.push(left ? t('pw.usesLeft', { n: left }) : usesText(pw));
+          }
           if (res.usedUp) bits.push(t('pw.usedUp'));
           return bits.join(' · ');
         },
@@ -223,6 +250,16 @@
         {#if libOf(p)}
           <button class="btn btn-ghost inf" class:on={info[p.id]} aria-label={t('pw.spellText')} onclick={() => (info[p.id] = !info[p.id])}><Icon name="help" size={18} /></button>
         {/if}
+        {#if p.uses}
+          {@const left = usesLeft(p) ?? 0}
+          {#if left === 0 && p.uses.days > 1}
+            <button class="key-tile k" aria-label={t('pw.usesResetBtn', { n: p.uses.days })} title={t('pw.usesResetBtn', { n: p.uses.days })} onclick={() => resetUses(p)}><Icon name="undo" size={14} /></button>
+          {:else}
+            <span class="pips" aria-label={t('pw.usesLeft', { n: left })}>
+              {#each Array.from({ length: p.uses.max }, (_, k) => k) as k (k)}<i class:on={k < left}></i>{/each}
+            </span>
+          {/if}
+        {/if}
         {#if (p.costMax ?? 0) > Math.max(1, p.cost)}
           <span class="amt">
             <button class="key-tile k" aria-label="−" disabled={n <= min} onclick={() => (amount[p.id] = n - 1)}><Icon name="minus" size={14} /></button>
@@ -231,9 +268,9 @@
           </span>
         {/if}
       </div>
-      {#if pl.level || pl.dc || pl.attack != null || p.note}
+      {#if pl.level || pl.dc || pl.attack != null || p.note || p.uses}
         <div class="meta">
-          {[
+          {#if p.uses}<span class:spent={p.uses.used >= p.uses.max}>{usesText(p)}</span>{#if pl.level || pl.dc || pl.attack != null || p.note}{' · '}{/if}{/if}{[
             pl.level ? t('pw.lvl', { n: pl.level }) : '',
             pl.dc ? t('pw.dc', { dc: pl.dc, ab: p.save ? t(`abilityShort.${p.save}`) : '' }) + (p.dcUser ? ` ${t('pw.yours')}` : '') : '',
             pl.attack != null ? t('pw.attack', { n: fmt(pl.attack) }) : '',
@@ -338,5 +375,29 @@
     margin-top: -2px;
     font-size: 12.5px;
     color: var(--ink2);
+  }
+  .meta .spent {
+    color: #a3382a;
+  }
+  /* «раз на день»: гранати-гнізда, заповнені — ще доступно */
+  .pips {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+    padding: 0 2px;
+  }
+  .pips i {
+    width: 11px;
+    height: 11px;
+    transform: rotate(45deg);
+    border-radius: 2px;
+    box-shadow: inset 0 0 0 1.5px rgba(150, 112, 62, 0.7);
+    background: rgba(42, 31, 23, 0.06);
+  }
+  .pips i.on {
+    background: linear-gradient(135deg, #f0c766, #9a6a2a);
+    box-shadow:
+      inset 0 0 0 1px rgba(90, 60, 20, 0.6),
+      0 1px 2px rgba(0, 0, 0, 0.3);
   }
 </style>

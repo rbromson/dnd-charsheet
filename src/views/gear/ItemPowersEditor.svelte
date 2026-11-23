@@ -61,6 +61,7 @@
       dcUser: false,
       attack: null,
       effect: null,
+      uses: null,
     });
   }
 </script>
