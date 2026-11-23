@@ -6,7 +6,7 @@
    */
   import { onMount, tick } from 'svelte';
   import { codex, CODEX_KINDS } from '../lib/stores/codex.svelte';
-  import { findMentionQuery, insertMention, sanitizeMentionName } from '../lib/mentions';
+  import { findMentionQuery, insertMention, mentionMatches, sanitizeMentionName } from '../lib/mentions';
   import { dictation, insertDictated } from '../lib/dictation.svelte';
   import { uid } from '../lib/model/ids';
   import Icon from './Icon.svelte';
@@ -56,7 +56,7 @@
     if (!q) return [];
     const s = needle;
     return codex.items
-      .filter((c) => c.name.trim() && (!s || c.name.toLowerCase().includes(s)))
+      .filter((c) => c.name.trim() && mentionMatches(c.name, s))
       .sort((a, b) => rank(a, s) - rank(b, s) || a.name.localeCompare(b.name, 'uk'));
   });
   const groups = $derived(
@@ -156,7 +156,10 @@
 
   async function pick(name: string) {
     if (!q || !ta) return;
-    const r = insertMention(ta.value, q.start, caret, name);
+    // набрали «@Мірру» й обрали «Мірра» — у тексті лишається «Мірру» (відмінок), посилання — на Мірру
+    const typed = q.query.trim();
+    const inflected = typed && !name.toLowerCase().startsWith(typed.toLowerCase()) && mentionMatches(name, typed) && !name.toLowerCase().includes(typed.toLowerCase());
+    const r = insertMention(ta.value, q.start, caret, name, inflected ? typed : '');
     value = r.text;
     q = null;
     forced = false;
@@ -283,6 +286,15 @@
     {placeholder}
     bind:value
     oninput={() => {
+      // «@[Мірра] ,» → «@[Мірра],»: пробел после упоминания перед знаком препинания не нужен
+      if (ta) {
+        const s = ta.selectionStart;
+        if (s >= 3 && /\] [,.;:!?)»…]$/.test(ta.value.slice(s - 3, s))) {
+          value = ta.value.slice(0, s - 2) + ta.value.slice(s - 1);
+          const at = s - 1;
+          tick().then(() => ta?.setSelectionRange(at, at));
+        }
+      }
       grow();
       update();
     }}

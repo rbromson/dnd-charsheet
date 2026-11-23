@@ -43,11 +43,6 @@
         {#if s.minD20}<span class="tag">{t('sheet.minTag', { n: s.minD20 })}</span>{/if}
       </button>
     {/each}
-    <button class="sk passive" use:press={{ onTap: () => ui.editing && openPassive(), onLong: openPassive }}>
-      <span class="dot-sp"></span>
-      <span class="b num" class:manual={c.passivePerception.override != null}>{passivePerception(c)}</span>
-      <span class="n">{t('sheet.passiveShort')}</span>
-    </button>
   </div>
 </section>
 
@@ -117,13 +112,6 @@
     margin-left: 2px;
   }
   .tag {
-    flex-shrink: 0;
-  }
-  .passive {
-    color: var(--ink2);
-  }
-  .dot-sp {
-    width: 14px;
     flex-shrink: 0;
   }
 </style>

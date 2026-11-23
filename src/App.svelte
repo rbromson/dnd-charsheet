@@ -67,7 +67,21 @@
   $effect(() => {
     void ui.tab;
     main?.scrollTo({ top: 0 });
+    ui.fabHidden = false;
   });
+
+  // листают вниз — кнопки кубиків/привалу ховаються; вгору чи в самому низу — повертаються
+  let lastTop = 0;
+  function onScroll() {
+    if (!main) return;
+    const top = main.scrollTop;
+    const d = top - lastTop;
+    const atEnd = top + main.clientHeight >= main.scrollHeight - 24;
+    if (top < 40 || d < -6) ui.fabHidden = false;
+    else if (d > 6 && !atEnd) ui.fabHidden = true;
+    if (Math.abs(d) > 6) lastTop = top;
+  }
+  const fabs = $derived(ui.tab === 'sheet' || ui.tab === 'combat' || ui.tab === 'spells');
 </script>
 
 {#if charStore.ready && !charStore.current}
@@ -75,7 +89,7 @@
 {:else}
 <div class="shell">
   <NavRail />
-  <main bind:this={main}>
+  <main bind:this={main} class:fabpad={fabs} onscroll={onScroll}>
     {#if charStore.ready && charStore.current}
       {#key charStore.current.id}
         {#if ui.tab === 'sheet'}<SheetView />
@@ -89,7 +103,7 @@
     {/if}
   </main>
 </div>
-{#if charStore.current && (ui.tab === 'sheet' || ui.tab === 'combat' || ui.tab === 'spells')}<RestFab /><DiceFab />{/if}
+{#if charStore.current && fabs}<RestFab /><DiceFab />{/if}
 {/if}
 
 <CharacterSwitcher />
@@ -114,6 +128,9 @@
     overflow-y: auto;
     overflow-x: hidden;
     padding-right: env(safe-area-inset-right);
+    padding-bottom: 40px;
+  }
+  main.fabpad {
     padding-bottom: 170px;
   }
   @media (max-width: 640px) {
@@ -122,6 +139,9 @@
     }
     main {
       height: 100dvh;
+      padding-bottom: calc(64px + 32px + env(safe-area-inset-bottom));
+    }
+    main.fabpad {
       padding-bottom: calc(64px + 160px + env(safe-area-inset-bottom));
     }
   }

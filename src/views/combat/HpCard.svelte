@@ -6,7 +6,7 @@
   import { press } from '../../lib/actions/press';
   import { charStore } from '../../lib/stores/characters.svelte';
   import { ui, buzz } from '../../lib/stores/ui.svelte';
-  import { applyDamage, applyHeal, setTemp } from '../../lib/rules/hp';
+  import { applyDamage, applyHeal, damageOutcome, setTemp } from '../../lib/rules/hp';
   import { t } from '../../lib/i18n';
   import DefenseSheet from './DefenseSheet.svelte';
   import { adjustDamage, defenses } from '../../lib/rules/defense';
@@ -58,12 +58,21 @@
     const d = def;
     burst('dmg', `−${n}`);
     const from = c.hp.current;
-    const next = applyDamage(c.hp, n);
+    const out = damageOutcome(c.hp, n);
+    const next = out.hp;
     charStore.update(
       (ch) => {
         ch.hp = next;
+        // 0 ОЗ: шкода по непритомному — провал рятунку; величезна шкода — миттєва смерть
+        if (out.instantDeath) ch.deathSaves = { success: 0, fail: 3 };
+        else if (out.failAdd) ch.deathSaves.fail = Math.min(3, ch.deathSaves.fail + out.failAdd);
       },
-      { undo: t('combat.toastDamage', { n, from, to: next.current }) + (d ? ` · ${t(`dmg.${d.type}`)} ${amount} → ${n}` : '') },
+      {
+        undo:
+          t('combat.toastDamage', { n, from, to: next.current }) +
+          (d ? ` · ${t(`dmg.${d.type}`)} ${amount} → ${n}` : '') +
+          (out.instantDeath ? ` · ${t('combat.instantDeath')}` : out.failAdd ? ` · ${t('combat.dmgAtZero')}` : ''),
+      },
     );
     buzz([20, 30, 40]);
     entry = '';

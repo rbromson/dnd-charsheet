@@ -7,9 +7,19 @@
   import type { Snippet } from 'svelte';
   import Icon from './Icon.svelte';
   import { t } from '../lib/i18n';
+  import { ui } from '../lib/stores/ui.svelte';
 
   let { title, onclose, children }: { title: string; onclose: () => void; children: Snippet } = $props();
 </script>
+
+<svelte:window
+  onkeydown={(e) => {
+    if (e.key !== 'Escape' || e.defaultPrevented || ui.sheet || ui.confirmState) return;
+    onclose();
+    // с клавиатуры — вернуть фокус на плавающую кнопку
+    requestAnimationFrame(() => document.querySelector<HTMLElement>('[data-fab="dice"]')?.focus());
+  }}
+/>
 
 <aside class="tray" aria-label={title}>
   <header>

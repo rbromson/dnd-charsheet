@@ -18,6 +18,8 @@ export default {
   'sheet.f.alignment': 'Alignment',
   'sheet.f.xp': 'Experience points',
   'sheet.f.xpNext': 'XP for next level',
+  'sheet.f.classHint': "Class and species are plain text: fill in saves, hit die, speed and features yourself.",
+  'sheet.abilityMore': '{a}: save and details',
   'sheet.f.xpNextHint': '0 — hide the bar',
   'sheet.f.player': 'Player name',
   'sheet.f.prof': 'Proficiency Bonus',

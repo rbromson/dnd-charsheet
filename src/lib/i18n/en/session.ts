@@ -7,7 +7,7 @@ export default {
   'session.settings': 'Recording settings',
   'session.engineLabel': 'Transcription: {name}',
 
-  'session.engine.webspeech': 'Chrome (online)',
+  'session.engine.webspeech': 'Chrome (needs internet)',
   'session.engine.whisper': 'Whisper on device',
   'session.engine.none': 'Off (audio only)',
 

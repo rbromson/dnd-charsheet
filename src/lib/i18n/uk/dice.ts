@@ -21,6 +21,7 @@ export default {
 
   'dice.tray.title': 'Кубики',
   'dice.tray.clear': 'Очистити',
+  'dice.tray.d100Hint': 'd100 — це десятки (00…90). Для відсотків 1–100 додайте ще d10.',
   'dice.tray.modifier': 'Модифікатор',
   'dice.tray.hold': 'ЗАТИСНИ Й ТРУСНИ',
   'dice.tray.orTap': 'або просто тапни',

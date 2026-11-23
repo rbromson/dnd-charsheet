@@ -7,7 +7,7 @@ export default {
   'session.settings': 'Налаштування запису',
   'session.engineLabel': 'Розпізнавання: {name}',
 
-  'session.engine.webspeech': 'Chrome (онлайн)',
+  'session.engine.webspeech': 'Chrome (потрібен інтернет)',
   'session.engine.whisper': 'Whisper на пристрої',
   'session.engine.none': 'Вимкнено (лише аудіо)',
 

@@ -22,6 +22,9 @@
   }
 </script>
 
+<!-- Esc закрывает шторку (если поверх неё нет диалога подтверждения) -->
+<svelte:window onkeydown={(e) => e.key === 'Escape' && !e.defaultPrevented && ui.sheet && !ui.confirmState && ui.closeSheet()} />
+
 {#if ui.sheet && shown}
   {@const C = shown.component}
   <div class="scrim" role="presentation" transition:fade={{ duration: 150 }} onclick={scrimClick}></div>

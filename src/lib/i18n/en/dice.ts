@@ -21,6 +21,7 @@ export default {
 
   'dice.tray.title': 'Dice',
   'dice.tray.clear': 'Clear',
+  'dice.tray.d100Hint': 'd100 is the tens die (00…90). For a 1–100 percentile, add a d10.',
   'dice.tray.modifier': 'Modifier',
   'dice.tray.hold': 'HOLD & SHAKE',
   'dice.tray.orTap': 'or just tap',

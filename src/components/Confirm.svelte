@@ -4,9 +4,11 @@
   import { fade, scale } from 'svelte/transition';
 </script>
 
+<svelte:window onkeydown={(e) => e.key === 'Escape' && ui.confirmState?.resolve(null)} />
+
 {#if ui.confirmState}
   {@const s = ui.confirmState}
-  <div class="scrim" transition:fade={{ duration: 120 }} role="presentation" onclick={() => s.resolve(false)}></div>
+  <div class="scrim" transition:fade={{ duration: 120 }} role="presentation" onclick={() => s.resolve(null)}></div>
   <div class="dlg card" role="alertdialog" aria-modal="true" transition:scale={{ start: 0.95, duration: 150 }}>
     <p class="msg">{s.message}</p>
     {#if s.details?.length}

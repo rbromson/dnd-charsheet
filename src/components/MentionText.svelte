@@ -26,7 +26,7 @@
   }
 </script>
 
-<span class="mt">{#each parts as p, i (i)}{#if p.kind === 'text'}{p.text}{:else}{@const c = codex.byName(p.name)}{#if c}<button type="button" class="men {c.kind}" onclick={(e) => open(e, c.id)}>{#if c.portraitId}<span class="pic" aria-hidden="true"><MediaImage id={c.portraitId} /></span>{:else}<span class="g" aria-hidden="true">{GLYPH[c.kind]}</span>{/if}{p.name}</button>{:else}<span class="men unknown" title={t('journal.mention.unknown')}>{p.name}</span>{/if}{/if}{/each}</span>
+<span class="mt">{#each parts as p, i (i)}{#if p.kind === 'text'}{p.text}{:else}{@const c = codex.byName(p.name)}{#if c}<button type="button" class="men {c.kind}" onclick={(e) => open(e, c.id)}>{#if c.portraitId}<span class="pic" aria-hidden="true"><MediaImage id={c.portraitId} /></span>{:else}<span class="g" aria-hidden="true">{GLYPH[c.kind]}</span>{/if}{p.label}</button>{:else}<span class="men unknown" title={t('journal.mention.unknown')}>{p.label}</span>{/if}{/if}{/each}</span>
 
 <style>
   .mt {

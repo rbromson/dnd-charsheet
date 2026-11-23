@@ -76,6 +76,13 @@
   h2 {
     font-size: 30px;
     line-height: 1.1;
+    /* одна строка: пока вводят длинное название, шторка не прыгает вниз */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  header .grow {
+    min-width: 0;
   }
   .value {
     font-size: 40px;

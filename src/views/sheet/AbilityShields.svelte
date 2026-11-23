@@ -12,6 +12,20 @@
   const c = $derived(charStore.current!);
 
   const open = (a: Ability) => ui.openSheet(AbilitySheet, { ability: a });
+  function setScore(a: Ability, v: string) {
+    const n = Math.round(Number(v));
+    if (Number.isFinite(n) && n >= 1) c.abilities[a] = Math.min(30, n);
+  }
+  function next(e: KeyboardEvent, i: number) {
+    const el = e.currentTarget as HTMLInputElement;
+    setScore(ABILITIES[i], el.value);
+    const all = [...(el.closest('.shields')?.querySelectorAll<HTMLInputElement>('input.sin') ?? [])];
+    const n = all[i + 1];
+    if (n) {
+      e.preventDefault();
+      n.focus();
+    } else el.blur();
+  }
   function roll(a: Ability) {
     dice.askCheck({ kind: 'ability', label: t('sheet.checkLabel', { ability: t(`ability.${a}`) }), bonus: abilityCheck(c, a) });
   }
@@ -19,7 +33,30 @@
 
 <div class="wrap">
 <div class="shields">
-  {#each ABILITIES as a (a)}
+  {#each ABILITIES as a, i (a)}
+    {#if ui.editing}
+      <!-- Правка: шість чисел підряд, Enter — до наступної; «…» — повна картка (рятунок, нотатки) -->
+      <div class="sh editing">
+        <svg viewBox="0 0 130 112" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M8 5h114v62c0 20-30 36-57 41C38 103 8 87 8 67z" />
+        </svg>
+        <span class="l">{t(`ability.${a}`)}</span>
+        <input
+          class="sin num"
+          type="number"
+          inputmode="numeric"
+          min="1"
+          max="30"
+          enterkeyhint={i < 5 ? 'next' : 'done'}
+          aria-label={t(`ability.${a}`)}
+          value={c.abilities[a]}
+          onfocus={(e) => (e.currentTarget as HTMLInputElement).select()}
+          onchange={(e) => setScore(a, (e.currentTarget as HTMLInputElement).value)}
+          onkeydown={(e) => e.key === 'Enter' && next(e, i)}
+        />
+        <button class="more" aria-label={t('sheet.abilityMore', { a: t(`ability.${a}`) })} onclick={() => open(a)}>{fmt(mod(c, a))}<span class="dots">⋯</span></button>
+      </div>
+    {:else}
     <button
       class="sh"
       class:editing={ui.editing}
@@ -34,11 +71,53 @@
       <span class="m">{fmt(mod(c, a))}</span>
       <span class="s" class:boost={abilityScore(c, a) !== c.abilities[a]}>{abilityScore(c, a)}</span>
     </button>
+    {/if}
   {/each}
 </div>
 </div>
 
 <style>
+  .sin {
+    position: relative;
+    width: 64px;
+    margin-top: 2px;
+    text-align: center;
+    font-family: var(--font-serif);
+    font-weight: 700;
+    font-size: 30px;
+    line-height: 1.1;
+    color: var(--ink);
+    background: rgba(255, 250, 235, 0.55);
+    border: 0;
+    border-radius: 3px;
+    box-shadow:
+      inset 0 1px 3px rgba(80, 50, 20, 0.25),
+      inset 0 0 0 1px rgba(150, 112, 62, 0.45);
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+  .sin::-webkit-inner-spin-button,
+  .sin::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .more {
+    position: relative;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 24px;
+    padding: 0 8px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--parch);
+    background: var(--bg2);
+  }
+  .dots {
+    opacity: 0.7;
+  }
   .s.boost {
     background: linear-gradient(180deg, #e6b450, #9a6a2a) !important;
     color: #1a1206 !important;

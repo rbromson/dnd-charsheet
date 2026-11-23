@@ -25,7 +25,7 @@ export default {
   'tut.s8.phone': 'Phone',
 
   'tut.1.title': 'Welcome to Taverna',
-  'tut.1.p1': 'A D&D 5e character sheet and adventure journal in one. Works offline; your data stays on this device.',
+  'tut.1.p1': 'A D&D 5e character sheet and adventure journal in one. Works offline (except Chrome voice recognition); your data stays on this device.',
   'tut.1.p2': '“New character” — fill it in by hand, give your paper sheet (PDF or photo) to an AI, or open a backup file.',
   'tut.1.p3': 'Several characters? Tap the portrait at the top for the list and their actions.',
 

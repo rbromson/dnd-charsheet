@@ -9,7 +9,7 @@
 </script>
 
 {#if !ui.diceTrayOpen && !ui.restOpen}
-  <button class="fab" aria-label={t('nav.dice')} title={t('nav.dice')} onclick={() => (ui.diceTrayOpen = true)}>
+  <button class="fab" data-fab="dice" class:away={ui.fabHidden} tabindex={ui.fabHidden ? -1 : 0} aria-label={t('nav.dice')} title={t('nav.dice')} onclick={() => (ui.diceTrayOpen = true)}>
     <span class="side" aria-hidden="true"></span>
     <span class="body" aria-hidden="true">
       <span class="rim"></span>
@@ -21,6 +21,17 @@
 {/if}
 
 <style>
+  /* ховається, поки листають вниз (окреме translate — не заважає анімації появи) */
+  .fab {
+    transition:
+      translate 0.28s var(--ease),
+      opacity 0.2s;
+  }
+  .fab.away {
+    translate: 0 calc(100% + 140px);
+    opacity: 0;
+    pointer-events: none;
+  }
   .fab {
     --hex: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
     --depth: 6px;

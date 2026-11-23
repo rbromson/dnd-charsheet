@@ -7,8 +7,9 @@
 
 <div class="toasts" aria-live="polite">
   {#each ui.toasts as toast (toast.id)}
-    <div class="toast" in:fly={{ y: 30, duration: 320, easing: backOut }} out:fly={{ y: 16, duration: 160 }}>
-      <span class="grow">{toast.message}</span>
+    <div class="toast" in:fly={{ y: -30, duration: 320, easing: backOut }} out:fly={{ y: -16, duration: 160 }}>
+      <!-- тап по тексту — прибрати тост -->
+      <button class="grow msg" onclick={() => ui.dismiss(toast.id)}>{toast.message}</button>
       {#if toast.undo}
         <button
           class="btn undo"
@@ -26,7 +27,8 @@
   .toasts {
     position: fixed;
     left: 50%;
-    bottom: 20px;
+    /* зверху: внизу тости закривали «Лікування», кнопки нотатки і шторок */
+    top: calc(10px + env(safe-area-inset-top));
     translate: -50% 0;
     display: flex;
     flex-direction: column;
@@ -48,13 +50,18 @@
     min-height: 56px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   }
+  .msg {
+    text-align: left;
+    color: inherit;
+    font: inherit;
+    padding: 8px 0;
+  }
   .undo {
     color: var(--ember);
   }
   @media (max-width: 640px) {
     .toasts {
       width: calc(100vw - 24px);
-      bottom: calc(76px + env(safe-area-inset-bottom));
     }
   }
 </style>

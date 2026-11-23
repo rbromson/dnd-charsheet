@@ -6,12 +6,23 @@
 </script>
 
 {#if !ui.restOpen && !ui.diceTrayOpen}
-  <button class="rfab" aria-label={t('rest.title')} title={t('rest.title')} onclick={() => (ui.restOpen = true)}>
+  <button class="rfab" class:away={ui.fabHidden} tabindex={ui.fabHidden ? -1 : 0} aria-label={t('rest.title')} title={t('rest.title')} onclick={() => (ui.restOpen = true)}>
     <Icon name="coffee" size={28} stroke={2} />
   </button>
 {/if}
 
 <style>
+  /* ховається, поки листають вниз (окреме translate — не заважає анімації появи) */
+  .rfab {
+    transition:
+      translate 0.28s var(--ease),
+      opacity 0.2s;
+  }
+  .rfab.away {
+    translate: 0 calc(100% + 140px);
+    opacity: 0;
+    pointer-events: none;
+  }
   .rfab {
     position: fixed;
     /* над самоцветом кубиков, по его оси */

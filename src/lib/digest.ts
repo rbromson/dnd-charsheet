@@ -5,7 +5,7 @@
 import type { Character, CodexEntry, JournalEntry } from './model/types';
 import { ABILITIES, SKILLS } from './model/types';
 import { abilityScore, armorClass, fmt, mod, profBonus, skillBonus, walkSpeed } from './rules/calc';
-import { MENTION_RE } from './mentions';
+import { mentionsToNames } from './mentions';
 import { lang, t, type Lang } from './i18n';
 import { db, byCharacter } from './db';
 import { normalizeCharacter } from './model/normalize';
@@ -63,7 +63,7 @@ const L: Record<Lang, Record<string, string>> = {
   },
 };
 
-const plain = (s: string) => s.replace(MENTION_RE, '$1').trim();
+const plain = (s: string) => mentionsToNames(s).trim();
 
 /** Довідник и журнал текстом. */
 export function historyText(codex: CodexEntry[], journal: JournalEntry[], language: Lang = lang): string {

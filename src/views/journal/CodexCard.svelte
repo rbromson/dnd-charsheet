@@ -57,6 +57,9 @@
 
   const refs = $derived(c ? codex.mentionsOf(c.id) : []);
   const presets = $derived(c ? statusPresets(c.kind) : []);
+  // своє слово для статусу — лише коли попросили (чипи «активне / виконане» — головне)
+  let customOpen = $state(false);
+  const showCustom = $derived(!presets.length || customOpen || (!!c?.status && !presets.includes(c.status)));
 
   function commitName() {
     nameFocused = false;
@@ -187,9 +190,10 @@
             {#each presets as p (p)}
               <button class="chip" class:on={c.status === p} onclick={() => setStatus(p)}>{p}</button>
             {/each}
+            {#if !showCustom}<button class="chip" onclick={() => (customOpen = true)}>{t('journal.codex.statusOwn')}</button>{/if}
           </div>
         {/if}
-        <input class="field" bind:value={c.status} placeholder={t('journal.codex.statusPh')} enterkeyhint="done" />
+        {#if showCustom}<input class="field" bind:value={c.status} placeholder={t('journal.codex.statusPh')} enterkeyhint="done" />{/if}
       </div>
       <MentionEditor bind:value={c.text} placeholder={t('journal.codex.textPh')} rows={compact ? 4 : 6} />
     {:else}

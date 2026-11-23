@@ -125,6 +125,10 @@
       {#if single}
         <div class="mode"><RollModeToggle /></div>
       {/if}
+      {#if (counts[100] ?? 0) > 0 && !(counts[10] ?? 0)}
+        <!-- d100 — десятки (00…90); для відсотків 1–100 додайте ще d10 -->
+        <div class="hint100">{t('dice.tray.d100Hint')}</div>
+      {/if}
 
       <div class="hold-zone">
         <button
@@ -179,6 +183,12 @@
 {/if}
 
 <style>
+  .hint100 {
+    font-size: 12.5px;
+    text-align: center;
+    color: var(--text2, #c9b79c);
+    margin: -2px 0 4px;
+  }
   .dsel {
     display: flex;
     gap: 4px;

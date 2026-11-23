@@ -11,6 +11,8 @@
   import { ui, buzz } from '../../lib/stores/ui.svelte';
   import { fmt, profBonusForLevel } from '../../lib/rules/calc';
   import { todayDate } from '../../lib/model/ids';
+  import { xpForNextLevel } from '../../lib/model/defaults';
+  import { untrack } from 'svelte';
   import { t } from '../../lib/i18n';
 
   const c = $derived(charStore.current!);
@@ -23,6 +25,14 @@
   );
 
   const nf = new Intl.NumberFormat('uk-UA');
+
+  // «Досвід до рівня» іде за рівнем, доки його не змінили вручну
+  let prevLevel = untrack(() => c.level);
+  function levelChanged(v: number | null) {
+    if (v == null) return;
+    if (c.xpNext === xpForNextLevel(prevLevel) || c.xpNext === 300) c.xpNext = xpForNextLevel(v);
+    prevLevel = v;
+  }
   const xpPct = $derived(c.xpNext > 0 ? Math.min(100, Math.max(0, (c.xp / c.xpNext) * 100)) : 0);
   const xpText = $derived(
     c.level < 20
@@ -63,7 +73,7 @@
     </div>
     <div class="form">
       <div class="span2"><TextField label={t('sheet.f.class')} bind:value={c.className} /></div>
-      <NumberField label={t('sheet.f.level')} bind:value={c.level} min={1} max={20} />
+      <NumberField label={t('sheet.f.level')} bind:value={c.level} min={1} max={20} onchange={levelChanged} />
       <NumberField
         label={t('sheet.f.prof')}
         bind:value={c.profBonusOverride}
@@ -80,6 +90,7 @@
       <NumberField label={t('sheet.f.xpNext')} bind:value={c.xpNext} min={0} placeholder="0" />
     </div>
     <p class="muted hint">{t('sheet.f.xpNextHint')}</p>
+    <p class="muted hint">{t('sheet.f.classHint')}</p>
     <!-- правило раси/риси, а не стан у грі — тому тут, у «Правці» -->
     <Toggle bind:checked={c.rules.rerollOnes} label={t('sheet.rerollOnesRule')} />
   </section>

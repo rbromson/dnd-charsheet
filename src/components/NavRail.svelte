@@ -24,7 +24,9 @@
       {#if !tab.hidden?.()}
         <button class="it" class:on={ui.tab === tab.key} onclick={() => ui.go(tab.key)} aria-current={ui.tab === tab.key ? 'page' : undefined}>
           <span class="pl"><Icon name={tab.icon} /></span>
-          <span class="lb">{t(tab.label)}</span>
+          <span class="lb full">{t(tab.label)}</span>
+          <!-- на телефоні «Спорядження» не вміщається — коротка назва -->
+          <span class="lb short" aria-hidden="true">{t(`${tab.label}Short`)}</span>
         </button>
       {/if}
     {/each}
@@ -154,6 +156,9 @@
     background: linear-gradient(135deg, #f3d696, #b98436);
     box-shadow: 0 0 6px rgba(240, 190, 100, 0.45);
   }
+  .lb.short {
+    display: none;
+  }
   .lb {
     white-space: nowrap;
     text-shadow: 0 1px 0 rgba(0, 0, 0, 0.7);
@@ -256,6 +261,12 @@
       max-width: 100%;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+    .lb.full {
+      display: none;
+    }
+    .lb.short {
+      display: block;
     }
     .pl {
       --cut: 7px;

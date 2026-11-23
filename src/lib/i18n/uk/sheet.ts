@@ -18,6 +18,8 @@ export default {
   'sheet.f.alignment': 'Світогляд',
   'sheet.f.xp': 'Досвід',
   'sheet.f.xpNext': 'Досвід до рівня',
+  'sheet.f.classHint': "Клас і раса — лише текст: рятунки, кістку здоров’я, швидкість і вміння впишіть самі.",
+  'sheet.abilityMore': '{a}: рятунок і подробиці',
   'sheet.f.xpNextHint': '0 — не показувати смугу',
   'sheet.f.player': "Ім'я гравця",
   'sheet.f.prof': 'Бонус майстерності',

@@ -168,6 +168,8 @@
     margin-top: 4px;
     font-size: 13.5px;
     color: var(--ink2);
+    /* довге «Напіврослик · Пройдисвіт 3 · Злочинець» переноситься, а не вилазить за картку */
+    overflow-wrap: anywhere;
   }
   .pbtns {
     display: flex;

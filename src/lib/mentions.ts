@@ -1,5 +1,9 @@
-/** Упоминания в тексте хранятся как @[Имя]. */
-export const MENTION_RE = /@\[([^\]\n]+)\]/g;
+/**
+ * Упоминания в тексте хранятся как @[Имя] или @[Имя|як написано] — второе для відмінків:
+ * «зустріли @[Мірра|Мірру]» показує «Мірру», а посилання веде на картку «Мірра».
+ */
+export const MENTION_RE = /@\[([^\]\n|]+)(?:\|([^\]\n]+))?\]/g;
+const label = (_: string, name: string, shown?: string) => shown ?? name;
 
 export function extractMentions(text: string): string[] {
   const out = new Set<string>();
@@ -8,42 +12,62 @@ export function extractMentions(text: string): string[] {
 }
 
 export function hasMention(text: string, name: string): boolean {
-  return text.includes(`@[${name}]`);
+  return text.includes(`@[${name}]`) || text.includes(`@[${name}|`);
 }
 
 export function renameMentions(text: string, oldName: string, newName: string): string {
   if (!oldName || oldName === newName) return text;
-  return text.split(`@[${oldName}]`).join(`@[${newName}]`);
+  return text.split(`@[${oldName}]`).join(`@[${newName}]`).split(`@[${oldName}|`).join(`@[${newName}|`);
 }
 
 /** Фрагмент текста вокруг упоминания (для «Де згадувався»). Упоминания заменены на имена. */
 export function snippetAround(text: string, name: string, radius = 60): string {
-  const token = `@[${name}]`;
-  const i = text.indexOf(token);
+  let i = text.indexOf(`@[${name}]`);
+  if (i < 0) i = text.indexOf(`@[${name}|`);
   if (i < 0) return '';
+  const tokenEnd = text.indexOf(']', i) + 1;
   const start = Math.max(0, i - radius);
-  const end = Math.min(text.length, i + token.length + radius);
+  const end = Math.min(text.length, tokenEnd + radius);
   const raw = (start > 0 ? '…' : '') + text.slice(start, end) + (end < text.length ? '…' : '');
-  return raw.replace(MENTION_RE, '$1').replace(/\s+/g, ' ');
+  return raw.replace(MENTION_RE, label).replace(/\s+/g, ' ');
 }
 
-export type TextPart = { kind: 'text'; text: string } | { kind: 'mention'; name: string };
+export type TextPart = { kind: 'text'; text: string } | { kind: 'mention'; name: string; label: string };
+
+/** Пробел, который редактор ставит после упоминания, перед знаком препинания не нужен: «Мірра , яка» → «Мірра, яка». */
+const PUNCT_AFTER = /^ (?=[,.;:!?)»…])/;
 
 export function splitMentions(text: string): TextPart[] {
   const parts: TextPart[] = [];
   let last = 0;
+  const pushText = (s: string) => {
+    const prev = parts[parts.length - 1];
+    parts.push({ kind: 'text', text: prev?.kind === 'mention' ? s.replace(PUNCT_AFTER, '') : s });
+  };
   for (const m of text.matchAll(MENTION_RE)) {
-    if (m.index! > last) parts.push({ kind: 'text', text: text.slice(last, m.index) });
-    parts.push({ kind: 'mention', name: m[1] });
+    if (m.index! > last) pushText(text.slice(last, m.index));
+    parts.push({ kind: 'mention', name: m[1], label: m[2] ?? m[1] });
     last = m.index! + m[0].length;
   }
-  if (last < text.length) parts.push({ kind: 'text', text: text.slice(last) });
+  if (last < text.length) pushText(text.slice(last));
   return parts;
 }
 
 /** Текст с упоминаниями, где @[Имя] заменено на Имя. */
 export function mentionsToNames(text: string): string {
-  return text.replace(MENTION_RE, '$1');
+  return text.replace(/\] (?=[,.;:!?)»…])/g, ']').replace(MENTION_RE, label);
+}
+
+/** Слово запроса подходит к слову имени с учётом окончаний: «Мірру» → «Мірра», «старих шахт» → «Старі шахти». */
+export function mentionMatches(name: string, query: string): boolean {
+  const n = name.toLowerCase();
+  const s = query.trim().toLowerCase();
+  if (!s || n.includes(s)) return true;
+  const words = n.split(/\s+/);
+  return s.split(/\s+/).every((w) => {
+    const stem = w.length >= 5 ? w.slice(0, -2) : w.length >= 4 ? w.slice(0, -1) : w;
+    return words.some((x) => x.startsWith(stem));
+  });
 }
 
 /** Имя, пригодное для упоминания: без [ ] и переводов строк. */
@@ -72,9 +96,10 @@ export function findMentionQuery(text: string, caret: number, maxLen = 40): { st
   return null;
 }
 
-/** Заменяет text[start..end) на `@[name] ` и возвращает новую позицию каретки. */
-export function insertMention(text: string, start: number, end: number, name: string): { text: string; caret: number } {
-  const token = `@[${name}]`;
+/** Заменяет text[start..end) на `@[name] ` (или `@[name|як написали]`) и возвращает новую позицию каретки. */
+export function insertMention(text: string, start: number, end: number, name: string, shown = ''): { text: string; caret: number } {
+  const sh = sanitizeMentionName(shown).replace(/\|/g, ' ');
+  const token = sh && sh !== name ? `@[${name}|${sh}]` : `@[${name}]`;
   const rest = text.slice(end);
   const sep = rest.startsWith(' ') ? '' : ' ';
   const out = text.slice(0, start) + token + sep + rest;

@@ -131,7 +131,7 @@
 
   {#snippet footer()}
     {#if mode === 'ai'}
-      <button class="btn btn-outline" onclick={() => (mode = 'choose')}><Icon name="back" size={18} />{t('upd.back')}</button>
+      <button class="btn btn-outline" onclick={() => (mode = 'choose')}><Icon name="back" size={18} />{t('common.back')}</button>
       <button class="btn btn-primary grow" disabled={!raw.trim() || busy} onclick={create}><Icon name="check" size={18} />{t('newc.create')}</button>
     {/if}
   {/snippet}

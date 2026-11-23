@@ -89,6 +89,7 @@ export default {
   'journal.codex.setAvatar': 'Make avatar',
   'journal.codex.name': 'Name',
   'journal.codex.status': 'Status',
+  'journal.codex.statusOwn': 'Custom…',
   'journal.codex.statusPh': 'Custom status',
   'journal.codex.textPh': 'Who or what is this? What is known? You can mention others with @.',
   'journal.codex.noText': 'No description yet.',

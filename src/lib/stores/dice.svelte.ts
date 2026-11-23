@@ -25,11 +25,29 @@ export type RollEntry =
   | { id: string; at: number; type: 'd20'; label: string; request: CheckRequest; roll: D20Roll; spent: Record<string, number> }
   | { id: string; at: number; type: 'formula'; label: string; roll: FormulaRoll; /** без «Ще раз» (кубик здоров'я) */ once?: boolean };
 
+/** История бросков переживает перезагрузку (последние 40, только на этом устройстве). */
+const HIST_KEY = 'taverna.diceHistory';
+function loadHistory(): RollEntry[] {
+  try {
+    const raw = JSON.parse(localStorage.getItem(HIST_KEY) ?? '[]');
+    return Array.isArray(raw) ? raw.filter((e) => e && typeof e.id === 'string' && (e.type === 'd20' || e.type === 'formula') && e.roll).slice(0, 40) : [];
+  } catch {
+    return [];
+  }
+}
+function saveHistory(h: RollEntry[]) {
+  try {
+    localStorage.setItem(HIST_KEY, JSON.stringify(h));
+  } catch {
+    /* приватный режим / нет места */
+  }
+}
+
 class DiceStore {
   /** Режим следующего броска d20; сбрасывается после броска */
   mode = $state<RollMode>('normal');
   last = $state<RollEntry | null>(null);
-  history = $state<RollEntry[]>([]);
+  history = $state<RollEntry[]>(loadHistory());
   overlayOpen = $state(false);
   /** увеличивается на каждый бросок — для перезапуска анимации */
   seq = $state(0);
@@ -82,6 +100,7 @@ class DiceStore {
   #push(e: RollEntry) {
     this.last = e;
     this.history = [e, ...this.history].slice(0, 40);
+    saveHistory(this.history);
     this.seq++;
     this.overlayOpen = true;
   }
@@ -142,14 +161,17 @@ class DiceStore {
     const updated: RollEntry = { ...last, roll, spent: { ...last.spent, [resourceId]: (last.spent[resourceId] ?? 0) + 1 } };
     this.last = updated;
     this.history = this.history.map((h) => (h.id === updated.id ? updated : h));
+    saveHistory(this.history);
     this.seq++;
     buzz(15);
     return true;
   }
 
-  /** Спасбросок от смерти: 1 — два провала, 20 — 1 хит и сброс, ≥10 — успех. Бросается после подтверждения. */
+  /** Спасбросок от смерти: 1 — два провала, 20 — 1 хит и сброс, ≥10 — успех. Сразу бросок (без окна выбора), итог — когда кость приземлится. */
   rollDeathSave(label: string) {
-    this.askCheck({ label, bonus: 0, kind: 'death' }, (e) => this.applyDeathSave(e, label));
+    this.mode = 'normal';
+    const e = this.rollCheck({ label, bonus: 0, kind: 'death' });
+    this.whenLanded(this.seq, () => this.applyDeathSave(e, label));
   }
 
   applyDeathSave(e: RollEntry, label: string) {

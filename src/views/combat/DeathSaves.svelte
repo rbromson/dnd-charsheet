@@ -36,7 +36,6 @@
 
 <section class="card ds" class:down>
   <h3 class="card-title" class:big-t={down}>{t('combat.death')}</h3>
-  {#if status && !down}<div class="st" class:bad={ds.fail >= 3}>{status}</div>{/if}
   <div class="groups">
     {@render sockets('success', down)}
     <span class="sep" aria-hidden="true"></span>
@@ -60,16 +59,6 @@
   }
   .big-t {
     font-size: 16px;
-    color: var(--bad);
-  }
-  .st {
-    margin: -4px 0 6px;
-    text-align: center;
-    font-size: 12.5px;
-    font-weight: 700;
-    color: var(--good);
-  }
-  .st.bad {
     color: var(--bad);
   }
   .groups {

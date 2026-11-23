@@ -89,6 +89,7 @@ export default {
   'journal.codex.setAvatar': 'Зробити аватаркою',
   'journal.codex.name': 'Ім’я / назва',
   'journal.codex.status': 'Статус',
+  'journal.codex.statusOwn': 'Своє…',
   'journal.codex.statusPh': 'Свій статус',
   'journal.codex.textPh': 'Хто це чи що це? Що відомо? Можна згадувати через @.',
   'journal.codex.noText': 'Опису ще немає.',

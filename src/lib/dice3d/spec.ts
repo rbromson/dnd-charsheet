@@ -17,7 +17,7 @@ export interface PhysDie {
   labels: string[];
   tone: Tone;
   struck: boolean;
-  /** индекс исходного DieSpec (d100 даёт две физические кости) */
+  /** индекс исходного DieSpec */
   src: number;
 }
 

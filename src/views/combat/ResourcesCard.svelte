@@ -11,6 +11,7 @@
   import { uid } from '../../lib/model/ids';
   import { move } from '../../lib/list';
   import { t } from '../../lib/i18n';
+  import { dice } from '../../lib/stores/dice.svelte';
 
   const c = $derived(charStore.current!);
 
@@ -22,6 +23,7 @@
       r.die,
       t(`combat.recharge.${r.recharge}`),
       r.maxPerRoll != null ? t('combat.perRoll', { n: r.maxPerRoll }) : null,
+      r.die ? t('combat.resDieHint') : null,
     ]
       .filter(Boolean)
       .join(' · ');
@@ -41,6 +43,11 @@
       { undo: msg },
     );
     buzz(delta < 0 ? 18 : 10);
+    // ресурс з кісткою (натхнення d6, кості переваги): витратити = одразу кинути кістку
+    if (delta < 0 && r.die) {
+      const sides = parseInt(r.die.replace(/[^\d]/g, ''), 10);
+      if (sides) dice.rollDamage(r.name, `1d${sides}`, false, true);
+    }
   }
 
   function add() {
@@ -95,7 +102,7 @@
               class="pip"
               class:tri={!!r.die}
               class:full
-              aria-label={full ? `−1 ${r.name}` : `+1 ${r.name}`}
+              aria-label={full ? (r.die ? `${t('combat.resRollSpend')} ${r.die}` : `−1 ${r.name}`) : `+1 ${r.name}`}
               onclick={() => change(r.id, full ? -1 : 1)}
             >
               <span class="shape">{#if r.die && full}{r.die}{/if}</span>

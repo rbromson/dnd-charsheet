@@ -17,14 +17,36 @@ export interface ConfirmState {
   danger?: boolean;
   /** Доп. строки (например, что восстановится на отдыхе) */
   details?: string[];
-  resolve: (ok: boolean) => void;
+  /** null — закрыли тапом мимо / Esc (ни «да», ни «нет») */
+  resolve: (ok: boolean | null) => void;
 }
 
 let toastSeq = 0;
 
+const TAB_KEY = 'taverna.tabAfterReload';
+const TABS: TabKey[] = ['sheet', 'combat', 'spells', 'gear', 'profile', 'journal'];
+function restoreTab(): TabKey {
+  try {
+    const v = sessionStorage.getItem(TAB_KEY) as TabKey | null;
+    sessionStorage.removeItem(TAB_KEY);
+    return v && TABS.includes(v) ? v : 'sheet';
+  } catch {
+    return 'sheet';
+  }
+}
+/** Запомнить вкладку перед перезагрузкой (смена языка). */
+export function rememberTab(tab: TabKey) {
+  try {
+    sessionStorage.setItem(TAB_KEY, tab);
+  } catch {
+    /* нет хранилища */
+  }
+}
+
 class UiStore {
   mode = $state<'play' | 'edit'>('play');
-  tab = $state<TabKey>('sheet');
+  /** вкладка переживает перезагрузку при смене языка */
+  tab = $state<TabKey>(restoreTab());
   toasts = $state<ToastItem[]>([]);
   /** Боковая карточка (настройки элемента, редактор записи и т.п.) */
   sheet = $state<{ component: Component<any>; props: Record<string, unknown> } | null>(null);
@@ -32,6 +54,8 @@ class UiStore {
   switcherOpen = $state(false);
   quickNoteOpen = $state(false);
   diceTrayOpen = $state(false);
+  /** плавающие кнопки прячутся, пока листают вниз (чтобы не закрывали клавиатуру ОЗ и кнопки) */
+  fabHidden = $state(false);
   /** Лоток «Привал» (короткий / довгий відпочинок) */
   restOpen = $state(false);
   /** id предмета/заклинания, которое сейчас заполняется после «Додати» — в списках не показываем, пока не подтвердят */
@@ -45,7 +69,7 @@ class UiStore {
     return this.mode === 'edit';
   }
 
-  toast(message: string, undo?: () => void, ms = 5000, actionLabel?: string) {
+  toast(message: string, undo?: () => void, ms = 4000, actionLabel?: string) {
     const item = { id: ++toastSeq, message, undo, actionLabel };
     this.toasts = [...this.toasts.slice(-2), item];
     setTimeout(() => this.dismiss(item.id), ms);
@@ -62,6 +86,11 @@ class UiStore {
   }
 
   confirm(message: string, opts: { okLabel?: string; cancelLabel?: string; danger?: boolean; details?: string[] } = {}): Promise<boolean> {
+    return this.choose(message, opts).then((ok) => ok === true);
+  }
+
+  /** Как confirm, но различает «Ні» (false) и «закрили, нічого не обираючи» (null). */
+  choose(message: string, opts: { okLabel?: string; cancelLabel?: string; danger?: boolean; details?: string[] } = {}): Promise<boolean | null> {
     return new Promise((resolve) => {
       this.confirmState = {
         message,

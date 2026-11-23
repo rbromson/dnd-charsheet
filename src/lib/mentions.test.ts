@@ -10,6 +10,7 @@ import {
   findMentionQuery,
   insertMention,
   markParts,
+  mentionMatches,
 } from './mentions';
 
 describe('extractMentions', () => {
@@ -78,16 +79,16 @@ describe('splitMentions', () => {
   it('splits text and mentions', () => {
     expect(splitMentions('Привіт, @[Мадам Ліла]! Як @[Бруно]?')).toEqual([
       { kind: 'text', text: 'Привіт, ' },
-      { kind: 'mention', name: 'Мадам Ліла' },
+      { kind: 'mention', name: 'Мадам Ліла', label: 'Мадам Ліла' },
       { kind: 'text', text: '! Як ' },
-      { kind: 'mention', name: 'Бруно' },
+      { kind: 'mention', name: 'Бруно', label: 'Бруно' },
       { kind: 'text', text: '?' },
     ]);
   });
   it('adjacent mentions and mention-only text', () => {
     expect(splitMentions('@[А]@[Б]')).toEqual([
-      { kind: 'mention', name: 'А' },
-      { kind: 'mention', name: 'Б' },
+      { kind: 'mention', name: 'А', label: 'А' },
+      { kind: 'mention', name: 'Б', label: 'Б' },
     ]);
   });
   it('plain text and empty', () => {
@@ -97,7 +98,7 @@ describe('splitMentions', () => {
   it('keeps newlines in text parts', () => {
     expect(splitMentions('рядок\n@[Х]\nще')).toEqual([
       { kind: 'text', text: 'рядок\n' },
-      { kind: 'mention', name: 'Х' },
+      { kind: 'mention', name: 'Х', label: 'Х' },
       { kind: 'text', text: '\nще' },
     ]);
   });
@@ -166,5 +167,29 @@ describe('markParts', () => {
   });
   it('no needle → whole text', () => {
     expect(markParts('abc', '')).toEqual([{ text: 'abc', mark: false }]);
+  });
+});
+
+describe('inflected mentions and punctuation', () => {
+  it('shows the typed form but links to the card', () => {
+    const t = 'зустріли @[Мірра|Мірру] , яка';
+    expect(splitMentions(t)).toEqual([
+      { kind: 'text', text: 'зустріли ' },
+      { kind: 'mention', name: 'Мірра', label: 'Мірру' },
+      { kind: 'text', text: ', яка' },
+    ]);
+    expect(extractMentions(t)).toEqual(['Мірра']);
+    expect(hasMention(t, 'Мірра')).toBe(true);
+    expect(mentionsToNames(t)).toBe('зустріли Мірру, яка');
+    expect(renameMentions(t, 'Мірра', 'Мірра Сіра')).toBe('зустріли @[Мірра Сіра|Мірру] , яка');
+  });
+  it('matches case endings when searching', () => {
+    expect(mentionMatches('Мірра', 'Мірру')).toBe(true);
+    expect(mentionMatches('Старі шахти', 'старих шахт')).toBe(true);
+    expect(mentionMatches('Бруно', 'Мірру')).toBe(false);
+  });
+  it('inserts an alias only when given a different form', () => {
+    expect(insertMention('у @Мірру', 2, 8, 'Мірра', 'Мірру').text).toBe('у @[Мірра|Мірру] ');
+    expect(insertMention('у @Мір', 2, 6, 'Мірра', '').text).toBe('у @[Мірра] ');
   });
 });

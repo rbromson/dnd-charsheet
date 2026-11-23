@@ -4,7 +4,7 @@ import {
   abilityMod, profBonusForLevel, profBonus, skillBonus, saveBonus, passivePerception, initiative,
   attackBonus, resolveDamageFormula, spellDC, spellAttack, fmt,
 } from './calc';
-import { applyDamage, applyHeal } from './hp';
+import { applyDamage, applyHeal, damageOutcome } from './hp';
 import { applyRest, restPreview } from './rest';
 
 const frido = () => fridoSeed().character;
@@ -114,5 +114,19 @@ describe('rest', () => {
     expect(c.hitDice.used).toBe(2);
     expect(c.deathSaves).toEqual({ success: 0, fail: 0 });
     expect(c.spellcasting.slots[1].used).toBe(0);
+  });
+});
+
+describe('damage at 0 HP', () => {
+  it('adds a death save failure when hit while down, two on a crit', () => {
+    expect(damageOutcome({ max: 20, current: 0, temp: 0 }, 3).failAdd).toBe(1);
+    expect(damageOutcome({ max: 20, current: 0, temp: 0 }, 3, true).failAdd).toBe(2);
+    expect(damageOutcome({ max: 20, current: 5, temp: 0 }, 3).failAdd).toBe(0);
+  });
+  it('kills outright when damage past 0 reaches max HP', () => {
+    expect(damageOutcome({ max: 20, current: 5, temp: 0 }, 25).instantDeath).toBe(true);
+    expect(damageOutcome({ max: 20, current: 5, temp: 0 }, 24).instantDeath).toBe(false);
+    expect(damageOutcome({ max: 20, current: 0, temp: 0 }, 20).instantDeath).toBe(true);
+    expect(damageOutcome({ max: 20, current: 5, temp: 10 }, 34).instantDeath).toBe(false);
   });
 });

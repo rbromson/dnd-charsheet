@@ -49,10 +49,11 @@
     busy = true;
     try {
       const audio = (await byCharacter('media', id)).filter((m) => m.kind === 'audio').length;
-      const withAudio =
-        audio > 0 &&
-        (await ui.confirm(t('chars.exportAudioAsk', { n: audio }), { okLabel: t('chars.exportAudioYes'), cancelLabel: t('chars.exportAudioNo') }));
+      // тап мимо діалогу — скасувати експорт (а не «без аудіо»)
+      const withAudio = audio > 0 ? await ui.choose(t('chars.exportAudioAsk', { n: audio }), { okLabel: t('chars.exportAudioYes'), cancelLabel: t('chars.exportAudioNo') }) : false;
+      if (withAudio === null) return;
       await exportCharacter(id, { audio: withAudio });
+      ui.toast(t('chars.exported'));
     } catch (e) {
       console.error(e);
     } finally {
