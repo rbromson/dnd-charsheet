@@ -13,14 +13,19 @@ type Def = ModDef;
 export const add = (t: string, v: number, cap: number | null = null): Def => ({ t, op: 'add', v, cap });
 export const set = (t: string, v: number): Def => ({ t, op: 'set', v });
 export const hint = (uk: string, en: string): Def => ({ t: 'hint', when: [uk, en] });
+/** опір шкоді ('' — тип обирається в картці предмета), імунітет */
+export const res = (d: string): Def => ({ t: `resist:${d}`, op: 'set', v: 1 });
+export const imm = (d: string): Def => ({ t: `immune:${d}`, op: 'set', v: 1 });
+const DRAGON: Record<string, string> = { black: 'acid', blue: 'lightning', brass: 'fire', bronze: 'lightning', copper: 'acid', gold: 'fire', green: 'poison', red: 'fire', silver: 'cold', white: 'cold' };
+const RES_TYPES = ['acid', 'cold', 'fire', 'force', 'lightning', 'necrotic', 'poison', 'psychic', 'radiant', 'thunder'];
 
 const MODS: Record<string, Def[]> = {
   'm:goggles-of-night': [set('darkvision', 60)],
   'm:robe-of-eyes': [set('darkvision', 120), hint('Бачиш у всіх напрямках: перевага на Уважність зором', 'See in all directions: advantage on sight-based Perception')],
-  'm:belt-of-dwarvenkind': [add('ability:con', 2, 20), set('darkvision', 60), hint('Перевага на рятунки від отрути, опір отруті', 'Advantage on saves against poison, resistance to poison')],
+  'm:belt-of-dwarvenkind': [add('ability:con', 2, 20), set('darkvision', 60), res('poison'), hint('Перевага на рятунки від отрути', 'Advantage on saves against poison')],
   'm:boots-of-striding-and-springing': [{ t: 'speed', op: 'min', v: 30 }, hint('Стрибаєш утричі далі', 'You can jump three times the normal distance')],
   'm:slippers-of-spider-climbing': [set('climb', 0)],
-  'm:cloak-of-arachnida': [set('climb', 0), hint('Опір отруті; ходиш по стінах і стелі', 'Resistance to poison; walk on walls and ceilings')],
+  'm:cloak-of-arachnida': [set('climb', 0), res('poison'), hint('Ходиш по стінах і стелі', 'Walk on walls and ceilings')],
   'm:ring-of-swimming': [set('swim', 40)],
   'm:cloak-of-the-manta-ray': [set('swim', 60), hint('Дихаєш під водою, коли капюшон на голові', 'Breathe underwater with the hood up')],
   'm:gloves-of-swimming-and-climbing': [hint('Лазіння й плавання без зайвого руху; +5 до Атлетики, щоб лізти чи плисти', 'Climbing and swimming cost no extra movement; +5 Athletics to climb or swim')],
@@ -36,6 +41,25 @@ const MODS: Record<string, Def[]> = {
     hint('Перевага на рятунки проти заклинань і магічних ефектів', 'Advantage on saves against spells and magical effects'),
   ],
   'm:staff-of-power': [add('spellAttack', 2)],
+  'm:staff-of-fire': [res('fire')],
+  'm:staff-of-frost': [res('cold')],
+  'm:ring-of-resistance': [res('')],
+  'm:armor-of-resistance': [res('')],
+  'm:dragon-scale-mail': [res(''), hint('Перевага на рятунки від Страхітливої присутності й подиху драконів', 'Advantage on saves against dragons’ Frightful Presence and breath')],
+  'm:ring-of-warmth': [res('cold')],
+  'm:boots-of-the-winterlands': [res('cold'), hint('Лід і сніг не заважають рухатись', 'Ice and snow are no difficult terrain')],
+  'm:brooch-of-shielding': [res('force'), hint('Імунітет до «Магічної стріли»', 'Immune to magic missile')],
+  'm:frost-brand': [res('fire')],
+  'm:helm-of-brilliance': [res('fire')],
+  'm:periapt-of-proof-against-poison': [imm('poison'), hint('Імунітет до стану «отруєний»', 'Immune to the poisoned condition')],
+  'm:armor-of-invulnerability': [res('nonmagical')],
+  'm:ring-of-elemental-command-fire': [res('fire')],
+  'm:shield-of-missile-attraction': [hint('Опір шкоді від дистанційних атак зброєю; але стріли летять у тебе', 'Resistance to ranged weapon attack damage, but missiles are drawn to you')],
+  'm:armor-of-vulnerability': [hint('Опір одній із: дробляча, колюча, рубана; вразливість до двох інших', 'Resistance to one of bludgeoning, piercing, slashing; vulnerable to the other two')],
+  ...Object.fromEntries(RES_TYPES.map((d) => [`m:ring-of-resistance-${d}`, [res(d)]])),
+  ...Object.fromEntries(
+    Object.entries(DRAGON).map(([k, d]) => [`m:dragon-scale-mail-${k}`, [res(d), hint('Перевага на рятунки від Страхітливої присутності й подиху драконів', 'Advantage on saves against dragons’ Frightful Presence and breath')]]),
+  ),
   'm:staff-of-the-magi': [add('spellAttack', 2), hint('Перевага на рятунки проти заклинань', 'Advantage on saves against spells')],
   'm:staff-of-the-woodlands': [add('spellAttack', 2)],
   'm:ioun-stone-of-agility': [add('ability:dex', 2, 20)],

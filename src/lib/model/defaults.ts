@@ -63,6 +63,7 @@ export function newCharacter(): Character {
     secret: '',
     rules: { rerollOnes: false, mech: 0 },
     effects: [],
+    defenses: [],
   };
 }
 

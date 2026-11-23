@@ -381,6 +381,8 @@ export interface Character {
   /** mech — версия разметки действий/зарядов из библиотеки (одноразовое обновление старых предметов) */
   rules: { rerollOnes: boolean; mech: number };
   /** временные эффекты (выпитые зелья) */
+  /** свої опори/імунітети/вразливості (раса, клас): 'resist:fire', 'immune:poison' */
+  defenses: string[];
   effects: ActiveEffect[];
 }
 

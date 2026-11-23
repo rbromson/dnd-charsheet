@@ -19,6 +19,7 @@
   import ItemPowersEditor from './ItemPowersEditor.svelte';
   import ItemModsEditor from './ItemModsEditor.svelte';
   import { modText } from './modText';
+  import { DAMAGE_TYPES, parseDef } from '../../lib/rules/defense';
   import { uid } from '../../lib/model/ids';
 
   /** fresh — только что созданный (вручну или из библиотеки): «Скасувати» / «Додати»; закрыли без «Додати» — предмета нет */
@@ -144,7 +145,21 @@
         {#if item.acBonus}<div class="ln">{t('gear.effAc')}: +{item.acBonus}{item.noArmor ? ` (${t('gear.effNoArmor')})` : ''}</div>{/if}
         {#if item.saveBonus}<div class="ln">{t('gear.effSave')}: +{item.saveBonus}</div>{/if}
         {#if item.setAbility}<div class="ln">{t('gear.effSet', { a: t(`ability.${item.setAbility}`), n: item.setValue })}</div>{/if}
-        {#each item.mods as m (m.id)}<div class="ln" class:muted={!!m.when}>{modText(m)}</div>{/each}
+        {#each item.mods as m (m.id)}
+          {@const d = parseDef(m.t)}
+          {#if d && !d.type}
+            <!-- Перстень/Обладунок опору, драконяча луска: тип шкоди обирає гравець -->
+            <label class="ln pickres">
+              <span>{t(`mod.kind.${d.kind}`)}:</span>
+              <select class="field" value="" onchange={(e) => (m.t = `${d.kind}:${(e.currentTarget as HTMLSelectElement).value}`)}>
+                <option value="" disabled>{t('dmg.pick')}</option>
+                {#each DAMAGE_TYPES.filter((x) => x !== 'nonmagical') as dt (dt)}<option value={dt}>{t(`dmg.${dt}`)}</option>{/each}
+              </select>
+            </label>
+          {:else}
+            <div class="ln" class:muted={!!m.when}>{modText(m)}</div>
+          {/if}
+        {/each}
         {#each item.extra as x (x.id)}<div class="ln">+{dieText(x.dice)} {x.type}{x.when ? ` · ${x.when}` : x.crit ? ` · ${t('combat.extraCrit')}` : ''}</div>{/each}
         {#if item.resourceId}<div class="ln muted">{t('gear.effCharges')}</div>{/if}
         {#if item.armor && !charStore.current?.acAuto}<div class="ln muted small">{t('gear.armorAcHint')}</div>{/if}
@@ -276,6 +291,16 @@
   }
   .ln {
     font-size: 15px;
+  }
+  .pickres {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .pickres select {
+    flex: 1 1 140px;
+    min-width: 0;
   }
   .ln.num {
     font-size: 17px;

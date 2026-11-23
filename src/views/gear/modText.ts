@@ -12,6 +12,8 @@ export function modText(m: ItemMod): string {
     if (m.op === 'add') return m.cap != null ? t('mod.abilityCap', { n: sign(v), a, cap: m.cap }) : `${sign(v)} ${a}`;
     return t('mod.abilitySet', { a, n: v });
   }
+  const d = /^(resist|immune|vuln):(.*)$/.exec(m.t);
+  if (d) return d[2] ? t(`mod.${d[1]}`, { d: t(`dmg.${d[2]}`) }) : t('mod.resistPick');
   if (m.t.startsWith('save:')) return t('mod.saveOne', { n: sign(v), a: t(`ability.${m.t.slice(5)}`) });
   switch (m.t) {
     case 'fly':
@@ -52,4 +54,7 @@ export const MOD_TARGETS = [
   'ability:int',
   'ability:wis',
   'ability:cha',
+  'resist:',
+  'immune:',
+  'vuln:',
 ] as const;

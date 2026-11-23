@@ -53,7 +53,7 @@ const TOGGLES: Record<string, T[]> = {
 type P = { mods: ModDef[]; dur: [string, string] };
 const HOUR: [string, string] = ['1 година', '1 hour'];
 const giant = (v: number): P => ({ mods: [set('ability:str', v)], dur: HOUR });
-const resist = (uk: string, en: string): P => ({ mods: [hint(`Опір шкоді: ${uk}`, `Resistance to ${en} damage`)], dur: HOUR });
+const resist = (_uk: string, en: string): P => ({ mods: [{ t: `resist:${en}`, op: 'set', v: 1 }], dur: HOUR });
 const POTIONS: Record<string, P> = {
   'm:potion-of-giant-strength-hill': giant(21),
   'm:potion-of-giant-strength-frost': giant(23),

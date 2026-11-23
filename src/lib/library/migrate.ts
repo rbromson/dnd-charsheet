@@ -8,7 +8,7 @@ import { CHARGES, dailyPowers, hasDaily, hasSpells, powersFor } from './powers';
 import { modsFor } from './mods';
 import { extraFor, potionEffect, togglesFor } from './effects';
 
-export const MECH_VERSION = 5;
+export const MECH_VERSION = 6;
 
 export function migrateMechanics(c: Character, lib: LibItem[], spells: LibSpell[] = []): boolean {
   if (c.rules.mech >= MECH_VERSION) return false;
@@ -24,11 +24,16 @@ export function migrateMechanics(c: Character, lib: LibItem[], spells: LibSpell[
     if (had && hasDaily(e) && !it.powers.some((p) => p.uses)) it.powers.push(...dailyPowers(e, spells));
     // v3: пасивні модифікатори (швидкість, чуття, +N до перевірок…)
     if (!it.mods.length) it.mods = modsFor(e.id, e.of);
+    // v6: опір шкоді — справжні модифікатори замість підказок (предмети бібліотеки не редагуються вручну)
+    else if (old < 6) {
+      const fresh = modsFor(e.id, e.of);
+      if (fresh.some((m) => /^(resist|immune|vuln):/.test(m.t))) it.mods = fresh;
+    }
     // v4: перемикачі, доп. урон зброї, ефекти зілль
     if (!it.extra.length) it.extra = extraFor(e.id);
     if (!it.toggles.length) it.toggles = togglesFor(e.id);
     const fx = potionEffect(e.id, it.name);
-    if (fx) for (const p of it.powers) if (p.consume && !p.effect) p.effect = fx;
+    if (fx) for (const p of it.powers) if (p.consume && (!p.effect || (old < 6 && fx.mods.some((m) => m.t.startsWith('resist:'))))) p.effect = fx;
     const r = it.resourceId ? c.resources.find((x) => x.id === it.resourceId) : undefined;
     const cm = CHARGES[e.id] ?? (e.of ? CHARGES[e.of] : undefined);
     if (r && cm) {

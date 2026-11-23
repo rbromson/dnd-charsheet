@@ -8,6 +8,8 @@
   import { ui, buzz } from '../../lib/stores/ui.svelte';
   import { applyDamage, applyHeal, setTemp } from '../../lib/rules/hp';
   import { t } from '../../lib/i18n';
+  import DefenseSheet from './DefenseSheet.svelte';
+  import { adjustDamage, defenses } from '../../lib/rules/defense';
 
   const c = $derived(charStore.current!);
 
@@ -19,8 +21,16 @@
   const tmpPct = $derived((c.hp.temp / total) * 100);
   const down = $derived(c.hp.current === 0 && c.hp.max > 0);
 
+  // опір / імунітет: чипи типів шкоди — лише якщо в персонажа щось є
+  const defs = $derived(defenses(c, t('def.ownSrc')));
+  let dtype = $state<string | null>(null);
+  const def = $derived(dtype ? (defs.find((d) => d.type === dtype) ?? null) : null);
+  const dmg = $derived(adjustDamage(amount, def));
+  const defMark = (d: { resist: boolean; immune: boolean; vuln: boolean }) => (d.immune ? '0' : d.resist && d.vuln ? '½×2' : d.resist ? '½' : '×2');
+
   const explain = $derived.by(() => {
     if (!amount) return '';
+    if (def) return t('combat.dmgAdjusted', { d: t(`dmg.${def.type}`), n: amount, to: dmg, from: c.hp.current, hp: applyDamage(c.hp, dmg).current });
     const hp = c.hp;
     if (hp.temp > 0) {
       if (amount <= hp.temp) return t('combat.dmgTempAll', { from: hp.temp, to: hp.temp - amount });
@@ -43,8 +53,9 @@
   }
 
   function damage() {
-    const n = amount;
-    if (!n) return;
+    if (!amount) return;
+    const n = dmg;
+    const d = def;
     burst('dmg', `−${n}`);
     const from = c.hp.current;
     const next = applyDamage(c.hp, n);
@@ -52,10 +63,11 @@
       (ch) => {
         ch.hp = next;
       },
-      { undo: t('combat.toastDamage', { n, from, to: next.current }) },
+      { undo: t('combat.toastDamage', { n, from, to: next.current }) + (d ? ` · ${t(`dmg.${d.type}`)} ${amount} → ${n}` : '') },
     );
     buzz([20, 30, 40]);
     entry = '';
+    dtype = null;
   }
 
   function heal() {
@@ -92,6 +104,7 @@
   }
 
   const openSheet = () => ui.openSheet(HpSheet, {});
+  const openDefense = () => ui.openSheet(DefenseSheet, {});
   const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'];
 </script>
 
@@ -113,6 +126,7 @@
       <NumberField label={t('combat.hpMax')} bind:value={c.hp.max} min={0} max={999} big />
       <NumberField label={t('combat.hpTemp')} bind:value={c.hp.temp} min={0} max={999} big />
     </div>
+    <button class="btn btn-ghost defbtn" onclick={openDefense}><Icon name="shield" size={18} />{t('def.title')}{c.defenses.length ? ` · ${c.defenses.length}` : ''}</button>
   {:else}
     <button class="hpbig" use:press={{ onLong: openSheet }} aria-label={t('combat.hpEditHint')}>
       <span class="cur num">{c.hp.current}</span>
@@ -129,6 +143,25 @@
 
   <div class="amount num" class:empty={!amount}>{amount}</div>
   <div class="explain">{explain || ' '}</div>
+
+  {#if defs.length}
+    <!-- тип шкоди: опір — половина, імунітет — нуль, вразливість — удвічі -->
+    <div class="defs" role="group" aria-label={t('dmg.type')}>
+      {#each defs as d (d.type)}
+        <button
+          class="dchip"
+          class:on={dtype === d.type}
+          class:imm={d.immune}
+          class:vul={d.vuln && !d.resist && !d.immune}
+          aria-pressed={dtype === d.type}
+          title={d.sources.join(', ')}
+          onclick={() => (dtype = dtype === d.type ? null : d.type)}
+        >
+          {t(`dmg.${d.type}`)} <b>{defMark(d)}</b>
+        </button>
+      {/each}
+    </div>
+  {/if}
 
   <div class="pad">
     {#each keys as k (k)}
@@ -360,6 +393,56 @@
     color: var(--ink2);
     margin: 4px 0 10px;
     min-height: 1.5em;
+  }
+  .defs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+    margin: -4px 0 10px;
+  }
+  .dchip {
+    min-height: 34px;
+    padding: 0 10px;
+    border-radius: 3px;
+    font-size: 13px;
+    color: var(--ink);
+    background: color-mix(in srgb, var(--temp) 10%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--temp) 60%, transparent);
+  }
+  .dchip b {
+    margin-left: 3px;
+    color: var(--temp);
+  }
+  .dchip.imm {
+    background: rgba(240, 199, 102, 0.18);
+    box-shadow: inset 0 0 0 1px #9a6a2a;
+  }
+  .dchip.imm b {
+    color: #7a4f18;
+  }
+  .dchip.vul {
+    background: color-mix(in srgb, var(--bad) 8%, transparent);
+    box-shadow: inset 0 0 0 1px var(--bad);
+  }
+  .dchip.vul b {
+    color: var(--bad);
+  }
+  .dchip.on {
+    color: var(--parch3);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--temp) 85%, #fff), var(--temp));
+    box-shadow:
+      inset 0 0 0 1px rgba(0, 0, 0, 0.25),
+      0 2px 4px rgba(0, 0, 0, 0.25);
+  }
+  .dchip.on b {
+    color: inherit;
+  }
+  .defbtn {
+    align-self: flex-start;
+    margin-top: 6px;
+    padding: 0 8px;
+    gap: 6px;
   }
   .pad {
     display: grid;

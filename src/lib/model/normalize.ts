@@ -137,6 +137,7 @@ export function normalizeCharacter(raw: unknown): Character {
     x.mods = mods(e.mods);
     return x;
   });
+  c.defenses = Array.isArray(r.defenses) ? [...new Set(r.defenses.filter((x): x is string => typeof x === 'string' && /^(resist|immune|vuln):\w+$/.test(x)))] : [];
   c.features = list(r.features, FEATURE);
   c.decks = list(r.decks, DECK);
   // колода живёт у предмета: старые «отдельные» колоды привязываем к предмету с тем же именем или заводим предмет
