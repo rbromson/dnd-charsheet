@@ -5,7 +5,7 @@ import { extraFor, potionEffect, togglesFor } from '../library/effects';
 import { abilityScore, attackExtras, fullDamageFormula, walkSpeed } from './calc';
 import { applyRest } from './rest';
 
-const atk = (itemId: string): Attack => ({ id: 'a', name: 'Меч', ability: 'str', prof: true, bonus: 0, override: null, damage: '1d8+МОД', damageType: '', note: '', itemId, save: null, saveDc: null });
+const atk = (itemId: string): Attack => ({ id: 'a', name: 'Меч', ability: 'str', prof: true, bonus: 0, override: null, damage: '1d8+МОД', damageType: '', note: '', itemId, save: null, saveDc: null, extra: [], ammoId: null });
 
 describe('switchable effects', () => {
   it('flame tongue adds 2d6 only while ignited', () => {

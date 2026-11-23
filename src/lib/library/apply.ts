@@ -9,6 +9,7 @@ import { CHARGES, QTY, powersFor } from './powers';
 import { modsFor } from './mods';
 import { extraFor, potionEffect, togglesFor } from './effects';
 import { rollFormula } from '../dice/formula';
+import { AMMO_PACK, linkAmmo } from '../rules/ammo';
 import { cryptoRng } from '../dice/rng';
 
 const GENERIC_PLUS = new Set(['m:weapon', 'm:armor', 'm:ammunition']);
@@ -135,6 +136,9 @@ export function addLibItem(c: Character, e: LibItem, base?: LibItem, spells: Lib
   c.equipment.push(item);
   const stored = c.equipment[c.equipment.length - 1];
   if (stored.weapon) addWeaponAttack(c, stored);
+  // стріли, болти: пачка з 20 (голки — 50); лук і стріли знаходять одне одного
+  if (AMMO_PACK[e.id]) stored.qty = AMMO_PACK[e.id];
+  linkAmmo(c);
   return stored;
 }
 
@@ -183,5 +187,7 @@ export function spellAttack(c: Character, s: LibSpell): Attack | null {
     itemId: null,
     save: s.at ? null : (s.sv ?? null),
     saveDc: null,
+    extra: [],
+    ammoId: null,
   };
 }

@@ -65,6 +65,10 @@ export interface Attack extends Tweak {
   save: Ability | null;
   /** СК рятунку вручную; null — 8 + бонус майстерності + модифікатор характеристики атаки */
   saveDc: number | null;
+  /** свій доп. урон: «Скрита атака 2к6» (на вибір у вікні кидка), «Позначка мисливця 1к6» */
+  extra: ExtraDamage[];
+  /** боєприпаси: id предмета (стріли, болти) або ресурсу — −1 за кожен кидок атаки */
+  ammoId: string | null;
 }
 
 export type Recharge = 'short' | 'long' | 'manual';

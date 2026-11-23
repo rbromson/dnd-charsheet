@@ -9,7 +9,8 @@
   import { dice } from '../../lib/stores/dice.svelte';
   import { ui } from '../../lib/stores/ui.svelte';
   import { attackBonus, attackSaveDc, fmt, fullDamageFormula } from '../../lib/rules/calc';
-  import { requestExtras } from './extras';
+  import { rollAttack as rollAttackFor } from './extras';
+  import { ammoOf } from '../../lib/rules/ammo';
   import { uid } from '../../lib/model/ids';
   import { move } from '../../lib/list';
   import { MOD_WORD, dieText, t } from '../../lib/i18n';
@@ -20,29 +21,25 @@
 
   function sub(a: Attack): string {
     if (a.save) return [t('combat.atkSaveShort', { ability: t(`abilityShort.${a.save}`) }), a.damageType.trim() || null].filter(Boolean).join(' · ');
-    return [a.ability ? t(`abilityShort.${a.ability}`) : t('combat.atkNoAbility'), a.prof ? t('combat.atkProfShort') : null, a.damageType.trim() || null]
+    const am = ammoOf(c, a);
+    return [
+      a.ability ? t(`abilityShort.${a.ability}`) : t('combat.atkNoAbility'),
+      a.prof ? t('combat.atkProfShort') : null,
+      a.damageType.trim() || null,
+      am ? t('combat.ammoCount', { name: am.name, n: am.count }) : null,
+    ]
       .filter(Boolean)
       .join(' · ');
   }
 
-  function rollAttack(a: Attack) {
-    dice.askCheck({
-      kind: 'attack',
-      attackId: a.id,
-      label: a.name,
-      bonus: attackBonus(c, a),
-      damage: a.damage.trim() ? fullDamageFormula(c, a) : undefined,
-      damageLabel: t('combat.atkDamageLabel', { name: a.name }),
-      extras: requestExtras(c, a),
-    });
-  }
+  const rollAttack = (a: Attack) => rollAttackFor(c, a);
   function rollDamage(a: Attack) {
     dice.rollDamage(t('combat.atkDamageLabel', { name: a.name }), fullDamageFormula(c, a));
   }
 
   function add() {
     const id = uid();
-    c.attacks.push({ id, name: t('combat.atkNew'), ability: 'str', prof: true, bonus: 0, override: null, damage: `1d6+${MOD_WORD}`, damageType: '', note: '', itemId: null, save: null, saveDc: null });
+    c.attacks.push({ id, name: t('combat.atkNew'), ability: 'str', prof: true, bonus: 0, override: null, damage: `1d6+${MOD_WORD}`, damageType: '', note: '', itemId: null, save: null, saveDc: null, extra: [], ammoId: null });
     open(id);
   }
 

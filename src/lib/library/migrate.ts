@@ -7,8 +7,9 @@ import type { LibItem, LibSpell } from './types';
 import { CHARGES, dailyPowers, hasDaily, hasSpells, powersFor } from './powers';
 import { modsFor } from './mods';
 import { extraFor, potionEffect, togglesFor } from './effects';
+import { linkAmmo } from '../rules/ammo';
 
-export const MECH_VERSION = 7;
+export const MECH_VERSION = 8;
 
 export function migrateMechanics(c: Character, lib: LibItem[], spells: LibSpell[] = []): boolean {
   if (c.rules.mech >= MECH_VERSION) return false;
@@ -41,6 +42,8 @@ export function migrateMechanics(c: Character, lib: LibItem[], spells: LibSpell[
       if (!r.onEmpty && cm.empty) r.onEmpty = { ...cm.empty, on: [...cm.empty.on] };
     }
   }
+  // v8: лук ↔ стріли
+  linkAmmo(c);
   c.rules.mech = MECH_VERSION;
   return true;
 }

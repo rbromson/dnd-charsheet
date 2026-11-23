@@ -37,7 +37,7 @@ export function fridoSeed(): { character: Character; codex: Omit<CodexEntry, 'ch
   ];
   const panId = uid();
   c.attacks = [
-    { id: uid(), name: 'Сковорідка', ability: 'wis', prof: true, bonus: 0, override: null, damage: '1d6+МОД', damageType: 'дробильне', note: '', itemId: panId, save: null, saveDc: null },
+    { id: uid(), name: 'Сковорідка', ability: 'wis', prof: true, bonus: 0, override: null, damage: '1d6+МОД', damageType: 'дробильне', note: '', itemId: panId, save: null, saveDc: null, extra: [], ammoId: null },
   ];
   c.features = [
     { id: uid(), name: 'Трактирник', text: 'Ремесло класу Commoner. Опишіть тут, що вміє Фридо.' },

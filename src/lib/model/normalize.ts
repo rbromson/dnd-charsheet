@@ -26,7 +26,7 @@ export function mergeDefaults<T>(defaults: T, raw: unknown): T {
   return defaults;
 }
 
-const ATTACK: Attack = { id: '', name: '', ability: 'str', prof: true, bonus: 0, override: null, damage: '1d6+МОД', damageType: '', note: '', itemId: null, save: null, saveDc: null };
+const ATTACK: Attack = { id: '', name: '', ability: 'str', prof: true, bonus: 0, override: null, damage: '1d6+МОД', damageType: '', note: '', itemId: null, save: null, saveDc: null, extra: [], ammoId: null };
 const RESOURCE: Resource = { id: '', name: '', max: 1, current: 1, die: null, recharge: 'long', maxPerRoll: null, regain: null, onEmpty: null };
 const RISK: Risk = { die: 20, on: [1], kind: 'destroy', gain: '' };
 const POWER: ItemPower = { id: '', name: '', cost: 0, costMax: null, consume: false, dice: '', extra: '', result: 'info', self: true, dc: null, save: null, note: '', spell: null, level: 0, upcast: false, dcUser: false, attack: null, effect: null, uses: null, boost: null };
@@ -80,6 +80,11 @@ export function normalizeCharacter(raw: unknown): Character {
   c.id = typeof r.id === 'string' && r.id ? r.id : base.id;
   c.schema = 1;
   c.attacks = list(r.attacks, ATTACK);
+  const rawAtk = Array.isArray(r.attacks) ? r.attacks.filter(isPlain) : [];
+  c.attacks.forEach((a, i) => {
+    a.extra = extras(rawAtk[i]?.extra);
+    a.ammoId = typeof rawAtk[i]?.ammoId === 'string' ? (rawAtk[i].ammoId as string) : null;
+  });
   c.resources = list(r.resources, RESOURCE);
   // вложенный onEmpty mergeDefaults не берёт (по умолчанию null) — переносим вручную
   const rawRes = Array.isArray(r.resources) ? r.resources.filter(isPlain) : [];

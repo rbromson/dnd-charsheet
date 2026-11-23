@@ -12,7 +12,9 @@
   import { dice } from '../../lib/stores/dice.svelte';
   import { ui } from '../../lib/stores/ui.svelte';
   import { attackAuto, attackBonus, attackSaveDc, fmt, resolveDamageFormula, fullDamageFormula } from '../../lib/rules/calc';
-  import { requestExtras } from './extras';
+  import { rollAttack as rollAttackFor } from './extras';
+  import { uid } from '../../lib/model/ids';
+  import { dieText } from '../../lib/i18n';
   import Segmented from '../../components/Segmented.svelte';
   import { t } from '../../lib/i18n';
 
@@ -25,18 +27,17 @@
 
   function rollAttack() {
     if (!atk) return;
-    const damage = atk.damage.trim() ? fullDamageFormula(c, atk) : undefined;
-    dice.askCheck({
-      kind: 'attack',
-      attackId: atk.id,
-      label: atk.name,
-      bonus: attackBonus(c, atk),
-      damage,
-      damageLabel: t('combat.atkDamageLabel', { name: atk.name }),
-      extras: requestExtras(c, atk),
-    });
+    rollAttackFor(c, atk);
     ui.closeSheet();
   }
+  function addExtra() {
+    atk?.extra.push({ id: uid(), dice: '1d6', type: '', when: t('combat.extraNewName'), crit: false });
+  }
+  // боєприпаси: предмети з кількістю (стріли, болти) і ресурси-лічильники
+  const ammoOptions = $derived([
+    ...c.equipment.filter((i) => !i.weapon && !i.armor && (i.qty > 1 || /боєприпас|ammunition|стріл|болт|arrow|bolt|кул|bullet|голк|needle/i.test(`${i.name} ${i.text}`))).map((i) => ({ id: i.id, name: `${i.name} · ${i.qty}` })),
+    ...c.resources.map((r) => ({ id: r.id, name: `${r.name} · ${r.current}/${r.max}` })),
+  ]);
   function rollDamage() {
     if (!atk) return;
     dice.rollDamage(t('combat.atkDamageLabel', { name: atk.name }), fullDamageFormula(c, atk));
@@ -102,6 +103,35 @@
       <TextField label={t('combat.atkDamageType')} bind:value={atk.damageType} placeholder={t('combat.atkDamageTypePh')} />
     </div>
 
+    <!-- свій доп. урон: «Скрита атака 2к6» — на вибір у вікні кидка (подвоюється на криті) -->
+    <div class="xd">
+      <span class="label">{t('combat.extraTitle')}</span>
+      {#each atk.extra as x, i (x.id)}
+        <div class="xrow">
+          <div class="xd-d"><TextField bind:value={x.dice} placeholder="2d6" /></div>
+          <div class="grow"><TextField bind:value={x.when} placeholder={t('combat.extraNamePh')} /></div>
+          <button class="btn btn-ghost x" aria-label={t('common.delete')} onclick={() => atk.extra.splice(i, 1)}><Icon name="trash" size={16} /></button>
+        </div>
+        <Toggle
+          checked={!x.when}
+          label={t('combat.extraAlways', { d: dieText(x.dice) })}
+          onchange={(v: boolean) => (x.when = v ? '' : x.when || t('combat.extraNewName'))}
+        />
+      {/each}
+      <button class="btn btn-ghost addx" onclick={addExtra}><Icon name="plus" size={18} />{t('combat.extraAdd')}</button>
+      <div class="hint">{t('combat.extraHint')}</div>
+    </div>
+
+    {#if !atk.save}
+      <label class="ammo">
+        <span class="label">{t('combat.ammo')}</span>
+        <select class="field" value={atk.ammoId ?? ''} onchange={(e) => (atk.ammoId = (e.currentTarget as HTMLSelectElement).value || null)}>
+          <option value="">{t('combat.ammoNone')}</option>
+          {#each ammoOptions as o (o.id)}<option value={o.id}>{o.name}</option>{/each}
+        </select>
+      </label>
+    {/if}
+
     <TextField label={t('combat.atkNote')} bind:value={atk.note} multiline rows={2} />
 
     {#snippet footer()}
@@ -136,6 +166,30 @@
     grid-template-columns: 1.3fr 1fr;
     gap: 12px;
     align-items: start;
+  }
+  .xd,
+  .ammo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .xrow {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+  }
+  .xd-d {
+    width: 90px;
+    flex-shrink: 0;
+  }
+  .x {
+    width: 36px;
+    padding: 0;
+    flex-shrink: 0;
+  }
+  .addx {
+    align-self: flex-start;
+    padding: 0 6px;
   }
   .hint {
     font-size: 12px;

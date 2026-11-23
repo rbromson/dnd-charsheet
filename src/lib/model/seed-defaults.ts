@@ -31,6 +31,8 @@ const atk = (a: Partial<Attack> & Pick<Attack, 'name' | 'ability' | 'damage' | '
   itemId: null,
   save: null,
   saveDc: null,
+  extra: [],
+  ammoId: null,
   ...a,
 });
 const item = (name: string, qty = 1, text = '', magic = false): Item => newItem({ name, qty, text, magic });

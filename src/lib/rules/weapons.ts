@@ -39,6 +39,8 @@ export function addWeaponAttack(c: Character, item: Item): Attack {
     itemId: item.id,
     save: null,
     saveDc: null,
+    extra: [],
+    ammoId: null,
   };
   c.attacks.push(atk);
   return c.attacks[c.attacks.length - 1];

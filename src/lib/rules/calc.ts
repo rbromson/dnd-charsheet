@@ -204,7 +204,7 @@ export const fmt = (n: number): string => (n >= 0 ? `+${n}` : `−${Math.abs(n)}
 /** Доп. урон атаки от её предмета: всегда, по выбору (проти виду істот) и только на критичному. */
 export function attackExtras(c: Character, atk: Attack): { always: ExtraDamage[]; options: ExtraDamage[]; crit: ExtraDamage[] } {
   const item = atk.itemId ? c.equipment.find((i) => i.id === atk.itemId) : undefined;
-  const all: ExtraDamage[] = [];
+  const all: ExtraDamage[] = [...(atk.extra ?? [])];
   if (item && toggleReady(item)) {
     all.push(...(item.extra ?? []));
     for (const tg of item.toggles ?? []) if (tg.on) all.push(...tg.extra);
