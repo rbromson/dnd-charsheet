@@ -53,7 +53,7 @@ const MOD: ItemMod = { id: '', t: 'check', op: 'add', v: 0, cap: null, perLevel:
 const RESULTS = ['heal', 'temp', 'damage', 'info'];
 const SPELL: Spell = { id: '', level: 0, name: '', prepared: false, text: '', ref: null };
 const ITEM: Item = {
-  id: '', name: '', qty: 1, text: '', magic: false, ref: null, en: '', equipped: false, attune: false, attuned: false, rarity: '',
+  id: '', name: '', qty: 1, text: '', magic: false, ref: null, weight: 0, en: '', equipped: false, attune: false, attuned: false, rarity: '',
   weapon: null, armor: null, bonus: 0, acBonus: 0, saveBonus: 0, setAbility: null, setValue: 0, noArmor: false, resourceId: null, deckId: null, powers: [], draft: false, mods: [], toggles: [], extra: [],
 };
 const WEAPON: WeaponStats = { dice: '', type: '', props: [], finesse: false, ranged: false, versatile: '', range: '', martial: false };

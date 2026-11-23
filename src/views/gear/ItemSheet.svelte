@@ -2,6 +2,7 @@
   /** Карточка предмета: название, количество, магический, описание, удаление. */
   import SheetFrame from '../../components/SheetFrame.svelte';
   import TextField from '../../components/TextField.svelte';
+  import NumberField from '../../components/NumberField.svelte';
   import Stepper from '../../components/Stepper.svelte';
   import Toggle from '../../components/Toggle.svelte';
   import Icon from '../../components/Icon.svelte';
@@ -131,6 +132,10 @@
     <div class="row qty">
       <span class="label grow">{t('gear.qty')}</span>
       <Stepper bind:value={item.qty} min={0} max={9999} />
+    </div>
+    <div class="row qty">
+      <span class="label grow">{t('gear.weight')}</span>
+      <div class="wt"><NumberField bind:value={() => item.weight || null, (v) => (item.weight = Math.max(0, v ?? 0))} nullable min={0} max={9999} placeholder="0" /></div>
     </div>
     {#if showMech}
       <div class="eff">
@@ -273,6 +278,9 @@
   }
   .weapon .num {
     font-size: 17px;
+  }
+  .wt {
+    width: 110px;
   }
   .qty .label {
     margin: 0;

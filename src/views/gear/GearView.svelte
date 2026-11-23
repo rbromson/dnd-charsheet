@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { capacity, carried } from '../../lib/rules/weight';
   import TopBar from '../../components/TopBar.svelte';
   import Icon from '../../components/Icon.svelte';
   import RowActions from '../../components/RowActions.svelte';
@@ -69,6 +70,8 @@
     ui.openSheet(CoinSheet, { coin });
   }
 
+  const load = $derived(carried(c));
+  const cap = $derived(capacity(c));
   const itemDecks = $derived(c.decks.filter((d) => c.equipment.some((i) => i.deckId === d.id && i.id !== ui.draft)));
 </script>
 
@@ -79,6 +82,13 @@
   <div class="cols cols-3">
     <section class="card equip">
       <h2 class="card-title">{t('gear.equipment')}</h2>
+      {#if load > 0}
+        <!-- вага: предмети + монети (50 = 1 фнт) проти Сила × 15 -->
+        <div class="load" class:over={load > cap}>
+          <div class="lbar"><div style:width="{Math.min(100, (load / Math.max(1, cap)) * 100)}%"></div></div>
+          <span>{t('gear.load', { n: load.toLocaleString('uk-UA'), max: cap })}{load > cap ? ` · ${t('gear.overload')}` : ''}</span>
+        </div>
+      {/if}
       {#if c.equipment.some((i) => i.attune)}
         <div class="att" class:over={attunedCount(c) > 3}><Icon name="sparkle" size={14} stroke={2} />{t('gear.attuneCount', { n: attunedCount(c) })}</div>
       {/if}
@@ -177,6 +187,31 @@
 {/if}
 
 <style>
+  .load {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: -2px 0 10px;
+    font-size: 12.5px;
+    color: var(--ink2);
+  }
+  .lbar {
+    height: 6px;
+    border-radius: 3px;
+    background: color-mix(in srgb, var(--ink) 12%, transparent);
+    overflow: hidden;
+  }
+  .lbar > div {
+    height: 100%;
+    background: linear-gradient(90deg, #9a6a2a, #d9a650);
+  }
+  .load.over {
+    color: var(--bad);
+    font-weight: 600;
+  }
+  .load.over .lbar > div {
+    background: var(--bad);
+  }
   .pwbox {
     padding: 0 4px 8px;
   }

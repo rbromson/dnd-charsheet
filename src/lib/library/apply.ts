@@ -84,6 +84,7 @@ export function itemFromLib(e: LibItem, base?: LibItem): Item {
     setAbility: x.set ? x.set[0] : null,
     setValue: x.set ? x.set[1] : 0,
     noArmor: !!x.noArmor,
+    weight: e.wt ?? base?.wt ?? 0,
   });
 }
 
@@ -137,7 +138,10 @@ export function addLibItem(c: Character, e: LibItem, base?: LibItem, spells: Lib
   const stored = c.equipment[c.equipment.length - 1];
   if (stored.weapon) addWeaponAttack(c, stored);
   // стріли, болти: пачка з 20 (голки — 50); лук і стріли знаходять одне одного
-  if (AMMO_PACK[e.id]) stored.qty = AMMO_PACK[e.id];
+  if (AMMO_PACK[e.id]) {
+    stored.qty = AMMO_PACK[e.id];
+    stored.weight = (e.wt ?? 0) / AMMO_PACK[e.id];
+  }
   linkAmmo(c);
   return stored;
 }

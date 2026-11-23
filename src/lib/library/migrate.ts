@@ -7,9 +7,9 @@ import type { LibItem, LibSpell } from './types';
 import { CHARGES, dailyPowers, hasDaily, hasSpells, powersFor } from './powers';
 import { modsFor } from './mods';
 import { extraFor, potionEffect, togglesFor } from './effects';
-import { linkAmmo } from '../rules/ammo';
+import { AMMO_PACK, linkAmmo } from '../rules/ammo';
 
-export const MECH_VERSION = 8;
+export const MECH_VERSION = 9;
 
 export function migrateMechanics(c: Character, lib: LibItem[], spells: LibSpell[] = []): boolean {
   if (c.rules.mech >= MECH_VERSION) return false;
@@ -23,6 +23,8 @@ export function migrateMechanics(c: Character, lib: LibItem[], spells: LibSpell[
     if (!it.powers.length || (old < 2 && hasSpells(e.id) && !it.powers.some((p) => p.spell !== null))) it.powers = powersFor(e, spells);
     // v5: «раз на день» — дописати до вже наявних дій (заряди посоха лишаються)
     if (had && hasDaily(e) && !it.powers.some((p) => p.uses)) it.powers.push(...dailyPowers(e, spells));
+    // v9: вага з бібліотеки (стріли — за штуку)
+    if (!it.weight && e.wt) it.weight = AMMO_PACK[e.id] ? e.wt / AMMO_PACK[e.id] : e.wt;
     // v3: пасивні модифікатори (швидкість, чуття, +N до перевірок…)
     if (!it.mods.length) it.mods = modsFor(e.id, e.of);
     // v6: опір шкоді — справжні модифікатори замість підказок (предмети бібліотеки не редагуються вручну)
