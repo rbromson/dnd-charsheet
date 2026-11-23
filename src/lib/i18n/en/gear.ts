@@ -91,4 +91,12 @@ export default {
   'pwe.cost': "Charges per use",
   'pwe.consume': "Uses up one (potion, scroll, bead)",
   'pwe.add': "Item action",
+  'pw.pickSpellFirst': "Pick the scroll’s spell first",
+  'pw.pickSpell': "Scroll spell (level {n})",
+  'pw.lvl': "level {n}",
+  'pw.cast': "cast «{spell}»",
+  'pw.costShort': "{n} ch.",
+  'pw.spellText': "Spell text",
+  'pw.yours': "(yours)",
+  'pw.attack': "attack {n}",
 } satisfies Record<string, string>;

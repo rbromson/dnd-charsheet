@@ -1,13 +1,14 @@
 import { describe, it, expect } from 'vitest';
 import { newCharacter, newItem } from '../model/defaults';
 import type { ItemPower } from '../model/types';
-import { costRange, canUse, powerFormula, spendPower, regainCharges } from './powers';
+import { costRange, canUse, powerFormula, spendPower, regainCharges, spellCast } from './powers';
+import type { LibSpell } from '../library/types';
 import { applyRest } from './rest';
 import { powersFor, CHARGES } from '../library/powers';
 import type { LibItem } from '../library/types';
 
 const P = (p: Partial<ItemPower>): ItemPower => ({
-  id: 'p', name: 'x', cost: 0, costMax: null, consume: false, dice: '', extra: '', result: 'info', self: true, dc: null, save: null, note: '', ...p,
+  id: 'p', name: 'x', cost: 0, costMax: null, consume: false, dice: '', extra: '', result: 'info', self: true, dc: null, save: null, note: '', spell: null, level: 0, upcast: false, dcUser: false, attack: null, ...p,
 });
 
 describe('item powers', () => {
@@ -61,14 +62,55 @@ describe('library powers', () => {
     expect(p.dice).toBe('2d4+2');
     expect(p.result).toBe('heal');
   });
-  it('wand of fireballs: 8d6, upcast, DC 15, crumbles on a 1', () => {
+  it('wand of fireballs: the fireball spell at 3rd level, upcast, DC 15, crumbles on a 1', () => {
     const [p] = powersFor(lib('m:wand-of-fireballs', { x: { ch: 7, rc: 'dawn' } }));
-    expect(p.costMax).toBe(3);
+    expect(p.spell).toBe('fireball');
+    expect(p.level).toBe(3);
+    expect(p.costMax).toBe(7);
+    expect(p.upcast).toBe(true);
     expect(p.dc).toBe(15);
     expect(CHARGES['m:wand-of-fireballs']).toEqual({ rg: '1d6+1', empty: { die: 20, on: [1], kind: 'destroy', gain: '' } });
   });
   it('plain magic items get no actions; charged ones get «spend charges»', () => {
     expect(powersFor(lib('m:cloak-of-protection', { mc: 'wondrous' }))).toEqual([]);
     expect(powersFor(lib('m:gem-of-seeing', { x: { ch: 3 } }))[0].costMax).toBe(3);
+  });
+});
+
+describe('spells from items', () => {
+  const fireball: LibSpell = { id: 'fireball', n: 'Вогняна куля', en: 'Fireball', l: 3, sc: '', ct: '', rg: '', cp: '', du: '', cl: [], t: '', sv: 'dex', dm: { t: 'fire', s: { '3': '8d6', '4': '9d6', '5': '10d6' } } };
+  const cure: LibSpell = { id: 'cure-wounds', n: 'Лікування ран', en: 'Cure Wounds', l: 1, sc: '', ct: '', rg: '', cp: '', du: '', cl: [], t: '', hl: { '1': '1d8+MOD', '2': '2d8+MOD' } };
+  const lib = (id: string): LibItem => ({ id, n: 'x', en: 'x', c: 'magic', k: '', t: '', x: { ch: 10 } });
+
+  it('upcasts the wand fireball by extra charges', () => {
+    const c = newCharacter();
+    const [p] = powersFor(lib('m:wand-of-fireballs'), [fireball]);
+    expect(p.name).toBe('Вогняна куля');
+    const cast = spellCast(c, p, 3, fireball);
+    expect(cast.level).toBe(5);
+    expect(cast.formula).toBe('10d6');
+    expect(cast.dc).toBe(15);
+    expect(cast.result).toBe('damage');
+  });
+
+  it('staff spells use your DC and spellcasting modifier for healing', () => {
+    const c = newCharacter();
+    c.spellcasting.enabled = true;
+    c.spellcasting.ability = 'wis';
+    c.abilities.wis = 16;
+    const [p] = powersFor(lib('m:staff-of-healing'), [cure]);
+    expect(p.dcUser).toBe(true);
+    const cast = spellCast(c, p, 2, cure);
+    expect(cast.formula).toBe('2d8+3');
+    expect(cast.result).toBe('heal');
+  });
+
+  it('spell scrolls ask for a spell and carry the table DC and attack', () => {
+    const [p] = powersFor({ id: 'm:spell-scroll-3rd', n: 'x', en: 'x', c: 'magic', mc: 'scroll', k: '', t: '' });
+    expect(p.spell).toBe('');
+    expect(p.level).toBe(3);
+    expect(p.dc).toBe(15);
+    expect(p.attack).toBe(7);
+    expect(p.consume).toBe(true);
   });
 });

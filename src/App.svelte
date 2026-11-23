@@ -20,7 +20,7 @@
   import ProfileView from './views/profile/ProfileView.svelte';
   import JournalView from './views/journal/JournalView.svelte';
   import { ui } from './lib/stores/ui.svelte';
-  import { loadItems } from './lib/library';
+  import { loadItems, loadSpells } from './lib/library';
   import { migrateMechanics, MECH_VERSION } from './lib/library/migrate';
   import { charStore } from './lib/stores/characters.svelte';
   import { journal } from './lib/stores/journal.svelte';
@@ -56,10 +56,10 @@
     const c = charStore.current;
     if (!c || c.rules.mech >= MECH_VERSION) return;
     const id = c.id;
-    loadItems()
-      .then((lib) => {
+    Promise.all([loadItems(), loadSpells().catch(() => [])])
+      .then(([lib, spells]) => {
         const cur = charStore.current;
-        if (cur && cur.id === id) migrateMechanics(cur, lib);
+        if (cur && cur.id === id) migrateMechanics(cur, lib, spells);
       })
       .catch(() => {});
   });

@@ -91,4 +91,12 @@ export default {
   'pwe.cost': "Зарядів за раз",
   'pwe.consume': "Витрачає штуку (зілля, сувій, намистина)",
   'pwe.add': "Дія предмета",
+  'pw.pickSpellFirst': "Спершу оберіть заклинання сувою",
+  'pw.pickSpell': "Заклинання сувою ({n} коло)",
+  'pw.lvl': "{n} коло",
+  'pw.cast': "закляття «{spell}»",
+  'pw.costShort': "{n} зар.",
+  'pw.spellText': "Текст заклинання",
+  'pw.yours': "(ваш)",
+  'pw.attack': "атака {n}",
 } satisfies Record<string, string>;

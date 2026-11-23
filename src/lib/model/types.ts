@@ -117,6 +117,16 @@ export interface ItemPower {
   dc: number | null;
   save: Ability | null;
   note: string;
+  /** заклинание из библиотеки (id); '' — ещё не выбрано (сувій); null — не заклинание */
+  spell: string | null;
+  /** уровень, которым кастуется (0 — уровень самого заклинания) */
+  level: number;
+  /** каждая единица цены сверх минимальной поднимает уровень на 1 (жезлы) */
+  upcast: boolean;
+  /** СК и атака — ваши (посохи), а не предмета */
+  dcUser: boolean;
+  /** бонус атаки предмета (сувій: +5…+11); null — ваш или нет атаки */
+  attack: number | null;
 }
 
 export interface SpellSlot {

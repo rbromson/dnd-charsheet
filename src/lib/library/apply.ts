@@ -90,7 +90,7 @@ export function itemFromLib(e: LibItem, base?: LibItem): Item {
  */
 const DECK_ITEMS = new Set(['m:deck-of-illusions', 'm:deck-of-many-things']);
 
-export function addLibItem(c: Character, e: LibItem, base?: LibItem): Item {
+export function addLibItem(c: Character, e: LibItem, base?: LibItem, spells: LibSpell[] = []): Item {
   const item = itemFromLib(e, base);
   // боеприпасы и дротики — пачкой
   if (e.c === 'gear' && /\((\d+)\)/.test(e.n)) item.qty = 1;
@@ -113,7 +113,7 @@ export function addLibItem(c: Character, e: LibItem, base?: LibItem): Item {
     item.resourceId = rid;
   }
   // действия (выпить, потратить заряды…) — только тем, кому нужны
-  item.powers = powersFor(e);
+  item.powers = powersFor(e, spells);
   const qf = QTY[e.id];
   if (qf) item.qty = Math.max(1, rollFormula(qf, { rng: cryptoRng }).total);
   // колоды (ілюзій, багатьох речей) — сразу с колодой карт; карты вписываются в её настройках

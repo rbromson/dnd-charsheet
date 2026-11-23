@@ -55,6 +55,11 @@
       dc: null,
       save: null,
       note: '',
+      spell: null,
+      level: 0,
+      upcast: false,
+      dcUser: false,
+      attack: null,
     });
   }
 </script>

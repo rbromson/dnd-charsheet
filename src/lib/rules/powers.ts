@@ -6,6 +6,9 @@ import type { Character, Item, ItemPower, Resource } from '../model/types';
 import { rollFormula } from '../dice/formula';
 import { cryptoRng } from '../dice/rng';
 import { removeItem } from './weapons';
+import type { LibSpell } from '../library/types';
+import { spellDamageDice } from '../library/apply';
+import { mod, spellAttack, spellDC } from './calc';
 
 /** Ресурс зарядов предмета. */
 export function chargesOf(c: Character, item: Item): Resource | undefined {
@@ -73,4 +76,43 @@ export function regainCharges(r: Resource): number {
   const before = r.current;
   r.current = Math.min(r.max, r.current + got);
   return r.current - before;
+}
+
+/** Уровень каста: базовый + усиление (жезлы: каждый заряд сверх минимума — +1 коло). */
+export function castLevel(p: ItemPower, n: number): number {
+  return p.level + (p.upcast ? Math.max(0, n - Math.max(1, p.cost)) : 0);
+}
+
+/** Значение по уровню из таблицы заклинания: точное или ближайшее меньшее. */
+function atLevel(table: Record<string, string> | undefined, lvl: number): string {
+  if (!table) return '';
+  if (table[String(lvl)]) return table[String(lvl)];
+  const keys = Object.keys(table)
+    .map(Number)
+    .filter((k) => k <= lvl)
+    .sort((a, b) => b - a);
+  return keys.length ? table[String(keys[0])] : Object.values(table)[0];
+}
+
+/** Что даёт заклинание из предмета: кубики (урон/лечение на уровне каста), СК, бонус атаки. */
+export function spellCast(
+  c: Character,
+  p: ItemPower,
+  n: number,
+  s: LibSpell,
+): { formula: string; result: 'heal' | 'damage' | 'info'; dc: number | null; attack: number | null; level: number } {
+  const level = castLevel(p, n) || s.l;
+  let formula = '';
+  let result: 'heal' | 'damage' | 'info' = 'info';
+  if (s.dm) {
+    formula = s.dm.c ? spellDamageDice(s, c.level) : atLevel(s.dm.s, level);
+    result = formula ? 'damage' : 'info';
+  } else if (s.hl) {
+    const m = c.spellcasting.enabled ? mod(c, c.spellcasting.ability) : 0;
+    formula = atLevel(s.hl, level).replace(/\+?\s*(MOD|МОД)/g, m ? `${m > 0 ? '+' : '-'}${Math.abs(m)}` : '');
+    result = formula ? 'heal' : 'info';
+  }
+  const dc = p.dcUser ? spellDC(c) : p.dc;
+  const attack = s.at ? (p.attack ?? spellAttack(c)) : null;
+  return { formula, result, dc: s.sv || dc != null ? dc : null, attack, level };
 }

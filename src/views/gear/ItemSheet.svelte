@@ -185,8 +185,12 @@
     {:else if fresh && item.powers.length}
       <div class="sum">
         {#each item.powers as p (p.id)}
-          <span><b>{p.name}</b>{#if p.dice} · {dieText(powerFormula(p, Math.max(1, p.cost)))}{/if}{#if p.costMax} · {t('pw.upTo', { n: p.costMax })}{/if}</span>
+          <span
+            ><b>{p.name}</b>{#if p.cost > 0 && charges} · {t('pw.costShort', { n: p.cost })}{/if}{#if p.dice} · {dieText(powerFormula(p, Math.max(1, p.cost)))}{/if}{#if p.costMax}
+              · {t('pw.upTo', { n: p.costMax })}{/if}</span
+          >
         {/each}
+        {#if item.powers.some((p) => p.spell === '')}<ItemPowers itemId={item.id} pickOnly />{/if}
         {#if charges}<span class="muted">{t('pw.charges', { n: charges.current, max: charges.max })}{#if charges.regain} · {t('pw.regain', { f: dieText(charges.regain) })}{/if}</span>{/if}
       </div>
     {:else if item.powers.length}

@@ -28,7 +28,7 @@ export function mergeDefaults<T>(defaults: T, raw: unknown): T {
 const ATTACK: Attack = { id: '', name: '', ability: 'str', prof: true, bonus: 0, override: null, damage: '1d6+МОД', damageType: '', note: '', itemId: null, save: null, saveDc: null };
 const RESOURCE: Resource = { id: '', name: '', max: 1, current: 1, die: null, recharge: 'long', maxPerRoll: null, regain: null, onEmpty: null };
 const RISK: Risk = { die: 20, on: [1], kind: 'destroy', gain: '' };
-const POWER: ItemPower = { id: '', name: '', cost: 0, costMax: null, consume: false, dice: '', extra: '', result: 'info', self: true, dc: null, save: null, note: '' };
+const POWER: ItemPower = { id: '', name: '', cost: 0, costMax: null, consume: false, dice: '', extra: '', result: 'info', self: true, dc: null, save: null, note: '', spell: null, level: 0, upcast: false, dcUser: false, attack: null };
 const RISK_KINDS = ['destroy', 'mundane', 'partial', 'gain'];
 const RESULTS = ['heal', 'temp', 'damage', 'info'];
 const SPELL: Spell = { id: '', level: 0, name: '', prepared: false, text: '' };
