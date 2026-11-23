@@ -139,6 +139,12 @@
   main.fabpad {
     padding-bottom: 170px;
   }
+  /* планшет/десктоп: кнопки кубиків і привалу — у своїй смузі справа, не поверх кнопок «Шкода» */
+  @media (min-width: 900px) {
+    main.fabpad :global(.view) {
+      padding-right: calc(92px + env(safe-area-inset-right));
+    }
+  }
   @media (max-width: 640px) {
     .shell {
       display: block;
