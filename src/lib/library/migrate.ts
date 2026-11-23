@@ -8,7 +8,7 @@ import { CHARGES, dailyPowers, hasDaily, hasSpells, powersFor } from './powers';
 import { modsFor } from './mods';
 import { extraFor, potionEffect, togglesFor } from './effects';
 
-export const MECH_VERSION = 6;
+export const MECH_VERSION = 7;
 
 export function migrateMechanics(c: Character, lib: LibItem[], spells: LibSpell[] = []): boolean {
   if (c.rules.mech >= MECH_VERSION) return false;

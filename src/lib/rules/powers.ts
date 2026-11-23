@@ -6,6 +6,7 @@ import type { Character, Item, ItemPower, Resource } from '../model/types';
 import { rollFormula } from '../dice/formula';
 import { cryptoRng } from '../dice/rng';
 import { removeItem } from './weapons';
+import { uid } from '../model/ids';
 import type { LibSpell } from '../library/types';
 import { spellDamageDice } from '../library/apply';
 import { mod, spellAttack, spellDC } from './calc';
@@ -71,6 +72,24 @@ export function spendPower(c: Character, itemId: string, p: ItemPower, n: number
     }
   }
   return { emptied, usedUp };
+}
+
+/**
+ * Прочитати посібник/том: характеристика +2 (до 30), книга лишається звичайною (магія повернеться за століття),
+ * а в особливостях — запис, що максимум цієї характеристики теж +2.
+ */
+export function studyBook(c: Character, itemId: string, p: ItemPower, feature: { name: string; text: string }): { from: number; to: number } | null {
+  const item = c.equipment.find((x) => x.id === itemId);
+  if (!item || !p.boost) return null;
+  const from = c.abilities[p.boost];
+  const to = Math.min(30, from + 2);
+  c.abilities[p.boost] = to;
+  item.magic = false;
+  item.powers = [];
+  item.attune = false;
+  item.attuned = false;
+  c.features.push({ id: uid(), name: feature.name, text: feature.text });
+  return { from, to };
 }
 
 /** Длинный отдых «на світанку»: заряды с формулой восстанавливаются броском, без формулы — до максимума. */

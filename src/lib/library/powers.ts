@@ -3,7 +3,7 @@
  * Только для предметов, которым это нужно: расходники (зелья, сувої, боєприпаси, намистини…)
  * и предметы с зарядами. Остальные остаются без действий.
  */
-import type { ItemPower } from '../model/types';
+import type { Ability, ItemPower } from '../model/types';
 import type { LibItem, LibSpell } from './types';
 import { uid } from '../model/ids';
 import { lang } from '../i18n';
@@ -239,6 +239,7 @@ function make(d: Def): ItemPower {
     attack: d.attack ?? null,
     effect: d.effect ?? null,
     uses: d.uses ?? null,
+    boost: d.boost ?? null,
   };
 }
 
@@ -247,7 +248,26 @@ export function powersFor(e: LibItem, spells: LibSpell[] = []): ItemPower[] {
   return [...basePowers(e, spells), ...dailyPowers(e, spells)];
 }
 
+/** Посібники й томи: 48 годин читання — характеристика +2 (і її максимум), книга втрачає магію на століття. */
+const BOOKS: Record<string, Ability> = {
+  'm:manual-of-bodily-health': 'con',
+  'm:manual-of-gainful-exercise': 'str',
+  'm:manual-of-quickness-of-action': 'dex',
+  'm:tome-of-clear-thought': 'int',
+  'm:tome-of-leadership-and-influence': 'cha',
+  'm:tome-of-understanding': 'wis',
+};
+
 function basePowers(e: LibItem, spells: LibSpell[]): ItemPower[] {
+  const book = BOOKS[e.id];
+  if (book)
+    return [
+      make({
+        name: ['Прочитати', 'Study'],
+        boost: book,
+        note: lang === 'en' ? '48 hours over 6 days; then the book loses its magic for a century' : '48 годин за 6 днів; потім книга втрачає магію на століття',
+      }),
+    ];
   const cur = CURATED[e.id];
   if (cur) return cur.map(make);
   const sp = SPELLS[e.id];

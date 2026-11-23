@@ -1,12 +1,12 @@
 <script lang="ts">
-  /** «Предмети в ділі»: зілля, жезли, намисто — дії під рукою в бою. Лише предмети, що мають дії. */
+  /** «Предмети в ділі»: зілля, жезли, намисто — дії під рукою в бою. Лише предмети, що мають дії (книги «Прочитати» — у спорядженні, не в бою). */
   import ItemPowers from '../gear/ItemPowers.svelte';
   import ItemToggles from '../gear/ItemToggles.svelte';
   import { charStore } from '../../lib/stores/characters.svelte';
   import { ui } from '../../lib/stores/ui.svelte';
   import { t } from '../../lib/i18n';
 
-  const items = $derived((charStore.current?.equipment ?? []).filter((i) => (i.powers.length || i.toggles.length) && i.id !== ui.draft));
+  const items = $derived((charStore.current?.equipment ?? []).filter((i) => (i.powers.some((p) => !p.boost) || i.toggles.length) && i.id !== ui.draft));
 </script>
 
 {#if items.length}

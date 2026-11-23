@@ -11,7 +11,7 @@
   import { dice } from '../../lib/stores/dice.svelte';
   import { ui } from '../../lib/stores/ui.svelte';
   import { applyHeal } from '../../lib/rules/hp';
-  import { canUse, chargesOf, costRange, powerFormula, spellCast, spendPower, usesLeft } from '../../lib/rules/powers';
+  import { canUse, chargesOf, costRange, powerFormula, spellCast, spendPower, studyBook, usesLeft } from '../../lib/rules/powers';
   import { removeItem } from '../../lib/rules/weapons';
   import { rollFormula } from '../../lib/dice/formula';
   import { cryptoRng } from '../../lib/dice/rng';
@@ -88,6 +88,7 @@
   }
 
   function icon(p: ItemPower) {
+    if (p.boost) return 'star';
     return p.result === 'heal' || p.result === 'temp' ? 'heart' : p.result === 'damage' ? 'combat' : p.consume ? 'sparkle' : 'dice';
   }
 
@@ -134,6 +135,18 @@
     let res: ReturnType<typeof spendPower> = { emptied: null, usedUp: false };
     let healed = 0;
     const lib = libOf(p);
+    // посібник/том: +2 назавжди
+    if (p.boost) {
+      const ab = t(`ability.${p.boost}`);
+      let got: { from: number; to: number } | null = null;
+      charStore.update(
+        (ch) => {
+          got = studyBook(ch, itemId, p, { name: name, text: t('pw.bookFeature', { a: ab }) });
+        },
+        { undo: () => (got ? t('pw.bookRead', { name, a: ab, from: got.from, to: got.to }) : name) },
+      );
+      return;
+    }
     charStore.update(
       (ch) => {
         res = spendPower(ch, itemId, p, n);
@@ -246,6 +259,7 @@
           <span class="nm">{titleOf(p)}</span>
           {#if p.cost > 0 && charges}<span class="cost num">{t('pw.costShort', { n })}</span>{/if}
           {#if f}<span class="f num">{dieText(f)}</span>{/if}
+          {#if p.boost}<span class="f num">{t(`abilityShort.${p.boost}`)} +2</span>{/if}
         </button>
         {#if libOf(p)}
           <button class="btn btn-ghost inf" class:on={info[p.id]} aria-label={t('pw.spellText')} onclick={() => (info[p.id] = !info[p.id])}><Icon name="help" size={18} /></button>

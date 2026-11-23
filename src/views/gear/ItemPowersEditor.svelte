@@ -62,6 +62,7 @@
       attack: null,
       effect: null,
       uses: null,
+      boost: null,
     });
   }
 </script>

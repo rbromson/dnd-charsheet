@@ -1,14 +1,14 @@
 import { describe, it, expect } from 'vitest';
 import { newCharacter, newItem } from '../model/defaults';
 import type { ItemPower } from '../model/types';
-import { costRange, canUse, powerFormula, spendPower, regainCharges, spellCast } from './powers';
+import { costRange, canUse, powerFormula, spendPower, regainCharges, spellCast, studyBook } from './powers';
 import type { LibSpell } from '../library/types';
 import { applyRest } from './rest';
 import { powersFor, CHARGES } from '../library/powers';
 import type { LibItem } from '../library/types';
 
 const P = (p: Partial<ItemPower>): ItemPower => ({
-  id: 'p', name: 'x', cost: 0, costMax: null, consume: false, dice: '', extra: '', result: 'info', self: true, dc: null, save: null, note: '', spell: null, level: 0, upcast: false, dcUser: false, attack: null, effect: null, uses: null, ...p,
+  id: 'p', name: 'x', cost: 0, costMax: null, consume: false, dice: '', extra: '', result: 'info', self: true, dc: null, save: null, note: '', spell: null, level: 0, upcast: false, dcUser: false, attack: null, effect: null, uses: null, boost: null, ...p,
 });
 
 describe('item powers', () => {
@@ -149,5 +149,23 @@ describe('once a day', () => {
     const horn = powersFor(lib('m:horn-of-valhalla-iron', 'm:horn-of-valhalla'));
     expect(horn[0].uses?.days).toBe(7);
     expect(horn[0].dice).toBe('5d4+5');
+  });
+});
+
+describe('manuals and tomes', () => {
+  it('studying raises the ability by 2 for good and the book turns mundane', () => {
+    const lib = { id: 'm:tome-of-clear-thought', n: 'Том', en: 'Tome', c: 'magic', k: '', t: '' } as unknown as LibItem;
+    const [p] = powersFor(lib);
+    expect(p.boost).toBe('int');
+    const c = newCharacter();
+    c.abilities.int = 14;
+    const it = newItem({ id: 'b', name: 'Том ясного мислення', magic: true });
+    it.powers = [p];
+    c.equipment.push(it);
+    expect(studyBook(c, 'b', p, { name: 'Том', text: 'Інт +2' })).toEqual({ from: 14, to: 16 });
+    expect(c.abilities.int).toBe(16);
+    expect(it.magic).toBe(false);
+    expect(it.powers).toEqual([]);
+    expect(c.features.at(-1)?.name).toBe('Том');
   });
 });

@@ -131,6 +131,8 @@ export interface ItemPower {
   effect: { name: string; mods: ItemMod[]; duration: string } | null;
   /** «раз на день»: скільки разів до світанку (days = 1) або раз на N днів (ріг Валгалли — 7) */
   uses: PowerUses | null;
+  /** посібник/том: «Прочитати» — характеристика +2 назавжди, книга втрачає магію */
+  boost: Ability | null;
 }
 
 export interface PowerUses {
