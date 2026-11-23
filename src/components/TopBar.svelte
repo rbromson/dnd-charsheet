@@ -1,6 +1,7 @@
 <script lang="ts">
   import Icon from './Icon.svelte';
   import Segmented from './Segmented.svelte';
+  import SectionTips from './SectionTips.svelte';
   import { ui } from '../lib/stores/ui.svelte';
   import Portrait from './Portrait.svelte';
   import { charStore } from '../lib/stores/characters.svelte';
@@ -26,6 +27,7 @@
     aria-label={ui.editing ? t('mode.play') : t('mode.edit')}
     onclick={() => (ui.mode = ui.editing ? 'play' : 'edit')}><Icon name={ui.editing ? 'check' : 'edit'} size={22} /></button
   >
+  <button class="ib help" aria-label={t('tips.open')} title={t('tips.open')} onclick={() => ui.openSheet(SectionTips, {})}><Icon name="help" size={22} /></button>
   <div class="mode">
     <Segmented
       bind:value={ui.mode}
@@ -117,6 +119,10 @@
   .who,
   .ib {
     display: none;
+  }
+  /* «?» — підказка до розділу: видна і на планшеті, біля «Гра / Правка» */
+  .ib.help {
+    display: flex;
   }
   .ib {
     position: relative;
