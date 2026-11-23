@@ -9,9 +9,9 @@
   import { charStore } from '../../lib/stores/characters.svelte';
   import { ui } from '../../lib/stores/ui.svelte';
   import { pickFiles } from '../../lib/stores/media';
-  import { importBackupFile, importManifest, type BackupManifest } from '../../lib/backup';
+  import { importBackupFile, importManifest } from '../../lib/backup';
+  import { manifestFromAiText } from '../../lib/aiImport';
   import { buildCreatePrompt, deliverFile, templateFile } from '../../lib/template';
-  import { extractJson } from '../../lib/update';
   import { shareOrCopy, copyText } from '../../lib/session/share';
   import { t } from '../../lib/i18n';
   import type { Character } from '../../lib/model/types';
@@ -72,24 +72,14 @@
   }
 
   async function create() {
-    let data: Record<string, unknown>;
-    try {
-      const parsed = extractJson(raw);
-      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('not an object');
-      data = parsed as Record<string, unknown>;
-      // хоть что-то от персонажа: имя, характеристики, класс или резервная копия — иначе это не ответ на шаблон
-      const ch = (data.app === 'taverna' ? data.character : data) as Record<string, unknown> | undefined;
-      if (!ch || !(ch.name || ch.abilities || ch.className)) throw new Error('no character');
-    } catch {
+    // разбор ответа — в lib/aiImport (с тестами): копия, обёртка { character } или сам персонаж
+    const manifest = manifestFromAiText(raw);
+    if (!manifest) {
       ui.toast(t('newc.parseError'), undefined, 6000);
       return;
     }
     busy = true;
     try {
-      const manifest: BackupManifest =
-        data.app === 'taverna'
-          ? (data as unknown as BackupManifest)
-          : { app: 'taverna', version: 1, exportedAt: '', character: data as unknown as Character, journal: [], codex: [], media: [] };
       await done(await importManifest(manifest, new Map()));
     } catch (e) {
       console.error(e);

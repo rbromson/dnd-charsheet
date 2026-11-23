@@ -42,12 +42,12 @@ export default {
   'tut.4.title': 'Combat',
   'tut.4.p1': 'Type a number and tap “Damage” or “Heal”. Temporary HP has its own button and goes first.',
   'tut.4.p2': '“Attack” rolls to hit, “Damage” rolls damage; dice double on a crit automatically.',
-  'tut.4.p3': 'At 0 HP death saves appear: tap the sockets or use the big roll button.',
+  'tut.4.p3': 'The «Conditions» card: poisoned, prone, exhaustion set disadvantage on rolls by themselves; concentration reminds you of the save after damage. At 0 HP — death saves, and damage adds a failure.',
 
   'tut.5.title': 'Gear and spells',
   'tut.5.p1': '“Add” — from the SRD library (500+ items, 300+ spells) or by hand. A prefilled card opens first: tweak it and tap “Add”.',
   'tut.5.p2': 'Weapons become attacks, armour counts AC, charges become a resource.',
-  'tut.5.p3': 'Magic items work when equipped and attuned (three at most).',
+  'tut.5.p3': 'Magic items work when worn and attuned. Spells: expand one and «Cast» — the slot, concentration and the effect on you are handled.',
 
   'tut.6.title': 'Journal',
   'tut.6.p1': 'The quill seal — a quick note into today’s session; dictating works too.',

@@ -84,7 +84,10 @@
   const fabs = $derived(ui.tab === 'sheet' || ui.tab === 'combat' || ui.tab === 'spells');
 </script>
 
-{#if charStore.ready && !charStore.current}
+<!-- пока данные грузятся — только фон (без пустой рамки с боковой панелью) -->
+{#if !charStore.ready}
+  <div class="boot" aria-hidden="true"></div>
+{:else if !charStore.current}
   <EmptyState />
 {:else}
 <div class="shell">
@@ -118,6 +121,9 @@
 <Toasts />
 
 <style>
+  .boot {
+    height: 100dvh;
+  }
   .shell {
     display: flex;
     height: 100dvh;
