@@ -82,6 +82,7 @@ export default {
   'journal.codex.kind.place': 'Місце',
   'journal.codex.kind.quest': 'Завдання',
   'journal.codex.avatar': 'Змінити аватар',
+  'journal.codex.removeAvatar': 'Прибрати аватар',
   'journal.codex.setAvatar': 'Зробити аватаркою',
   'journal.codex.name': 'Ім’я / назва',
   'journal.codex.status': 'Статус',

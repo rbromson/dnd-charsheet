@@ -16,13 +16,11 @@ export default {
   'profile.bonds': 'Bonds',
   'profile.flaws': 'Flaws',
   'profile.secret': 'Character secret',
-  'profile.gallery': 'Gallery',
   'profile.empty': 'Empty — switch to Edit',
   'profile.secretEmpty': 'No secret yet. You can write one in Edit mode.',
   'profile.portraitUpload': 'New portrait',
   'profile.portraitClear': 'Remove portrait',
   'profile.portraitCleared': 'Portrait removed',
-  'profile.galleryHint': 'Tap an image to view it, set it as the portrait, or delete it.',
   'profile.holdToEdit': 'Press and hold a card to edit its text',
   'profile.kicker': 'Character',
 } satisfies Record<string, string>;

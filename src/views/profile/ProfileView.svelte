@@ -3,7 +3,6 @@
   import Portrait from '../../components/Portrait.svelte';
   import TextField from '../../components/TextField.svelte';
   import Secret from '../../components/Secret.svelte';
-  import Gallery from '../../components/Gallery.svelte';
   import Icon from '../../components/Icon.svelte';
   import TextCard from './TextCard.svelte';
   import { HEADER_KEYS, TRAIT_KEYS } from './fields';
@@ -51,8 +50,12 @@
   <div class="cols cols-3">
     <div class="stack">
       <section class="card ident">
+        <!-- великий портрет зверху, ім'я під ним -->
         <div class="top">
-          <Portrait id={c.portraitId} name={c.name} size={120} />
+          <button class="pic" aria-label={t('profile.portraitUpload')} disabled={busy} onclick={uploadPortrait}>
+            <Portrait id={c.portraitId} name={c.name} size={200} />
+            <span class="cam"><Icon name="camera" size={16} /></span>
+          </button>
           <div class="who">
             {#if ui.editing}
               <TextField bind:value={c.name} label={t('profile.name')} serif />
@@ -112,12 +115,6 @@
     </div>
   </div>
 
-  <section class="card">
-    <h2 class="card-title">{t('profile.gallery')}</h2>
-    <Gallery bind:ids={c.gallery} characterId={c.id} portraitId={c.portraitId} onSetPortrait={(id) => (c.portraitId = id)} />
-    <p class="hint">{t('profile.galleryHint')}</p>
-  </section>
-
   {#if !ui.editing}
     <p class="foot muted">{t('profile.holdToEdit')}</p>
   {/if}
@@ -131,11 +128,35 @@
   }
   .top {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
+    text-align: center;
+  }
+  .pic {
+    position: relative;
+    display: flex;
+    border-radius: 50%;
+  }
+  .pic:active {
+    transform: scale(0.98);
+  }
+  .cam {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffe6b8;
+    background: radial-gradient(circle at 50% 35%, #4a372b, #1d140f);
+    box-shadow: 0 0 0 2px #c89a4e, 0 2px 6px rgba(0, 0, 0, 0.4);
   }
   .who {
-    flex: 1;
+    width: 100%;
     min-width: 0;
   }
   .nm {
@@ -151,6 +172,7 @@
   .pbtns {
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
     gap: 8px;
   }
   .danger {

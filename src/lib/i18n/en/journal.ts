@@ -82,6 +82,7 @@ export default {
   'journal.codex.kind.place': 'Place',
   'journal.codex.kind.quest': 'Quest',
   'journal.codex.avatar': 'Change avatar',
+  'journal.codex.removeAvatar': 'Remove avatar',
   'journal.codex.setAvatar': 'Make avatar',
   'journal.codex.name': 'Name',
   'journal.codex.status': 'Status',

@@ -3,7 +3,6 @@
   import { onMount, untrack } from 'svelte';
   import Icon from '../../components/Icon.svelte';
   import Secret from '../../components/Secret.svelte';
-  import Gallery from '../../components/Gallery.svelte';
   import MentionText from '../../components/MentionText.svelte';
   import MentionEditor from '../../components/MentionEditor.svelte';
   import { codex } from '../../lib/stores/codex.svelte';
@@ -205,15 +204,8 @@
 
     <Secret bind:value={c.secret} editable={editing} compact />
 
-    {#if editing || c.images.length}
-      <Gallery
-        bind:ids={c.images}
-        characterId={c.characterId}
-        size={compact ? 72 : 100}
-        portraitId={c.portraitId ?? null}
-        onSetPortrait={(id) => codex.update(c.id, { portraitId: id })}
-        setLabel={t('journal.codex.setAvatar')}
-      />
+    {#if editing && c.portraitId}
+      <button class="btn btn-ghost rmav" onclick={() => codex.update(c.id, { portraitId: null })}><Icon name="close" size={18} />{t('journal.codex.removeAvatar')}</button>
     {/if}
 
     <div class="back">
@@ -291,6 +283,10 @@
     letter-spacing: 0.06em;
     text-transform: uppercase;
     font-weight: 600;
+  }
+  .rmav {
+    align-self: flex-start;
+    padding: 0 6px;
   }
   .kd .st {
     text-transform: none;

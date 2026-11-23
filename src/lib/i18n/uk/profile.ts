@@ -16,13 +16,11 @@ export default {
   'profile.bonds': "Прив'язаності",
   'profile.flaws': 'Слабкості',
   'profile.secret': 'Секрет персонажа',
-  'profile.gallery': 'Галерея',
   'profile.empty': 'Порожньо — перейдіть у Правку',
   'profile.secretEmpty': 'Секрету немає. Його можна записати в режимі «Правка».',
   'profile.portraitUpload': 'Новий портрет',
   'profile.portraitClear': 'Прибрати портрет',
   'profile.portraitCleared': 'Портрет прибрано',
-  'profile.galleryHint': 'Тап по картинці — переглянути, зробити портретом або видалити.',
   'profile.holdToEdit': 'Утримуйте картку, щоб змінити текст',
   'profile.kicker': 'Персонаж',
 } satisfies Record<string, string>;
