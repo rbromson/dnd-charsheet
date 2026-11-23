@@ -9,6 +9,7 @@
   import { dice } from '../../lib/stores/dice.svelte';
   import { charStore } from '../../lib/stores/characters.svelte';
   import { fmt } from '../../lib/rules/calc';
+  import { rollEffects } from '../../lib/rules/conditions';
   import { t } from '../../lib/i18n';
   import type { RollMode } from '../../lib/dice/d20';
 
@@ -21,6 +22,15 @@
     const out: string[] = [];
     if (req.minD20) out.push(t('roll.prompt.min', { n: req.minD20 }));
     if (charStore.current?.rules.rerollOnes) out.push(t('roll.prompt.reroll'));
+    // чому стоїть перевага/перешкода: стани й виснаження
+    const c = charStore.current;
+    if (c && req.kind !== 'death') {
+      const fx = rollEffects(c, req.kind, req.ability);
+      const nm = (k: string) => (k === 'exhaustion' ? t('cond.exLevel', { n: c.exhaustion }) : t(`cond.${k}`));
+      if (fx.adv.length) out.push(t('cond.rollAdv', { list: fx.adv.map(nm).join(', ') }));
+      if (fx.dis.length) out.push(t('cond.rollDis', { list: fx.dis.map(nm).join(', ') }));
+      if (fx.autoFail.length) out.push(t('cond.autoFail', { list: fx.autoFail.map(nm).join(', ') }));
+    }
     return out;
   });
 

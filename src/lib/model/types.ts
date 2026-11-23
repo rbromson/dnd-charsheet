@@ -383,6 +383,12 @@ export interface Character {
   /** mech — версия разметки действий/зарядов из библиотеки (одноразовое обновление старых предметов) */
   rules: { rerollOnes: boolean; mech: number };
   /** временные эффекты (выпитые зелья) */
+  /** стани (отруєний, збитий з ніг…) — ключі з rules/conditions */
+  conditions: string[];
+  /** виснаження 0–6 */
+  exhaustion: number;
+  /** заклинання, на якому тримається концентрація (null — немає) */
+  concentration: string | null;
   /** свої опори/імунітети/вразливості (раса, клас): 'resist:fire', 'immune:poison' */
   defenses: string[];
   effects: ActiveEffect[];

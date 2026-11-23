@@ -21,11 +21,11 @@
   const m = $derived(c ? abilityCheck(c, ability) : 0);
 
   function rollCheck() {
-    dice.askCheck({ kind: 'ability', label: t('sheet.checkLabel', { ability: name }), bonus: m });
+    dice.askCheck({ kind: 'ability', ability, label: t('sheet.checkLabel', { ability: name }), bonus: m });
     ui.closeSheet();
   }
   function rollSave() {
-    dice.askCheck({ kind: 'save', label: t('sheet.saveLabel', { ability: name }), bonus: saveBonus(c, ability) });
+    dice.askCheck({ kind: 'save', ability, label: t('sheet.saveLabel', { ability: name }), bonus: saveBonus(c, ability) });
     ui.closeSheet();
   }
 </script>

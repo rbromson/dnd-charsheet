@@ -4,6 +4,8 @@ import { cryptoRng } from '../dice/rng';
 import { uid } from '../model/ids';
 import { charStore } from './characters.svelte';
 import { buzz } from './ui.svelte';
+import type { Ability } from '../model/types';
+import { autoMode, rollEffects } from '../rules/conditions';
 
 export type CheckKind = 'skill' | 'save' | 'attack' | 'init' | 'death' | 'ability' | 'free';
 
@@ -11,6 +13,8 @@ export interface CheckRequest {
   label: string;
   bonus: number;
   kind: CheckKind;
+  /** для рятунку/перевірки — характеристика (стани: скутий → перешкода на рятунки Спритності) */
+  ability?: Ability | null;
   minD20?: number | null;
   /** для атаки — чтобы предложить бросок урона */
   attackId?: string;
@@ -76,7 +80,9 @@ class DiceStore {
 
   /** Подготовить бросок d20 (с листа персонажа): режим сбрасывается в «звичайний». */
   askCheck(req: CheckRequest, after?: (e: RollEntry) => void) {
-    this.mode = 'normal';
+    // стани й виснаження одразу ставлять перешкоду/перевагу (гравець може змінити)
+    const c = charStore.current;
+    this.mode = c && req.kind !== 'death' ? autoMode(rollEffects(c, req.kind, req.ability)) : 'normal';
     this.overlayOpen = false;
     this.pending = { req, after };
     buzz(8);

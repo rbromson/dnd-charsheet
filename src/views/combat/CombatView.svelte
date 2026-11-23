@@ -8,6 +8,7 @@
   import AttacksCard from './AttacksCard.svelte';
   import ItemPowersCard from './ItemPowersCard.svelte';
   import ItemEffectsCard from '../sheet/ItemEffectsCard.svelte';
+  import ConditionsCard from './ConditionsCard.svelte';
   import { charStore } from '../../lib/stores/characters.svelte';
   import { t } from '../../lib/i18n';
 
@@ -26,6 +27,7 @@
       <HitDiceCard />
     </div>
     <div class="stack">
+      <ConditionsCard />
       <ResourcesCard />
       <AttacksCard />
       <ItemPowersCard />

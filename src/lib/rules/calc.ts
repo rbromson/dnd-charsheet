@@ -1,5 +1,6 @@
 import type { Ability, Attack, Character, ExtraDamage, Item, ItemMod, SkillKey } from '../model/types';
 import { t } from '../i18n';
+import { speedAfter } from './conditions';
 
 export const abilityMod = (score: number): number => Math.floor((score - 10) / 2);
 
@@ -123,6 +124,12 @@ export function walkSpeed(c: Character): { value: number | null; text: string; f
     else if (md.op === 'set') v = md.v;
     else if (md.op === 'mul') v = Math.floor(v * md.v);
     if (v !== before) from.push(name);
+  }
+  // стани й виснаження: схоплений → 0, виснаження 2 → вдвічі менше
+  const after = speedAfter(c, v);
+  if (after.v !== v) {
+    v = after.v;
+    from.push(...after.why.map((k) => t(`cond.${k}`)));
   }
   return { value: v, text: String(v), from };
 }

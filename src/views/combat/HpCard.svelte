@@ -9,6 +9,7 @@
   import { applyDamage, applyHeal, damageOutcome, setTemp } from '../../lib/rules/hp';
   import { t } from '../../lib/i18n';
   import DefenseSheet from './DefenseSheet.svelte';
+  import { concentrationCheck } from './conditions';
   import { adjustDamage, defenses } from '../../lib/rules/defense';
 
   const c = $derived(charStore.current!);
@@ -77,6 +78,8 @@
     buzz([20, 30, 40]);
     entry = '';
     dtype = null;
+    // концентрація: шкода → рятунок Статури (СК 10 або половина шкоди)
+    if (n > 0) concentrationCheck(n);
   }
 
   function heal() {

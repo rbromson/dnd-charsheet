@@ -24,6 +24,9 @@ export function applyRest(c: Character, kind: RestKind): { name: string; regain:
     // 8 годин минули: дія зілль закінчилась, перемикачі (чоботи, крила, клинок) вимкнені
     c.effects = [];
     for (const it of c.equipment) for (const tg of it.toggles ?? []) tg.on = false;
+    // 8 годин сну: виснаження −1, концентрація скінчилась
+    if (c.exhaustion > 0) c.exhaustion -= 1;
+    c.concentration = null;
     // світанок: «раз на день» знову доступне (ріг Валгалли «раз на 7 днів» — вручну)
     for (const it of c.equipment) for (const p of it.powers) if (p.uses && p.uses.days === 1) p.uses.used = 0;
   }
@@ -49,6 +52,7 @@ export function restPreview(c: Character, kind: RestKind): [string, string][] {
     if (c.effects?.length) out.push(['effects', String(c.effects.length)]);
     const daily = c.equipment.flatMap((it) => it.powers.filter((p) => p.uses && p.uses.days === 1 && p.uses.used > 0));
     if (daily.length) out.push(['daily', String(daily.length)]);
+    if (c.exhaustion > 0) out.push(['exhaustion', `${c.exhaustion} → ${c.exhaustion - 1}`]);
   }
   return out;
 }

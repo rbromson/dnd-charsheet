@@ -64,6 +64,9 @@ export function newCharacter(): Character {
     rules: { rerollOnes: false, mech: 0 },
     effects: [],
     defenses: [],
+    conditions: [],
+    exhaustion: 0,
+    concentration: null,
   };
 }
 

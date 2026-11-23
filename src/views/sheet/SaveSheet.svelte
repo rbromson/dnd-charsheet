@@ -19,7 +19,7 @@
   const name = $derived(t(`ability.${ability}`));
 
   function roll() {
-    dice.askCheck({ kind: 'save', label: t('sheet.saveLabel', { ability: name }), bonus: saveBonus(c, ability) });
+    dice.askCheck({ kind: 'save', ability, label: t('sheet.saveLabel', { ability: name }), bonus: saveBonus(c, ability) });
     ui.closeSheet();
   }
 </script>

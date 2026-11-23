@@ -14,7 +14,7 @@
 
   const open = (a: Ability) => ui.openSheet(SaveSheet, { ability: a });
   function roll(a: Ability) {
-    dice.askCheck({ kind: 'save', label: t('sheet.saveLabel', { ability: t(`ability.${a}`) }), bonus: saveBonus(c, a) });
+    dice.askCheck({ kind: 'save', ability: a, label: t('sheet.saveLabel', { ability: t(`ability.${a}`) }), bonus: saveBonus(c, a) });
   }
 </script>
 

@@ -27,7 +27,7 @@
     } else el.blur();
   }
   function roll(a: Ability) {
-    dice.askCheck({ kind: 'ability', label: t('sheet.checkLabel', { ability: t(`ability.${a}`) }), bonus: abilityCheck(c, a) });
+    dice.askCheck({ kind: 'ability', ability: a, label: t('sheet.checkLabel', { ability: t(`ability.${a}`) }), bonus: abilityCheck(c, a) });
   }
 </script>
 

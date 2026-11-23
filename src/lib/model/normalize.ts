@@ -1,3 +1,4 @@
+import { CONDITIONS } from '../rules/conditions';
 import type { ActiveEffect, ArmorStats, Attack, Character, CodexEntry, Deck, ExtraDamage, Feature, Item, ItemMod, ItemPower, ItemToggle, JournalEntry, Resource, Risk, Spell, SpellSlot, WeaponStats } from './types';
 import { newCharacter } from './defaults';
 import { uid, nowIso, todayDate } from './ids';
@@ -139,6 +140,9 @@ export function normalizeCharacter(raw: unknown): Character {
     return x;
   });
   c.defenses = Array.isArray(r.defenses) ? [...new Set(r.defenses.filter((x): x is string => typeof x === 'string' && /^(resist|immune|vuln):\w+$/.test(x)))] : [];
+  c.conditions = Array.isArray(r.conditions) ? [...new Set(r.conditions.filter((x): x is string => typeof x === 'string' && (CONDITIONS as readonly string[]).includes(x)))] : [];
+  c.exhaustion = typeof r.exhaustion === 'number' && Number.isFinite(r.exhaustion) ? Math.min(6, Math.max(0, Math.round(r.exhaustion))) : 0;
+  c.concentration = typeof r.concentration === 'string' && r.concentration.trim() ? r.concentration : null;
   c.features = list(r.features, FEATURE);
   c.decks = list(r.decks, DECK);
   // колода живёт у предмета: старые «отдельные» колоды привязываем к предмету с тем же именем или заводим предмет
