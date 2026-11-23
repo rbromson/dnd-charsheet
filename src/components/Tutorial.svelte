@@ -90,70 +90,83 @@
         <div class="slide" in:fly={{ x: 40 * dir, duration: 260 }}>
           <div class="stage s{id}" aria-hidden="true">
             {#if id === 1}
-              <div class="glow"></div>
-              <div class="die1"><DieShape sides={20} value="20" size={92} tone="ember" /></div>
-              <div class="stack1">
-                <span class="mb pri b1"><Icon name="plus" size={14} />{t('chars.new')}</span>
-                <span class="mb b2"><Icon name="sparkle" size={14} />{t('newc.ai')}</span>
-                <span class="mb b3"><Icon name="upload" size={14} />{t('newc.file')}</span>
+              <!-- «Новий персонаж» → три способи -->
+              <div class="g1"><DieShape sides={20} value="20" size={62} tone="ember" /></div>
+              <span class="pl pri n1"><Icon name="plus" size={12} />{t('chars.new')}</span>
+              <div class="ways1">
+                <span class="pp w1 a"><Icon name="edit" size={11} />{t('newc.manual')}</span>
+                <span class="pp w1 b"><Icon name="sparkle" size={11} />{t('newc.ai')}</span>
+                <span class="pp w1 c"><Icon name="upload" size={11} />{t('newc.file')}</span>
               </div>
+              <div class="finger f1"><span class="ripple"></span></div>
             {:else if id === 2}
-              <div class="seg2"><span class="sg">{t('mode.play')}</span><span class="sg">{t('mode.edit')}</span><span class="thumb"></span></div>
-              <div class="row2 mcard"><span class="dot"></span>{t('skill.deception')}<b>+5</b></div>
-              <div class="rolled2"><Icon name="dice" size={14} />17</div>
-              <div class="sheet2 mcard"><span class="ln w60"></span><span class="ln w80"></span><span class="ln w40"></span></div>
-              <div class="finger f2"><span class="ripple"></span><span class="ring"></span></div>
+              <!-- «Гра»: тап по навичці кидає; «Правка»: те саме поле стає редагованим -->
+              <div class="sg sg2"><span>{t('mode.play')}</span><span>{t('mode.edit')}</span><i class="th2"></i></div>
+              <div class="pp row2"><span class="dt"></span>{t('skill.deception')}<b>+5</b></div>
+              <div class="bub2"><Icon name="dice" size={11} />17</div>
+              <div class="pp ed2"><span>{t('skill.deception')}</span><span class="inp">+5<i></i></span></div>
+              <div class="finger f2"><span class="ripple"></span></div>
             {:else if id === 3}
-              <div class="tile3"><Icon name="dice" size={14} />{t('skill.deception')} <b>+5</b></div>
-              <div class="prompt3">
-                <div class="chips3">
-                  <span class="ch">{t('roll.dis')}</span><span class="ch">{t('roll.normal')}</span><span class="ch adv">{t('roll.adv')}</span>
-                </div>
-                <div class="d3"><DieShape sides={20} value="20" size={64} tone="ember" /></div>
-                <div class="res3">22</div>
+              <!-- тап по стату → вікно кидка: «Перевага» → кубик → результат -->
+              <div class="pp tile3"><Icon name="dice" size={11} />{t('skill.deception')}<b>+5</b></div>
+              <div class="win3">
+                <div class="sg sg3"><span>{t('roll.dis')}</span><span>{t('roll.normal')}</span><span class="ad">{t('roll.adv')}</span></div>
+                <div class="d3"><DieShape sides={20} value="20" size={44} tone="ember" /></div>
+                <div class="r3 num">22</div>
               </div>
               <div class="finger f3"><span class="ripple"></span></div>
             {:else if id === 4}
-              <div class="hp4 mcard">
-                <div class="hpn"><span class="a">35</span><span class="b">28</span><small>/ 43</small></div>
-                <div class="bar"><span></span></div>
+              <!-- число → «Шкода» → ОЗ зменшуються -->
+              <div class="pp hp4">
+                <div class="hpn num"><span class="a">35</span><span class="b">28</span><small>/ 43</small></div>
+                <div class="bar4"><i></i></div>
               </div>
+              <div class="disp4 num"><span>7</span></div>
+              <span class="pl dmg4">− {t('combat.damage')}</span>
               <div class="pad4">
-                {#each ['1', '2', '3', '4', '5', '6', '7', '8', '9'] as k (k)}<span class="key" class:k7={k === '7'}>{k}</span>{/each}
+                {#each ['1', '2', '3', '4', '5', '6', '7', '8', '9'] as k (k)}<span class="key4" class:k7={k === '7'}>{k}</span>{/each}
               </div>
-              <div class="disp4">7</div>
-              <span class="dmg4">{t('combat.damage')}</span>
               <div class="finger f4"><span class="ripple"></span></div>
             {:else if id === 5}
-              <div class="lib5 mcard">
-                <div class="hd"><Icon name="search" size={12} />{t('lib.open')}</div>
-                <div class="li">{t('tut.s5.sword')}<b>1к8</b></div>
-                <div class="li hl">{t('tut.s5.ring')}<b>КО +1</b></div>
-                <div class="li">{t('tut.s5.potion')}</div>
+              <!-- «Додати» → «З бібліотеки» → заповнена картка → у списку -->
+              <div class="pp list5">
+                <div class="hd"><Icon name="gear" size={11} />{t('nav.gear')}</div>
+                <div class="gi">{t('tut.s5.potion')}</div>
+                <div class="gi new">{t('tut.s5.sword')}</div>
               </div>
-              <div class="fly5 mcard">{t('tut.s5.ring')}</div>
-              <div class="gear5 mcard">
-                <div class="hd"><Icon name="gear" size={12} />{t('nav.gear')}</div>
-                <div class="gi">{t('tut.s5.sword')}</div>
-                <div class="gi new">{t('tut.s5.ring')}<span class="att">{t('gear.attunedShort')}</span></div>
+              <span class="pl pri add5"><Icon name="plus" size={11} />{t('add.confirm')}</span>
+              <div class="ch5">
+                <span class="pp w5 lib"><Icon name="search" size={11} />{t('add.library')}</span>
+                <span class="pp w5"><Icon name="edit" size={11} />{t('add.manual')}</span>
               </div>
-              <div class="ac5"><Icon name="shield" size={14} /><span class="a">14</span><span class="b">15</span></div>
+              <div class="pp card5">
+                <b>{t('tut.s5.sword')}</b>
+                <span class="st5 num">1к8 · ⚔ +4</span>
+                <span class="bt5"><i class="pl">{t('common.cancel')}</i><i class="pl pri">{t('add.confirm')}</i></span>
+              </div>
+              <div class="finger f5"><span class="ripple"></span></div>
             {:else if id === 6}
-              <div class="fab6"><Icon name="feather" size={20} stroke={2} /></div>
-              <div class="note6 mcard">
-                <div class="hd"><Icon name="feather" size={12} />{t('journal.quick.title')}</div>
-                <div class="txt"><span class="type">{t('tut.s6.text')}</span><span class="men">@{t('tut.s6.npc')}</span></div>
-                <div class="mic"><Icon name="mic" size={14} /><span class="w"></span><span class="w"></span></div>
+              <!-- печатка-перо → нотатка з @згадкою → запис у журналі -->
+              <div class="seal6"><Icon name="feather" size={18} stroke={2} /></div>
+              <div class="pp note6">
+                <div class="hd"><Icon name="feather" size={11} />{t('journal.quick.title')}</div>
+                <div class="txt6"><span class="type6">{t('tut.s6.text')}</span><span class="men6">@{t('tut.s6.npc')}</span></div>
+                <span class="pl pri sv6">{t('journal.quick.save')}</span>
+              </div>
+              <div class="pp row6">
+                <span class="sn6">{t('journal.box.session')}<b>1</b></span>
+                <span>{t('tut.s6.text')} <span class="men6 on">{t('tut.s6.npc')}</span></span>
               </div>
               <div class="finger f6"><span class="ripple"></span></div>
             {:else if id === 7}
-              <div class="n7 mcard"><Icon name="feather" size={12} /><span class="ln w80"></span><span class="ln w60"></span><span class="ln w70"></span></div>
-              <div class="arrow7"><span></span><span></span><span></span></div>
-              <div class="ai7"><Icon name="sparkle" size={18} /><span class="code">{'{ … }'}</span></div>
-              <div class="list7 mcard">
-                <div class="ck c1"><span class="cb"></span><Icon name="gear" size={12} />+2 {t('tut.s5.potion')}</div>
-                <div class="ck c2"><span class="cb"></span><Icon name="star" size={12} />+15 {t('gear.coin.gp')}</div>
-                <div class="ck c3"><span class="cb"></span><Icon name="users" size={12} />{t('tut.s6.npc')}</div>
+              <!-- нотатки → ШІ → список змін з галочками -->
+              <div class="pp n7"><Icon name="feather" size={11} /><span class="ln w80"></span><span class="ln w60"></span><span class="ln w70"></span></div>
+              <div class="ar7"><span></span><span></span><span></span></div>
+              <div class="ai7"><Icon name="sparkle" size={18} /></div>
+              <div class="pp list7">
+                <div class="ck7 c1"><span class="cb"></span>+2 {t('tut.s5.potion')}</div>
+                <div class="ck7 c2"><span class="cb"></span>+15 {t('gear.coin.gp')}</div>
+                <div class="ck7 c3"><span class="cb"></span>{t('tut.s6.npc')}</div>
               </div>
             {:else if id === 9}
               <div class="rest9"><Icon name="coffee" size={16} stroke={2} /></div>
@@ -172,10 +185,11 @@
               </div>
               <div class="finger f9"><span class="ripple"></span></div>
             {:else}
-              <div class="dev8 tab"><Icon name="lock" size={20} /><span class="lbl">{t('tut.s8.tablet')}</span></div>
-              <div class="dev8 ph"><Icon name="lock" size={16} /><span class="lbl">{t('tut.s8.phone')}</span></div>
-              <div class="zip8"><Icon name="download" size={14} />.zip</div>
-              <div class="lang8"><span>UA</span><span>EN</span><i></i></div>
+              <!-- дані на пристрої; файл переносить персонажа; мова -->
+              <div class="dev8 tab"><Icon name="lock" size={16} /><span>{t('tut.s8.tablet')}</span></div>
+              <div class="dev8 ph"><Icon name="lock" size={13} /><span>{t('tut.s8.phone')}</span></div>
+              <div class="zip8"><Icon name="download" size={11} />.zip</div>
+              <div class="sg lang8"><span>UA</span><span>EN</span><i></i></div>
             {/if}
           </div>
 
@@ -338,16 +352,6 @@
     animation-iteration-count: infinite;
     animation-timing-function: var(--ease);
   }
-  .mcard {
-    position: absolute;
-    border-radius: 10px;
-    background: var(--paper);
-    background-size: 180px 180px, 520px 520px, 100% 100%;
-    box-shadow:
-      inset 0 0 0 1px rgba(150, 112, 62, 0.55),
-      0 6px 14px -6px rgba(0, 0, 0, 0.7);
-    padding: 6px 8px;
-  }
   .ln {
     display: block;
     height: 5px;
@@ -405,205 +409,393 @@
     }
   }
 
-  /* 1 — приветствие */
-  .glow {
+  /* ===== мини-интерфейс сцен: пластина, пергаментная строка, сегменты ===== */
+  .pl {
     position: absolute;
-    left: 50%;
-    top: 46%;
-    width: 160px;
-    height: 160px;
-    margin: -80px 0 0 -80px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(255, 150, 80, 0.45), transparent 65%);
-    animation-name: pulse1;
-  }
-  .die1 {
-    position: absolute;
-    left: 50%;
-    top: 12%;
-    margin-left: -46px;
-    animation-name: bob1;
-    filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.6));
-  }
-  @keyframes bob1 {
-    0%,
-    100% {
-      transform: translateY(0) rotate(-6deg);
-    }
-    50% {
-      transform: translateY(-8px) rotate(6deg);
-    }
-  }
-  @keyframes pulse1 {
-    0%,
-    100% {
-      opacity: 0.6;
-      transform: scale(0.9);
-    }
-    50% {
-      opacity: 1;
-      transform: scale(1.08);
-    }
-  }
-  .stack1 {
-    position: absolute;
-    left: 50%;
-    bottom: 8%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 6px;
-  }
-  .mb {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 4px;
-    padding: 5px 8px;
-    border-radius: 8px;
-    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-family: var(--font-sc);
+    font-weight: 700;
+    font-size: 10.5px;
+    font-style: normal;
+    color: #f0dcb6;
     white-space: nowrap;
-    color: var(--parch);
-    background: rgba(255, 220, 170, 0.06);
-    box-shadow: inset 0 0 0 1px rgba(214, 170, 110, 0.4);
-    animation-name: pop1;
+    background: linear-gradient(180deg, #3a2b22, #1d140f);
+    box-shadow: inset 0 0 0 1px #c89a4e;
   }
-  .mb.pri {
-    color: var(--ember-ink);
-    background: var(--ember);
-    box-shadow: 0 4px 12px -4px var(--ember-glow);
+  .pl.pri {
+    color: #fff1dc;
+    background: radial-gradient(ellipse 120% 90% at 50% 0%, #c9682f, #9a3f18 45%, #5e200b);
+    box-shadow:
+      inset 0 0 0 1px #e3bd73,
+      0 0 10px rgba(232, 116, 59, 0.35);
   }
-  .b2 {
-    animation-delay: 0.15s;
+  .pp {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 10.5px;
+    white-space: nowrap;
+    color: var(--ink);
+    background: var(--paper);
+    background-size: 180px 180px, 520px 520px, 100% 100%;
+    box-shadow:
+      inset 0 0 0 1px rgba(150, 112, 62, 0.6),
+      0 4px 10px -4px rgba(0, 0, 0, 0.7);
   }
-  .b3 {
-    animation-delay: 0.3s;
+  .pp b {
+    margin-left: auto;
   }
-  @keyframes pop1 {
+  .sg {
+    position: absolute;
+    display: flex;
+    padding: 2px;
+    border-radius: 3px;
+    background: #120c09;
+    box-shadow: inset 0 0 0 1px #8a6434;
+  }
+  .sg span {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    text-align: center;
+    padding: 3px 5px;
+    font-family: var(--font-sc);
+    font-weight: 700;
+    font-size: 10px;
+    color: #c9b08c;
+    white-space: nowrap;
+  }
+  .sg i {
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    border-radius: 2px;
+    background: linear-gradient(180deg, #4a372b, #24190f);
+    box-shadow: inset 0 0 0 1px #e3bd73;
+  }
+  /* палец: left/top — центр касания */
+  .f1,
+  .f2,
+  .f3,
+  .f4,
+  .f5,
+  .f6 {
+    margin: -13px 0 0 -13px;
+  }
+
+  /* 1 — «Новий персонаж» → три способи */
+  .g1 {
+    position: absolute;
+    left: 7%;
+    top: 50%;
+    transform: translateY(-50%);
+    animation-name: float1;
+  }
+  @keyframes float1 {
     0%,
-    8% {
-      opacity: 0;
-      transform: translateY(8px) scale(0.9);
+    100% {
+      transform: translateY(-50%);
     }
+    50% {
+      transform: translateY(-58%);
+    }
+  }
+  .n1 {
+    left: 42%;
+    right: 6%;
+    top: 10%;
+    animation-name: press1;
+  }
+  @keyframes press1 {
+    0%,
+    12%,
     18%,
-    90% {
+    100% {
+      transform: none;
+    }
+    14% {
+      transform: scale(0.92);
+    }
+  }
+  .ways1 {
+    position: absolute;
+    left: 42%;
+    right: 6%;
+    top: 34%;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .w1 {
+    position: relative;
+    opacity: 0;
+    animation-name: way1;
+  }
+  .w1.b {
+    animation-name: way1b;
+  }
+  .w1.c {
+    animation-name: way1c;
+  }
+  @keyframes way1 {
+    0%,
+    18% {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    22%,
+    92% {
       opacity: 1;
       transform: none;
     }
+    97%,
     100% {
       opacity: 0;
+    }
+  }
+  @keyframes way1b {
+    0%,
+    21% {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    25%,
+    44% {
+      opacity: 1;
+      transform: none;
+    }
+    48%,
+    62% {
+      opacity: 1;
+      transform: none;
+      box-shadow:
+        inset 0 0 0 1.5px #e3bd73,
+        0 0 12px rgba(240, 190, 100, 0.6);
+    }
+    66%,
+    92% {
+      opacity: 1;
+    }
+    97%,
+    100% {
+      opacity: 0;
+    }
+  }
+  @keyframes way1c {
+    0%,
+    24% {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    28%,
+    92% {
+      opacity: 1;
+      transform: none;
+    }
+    97%,
+    100% {
+      opacity: 0;
+    }
+  }
+  .f1 {
+    animation-name: f1;
+  }
+  .f1 .ripple {
+    animation-name: rip1;
+  }
+  @keyframes f1 {
+    0% {
+      left: 72%;
+      top: 108%;
+    }
+    10%,
+    18% {
+      left: 70%;
+      top: 18%;
+    }
+    32% {
+      left: 70%;
+      top: 22%;
+    }
+    42%,
+    52% {
+      left: 70%;
+      top: 54%;
+    }
+    72%,
+    100% {
+      left: 86%;
+      top: 110%;
+    }
+  }
+  @keyframes rip1 {
+    0%,
+    12%,
+    20%,
+    44%,
+    54%,
+    100% {
+      opacity: 0;
+      transform: scale(0.6);
+    }
+    14%,
+    47% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    18%,
+    52% {
+      opacity: 0;
+      transform: scale(1.8);
     }
   }
 
-  /* 2 — Гра / Правка, тап и долгое нажатие */
-  .seg2 {
-    position: absolute;
-    top: 9%;
+  /* 2 — «Гра» кидає, «Правка» відкриває поле */
+  .sg2 {
     left: 50%;
+    top: 8%;
+    width: 60%;
     transform: translateX(-50%);
-    display: flex;
-    padding: 3px;
-    border-radius: 9px;
-    background: rgba(0, 0, 0, 0.4);
-    color: #f6e7cc;
-    font-weight: 700;
   }
-  .sg {
-    position: relative;
-    z-index: 1;
-    width: 62px;
-    text-align: center;
-    padding: 4px 0;
+  .th2 {
+    left: 2px;
+    width: calc(50% - 2px);
+    animation-name: th2;
   }
-  .thumb {
-    position: absolute;
-    top: 3px;
-    left: 3px;
-    width: 62px;
-    bottom: 3px;
-    border-radius: 7px;
-    background: var(--ember);
-    box-shadow: 0 0 10px var(--ember-glow);
-    animation-name: thumb2;
-  }
-  @keyframes thumb2 {
+  @keyframes th2 {
     0%,
-    80% {
-      transform: none;
+    46% {
+      left: 2px;
     }
-    86%,
+    50%,
     96% {
-      transform: translateX(62px);
+      left: 50%;
     }
+    100% {
+      left: 2px;
+    }
+  }
+  .row2,
+  .ed2 {
+    left: 10%;
+    right: 10%;
+    top: 42%;
   }
   .row2 {
-    left: 12%;
-    right: 34%;
-    top: 40%;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-weight: 600;
+    animation-name: row2;
   }
-  .row2 b {
-    margin-left: auto;
-    font-family: var(--font-serif);
-    font-size: 14px;
-  }
-  .dot {
-    width: 9px;
-    height: 9px;
+  .dt {
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     background: var(--ink);
   }
-  .rolled2 {
+  @keyframes row2 {
+    0%,
+    46% {
+      opacity: 1;
+    }
+    50%,
+    96% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  .bub2 {
     position: absolute;
-    left: 40%;
-    top: 22%;
+    right: 12%;
+    top: 24%;
     display: flex;
     align-items: center;
     gap: 3px;
     padding: 3px 7px;
-    border-radius: 8px;
-    background: var(--ember);
-    color: var(--ember-ink);
+    border-radius: 3px;
     font-weight: 800;
-    font-size: 13px;
-    animation-name: rolled2;
+    color: #fff1dc;
+    background: radial-gradient(ellipse 120% 90% at 50% 0%, #c9682f, #9a3f18 45%, #5e200b);
+    box-shadow: inset 0 0 0 1px #e3bd73;
+    opacity: 0;
+    animation-name: bub2;
   }
-  @keyframes rolled2 {
+  @keyframes bub2 {
     0%,
-    18% {
+    16% {
       opacity: 0;
-      transform: translateY(6px) scale(0.6);
+      transform: scale(0.6);
     }
-    24%,
+    20%,
     40% {
       opacity: 1;
       transform: none;
     }
-    46%,
+    44%,
     100% {
       opacity: 0;
     }
   }
-  .sheet2 {
-    right: 4%;
-    top: 30%;
-    bottom: 8%;
-    width: 30%;
-    animation-name: sheet2;
+  .ed2 {
+    opacity: 0;
+    outline: 1px dashed rgba(107, 90, 72, 0.6);
+    outline-offset: 2px;
+    animation-name: ed2;
   }
-  @keyframes sheet2 {
+  @keyframes ed2 {
     0%,
-    62% {
-      transform: translateX(130%);
+    50% {
+      opacity: 0;
     }
-    70%,
-    82% {
-      transform: none;
+    54%,
+    94% {
+      opacity: 1;
     }
-    90%,
+    98%,
     100% {
-      transform: translateX(130%);
+      opacity: 0;
+    }
+  }
+  .inp {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 1px;
+    padding: 1px 6px;
+    border-radius: 2px;
+    font-weight: 700;
+    background: #fffaf0;
+    box-shadow: inset 0 0 0 1px #c89a4e;
+  }
+  .inp i {
+    width: 1px;
+    height: 10px;
+    background: var(--ink);
+    animation-name: caret2;
+    animation-timing-function: steps(1);
+  }
+  @keyframes caret2 {
+    0%,
+    72% {
+      opacity: 0;
+    }
+    76%,
+    82%,
+    88% {
+      opacity: 1;
+    }
+    79%,
+    85%,
+    92%,
+    100% {
+      opacity: 0;
     }
   }
   .f2 {
@@ -612,202 +804,169 @@
   .f2 .ripple {
     animation-name: rip2;
   }
-  .ring {
-    position: absolute;
-    inset: -7px;
-    border-radius: 50%;
-    background: conic-gradient(var(--ember) 0deg, transparent 0deg);
-    mask: radial-gradient(circle, transparent 58%, #000 60%);
-    -webkit-mask: radial-gradient(circle, transparent 58%, #000 60%);
-    animation-name: ring2;
-  }
   @keyframes f2 {
     0% {
-      left: 70%;
-      top: 80%;
+      left: 50%;
+      top: 108%;
     }
-    14%,
-    30% {
-      left: 32%;
-      top: 44%;
+    10%,
+    17% {
+      left: 46%;
+      top: 50%;
     }
     40%,
-    66% {
-      left: 44%;
-      top: 44%;
+    50% {
+      left: 64%;
+      top: 15%;
     }
-    80%,
+    68%,
+    78% {
+      left: 82%;
+      top: 50%;
+    }
     100% {
-      left: 62%;
-      top: 12%;
+      left: 82%;
+      top: 110%;
     }
   }
   @keyframes rip2 {
     0%,
-    15% {
+    11%,
+    19%,
+    44%,
+    51%,
+    72%,
+    79%,
+    100% {
       opacity: 0;
       transform: scale(0.6);
     }
-    18% {
+    13%,
+    46%,
+    74% {
       opacity: 1;
       transform: scale(1);
     }
-    26%,
-    100% {
+    17%,
+    50%,
+    78% {
       opacity: 0;
       transform: scale(1.8);
     }
   }
-  @keyframes ring2 {
-    0%,
-    42% {
-      background: conic-gradient(var(--ember) 0deg, transparent 0deg);
-      opacity: 0;
-    }
-    44% {
-      opacity: 1;
-    }
-    64% {
-      background: conic-gradient(var(--ember) 360deg, transparent 360deg);
-      opacity: 1;
-    }
-    68%,
-    100% {
-      opacity: 0;
-    }
-  }
 
-  /* 3 — бросок с выбором режима */
+  /* 3 — вікно кидка */
   .tile3 {
-    position: absolute;
-    left: 8%;
+    left: 5%;
     top: 12%;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    padding: 6px 9px;
-    border-radius: 10px;
-    color: var(--parch);
-    font-weight: 600;
-    background: var(--leather);
-    background-size: var(--leather-size);
-    box-shadow: var(--leather-shadow), inset 0 -2px 0 -1px var(--ember);
+    animation-name: tile3;
   }
-  .tile3 b {
-    font-family: var(--font-serif);
-    font-size: 14px;
-  }
-  .prompt3 {
-    position: absolute;
-    left: 30%;
-    right: 6%;
-    top: 30%;
-    bottom: 6%;
-    border-radius: 12px;
-    background: var(--leather);
-    background-size: var(--leather-size);
-    box-shadow: var(--leather-shadow), 0 0 24px rgba(232, 116, 59, 0.25);
-    animation-name: prompt3;
-  }
-  @keyframes prompt3 {
+  @keyframes tile3 {
     0%,
-    12% {
+    8%,
+    14%,
+    100% {
+      transform: none;
+    }
+    10% {
+      transform: scale(0.92);
+    }
+  }
+  .win3 {
+    position: absolute;
+    left: 38%;
+    right: 5%;
+    top: 6%;
+    bottom: 6%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 5px;
+    border-radius: 4px;
+    background: linear-gradient(180deg, #3a2b22, #17100c);
+    box-shadow:
+      inset 0 0 0 1px #c89a4e,
+      0 10px 20px -8px #000;
+    opacity: 0;
+    animation-name: win3;
+  }
+  @keyframes win3 {
+    0%,
+    13% {
       opacity: 0;
-      transform: translateY(10px) scale(0.92);
+      transform: translateY(8px) scale(0.96);
     }
     18%,
-    94% {
+    92% {
       opacity: 1;
       transform: none;
     }
+    97%,
     100% {
       opacity: 0;
     }
   }
-  .chips3 {
-    display: flex;
-    justify-content: center;
-    gap: 3px;
-    margin: 6px 6px 0;
-    padding: 2px;
-    border-radius: 7px;
-    background: rgba(0, 0, 0, 0.35);
+  .sg3 {
+    position: relative;
+    width: 100%;
   }
-  .ch {
-    flex: 1;
-    text-align: center;
-    padding: 3px 0;
-    border-radius: 5px;
-    font-size: 9.5px;
-    font-weight: 700;
-    color: #b9a487;
+  .sg3 span {
+    font-size: 8.5px;
+    padding: 3px 1px;
   }
-  .ch.adv {
-    animation-name: adv3;
+  .sg3 .ad {
+    border-radius: 2px;
+    animation-name: ad3;
   }
-  @keyframes adv3 {
+  @keyframes ad3 {
     0%,
-    30% {
-      background: transparent;
-      color: #b9a487;
+    32% {
+      color: #c9b08c;
+      box-shadow: none;
     }
-    34%,
-    100% {
-      background: #f1e3c6;
-      color: #7a5a10;
+    35%,
+    92% {
+      color: #ffe39a;
+      background: linear-gradient(180deg, #4a3a22, #1f170c);
+      box-shadow: inset 0 0 0 1px #e3bd73;
     }
   }
   .d3 {
-    display: flex;
-    justify-content: center;
     margin-top: 6px;
-    animation-name: spin3;
-    animation-timing-function: cubic-bezier(0.3, 0.8, 0.3, 1);
+    animation-name: d3;
   }
-  @keyframes spin3 {
+  @keyframes d3 {
     0%,
-    48% {
+    50% {
       transform: none;
-      opacity: 1;
     }
-    68% {
-      transform: rotate(720deg) scale(0.9);
-      opacity: 1;
-    }
-    72%,
+    66%,
     100% {
-      transform: rotate(720deg) scale(0.4);
-      opacity: 0;
+      transform: rotate(720deg);
     }
   }
-  .res3 {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 14%;
-    text-align: center;
-    font-family: var(--font-serif);
-    font-weight: 700;
-    font-size: 34px;
+  .r3 {
+    margin-top: 2px;
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1;
     color: var(--gold);
-    text-shadow: 0 0 18px var(--gold-glow);
-    animation-name: res3;
+    text-shadow: 0 0 12px rgba(240, 190, 100, 0.6);
+    opacity: 0;
+    animation-name: r3;
   }
-  @keyframes res3 {
+  @keyframes r3 {
     0%,
-    70% {
+    66% {
       opacity: 0;
-      transform: scale(0.4);
+      transform: scale(0.5);
     }
-    76% {
+    70%,
+    92% {
       opacity: 1;
-      transform: scale(1.2);
+      transform: none;
     }
-    80%,
-    94% {
-      opacity: 1;
-      transform: scale(1);
-    }
+    97%,
     100% {
       opacity: 0;
     }
@@ -820,235 +979,249 @@
   }
   @keyframes f3 {
     0% {
-      left: 40%;
-      top: 80%;
-    }
-    8%,
-    14% {
       left: 20%;
-      top: 14%;
+      top: 108%;
     }
-    26%,
-    34% {
-      left: 82%;
-      top: 34%;
+    7%,
+    12% {
+      left: 20%;
+      top: 18%;
     }
-    44%,
-    54% {
-      left: 58%;
-      top: 54%;
+    28%,
+    36% {
+      left: 84%;
+      top: 15%;
     }
-    70%,
+    48%,
+    56% {
+      left: 69%;
+      top: 44%;
+    }
+    80%,
     100% {
-      left: 90%;
-      top: 90%;
+      left: 92%;
+      top: 110%;
     }
   }
   @keyframes rip3 {
     0%,
-    9% {
+    8%,
+    14%,
+    31%,
+    37%,
+    51%,
+    57%,
+    100% {
       opacity: 0;
       transform: scale(0.6);
     }
-    11% {
+    10%,
+    33%,
+    53% {
       opacity: 1;
       transform: scale(1);
     }
-    16%,
-    28% {
-      opacity: 0;
-      transform: scale(1.8);
-    }
-    30% {
-      opacity: 1;
-      transform: scale(1);
-    }
+    13%,
     36%,
-    46% {
-      opacity: 0;
-      transform: scale(1.8);
-    }
-    48% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    56%,
-    100% {
+    56% {
       opacity: 0;
       transform: scale(1.8);
     }
   }
 
-  /* 4 — урон с клавиатуры */
+  /* 4 — число → «Шкода» */
   .hp4 {
-    left: 6%;
-    top: 10%;
-    width: 40%;
+    left: 5%;
+    top: 8%;
+    width: 44%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    animation-name: hp4;
+  }
+  @keyframes hp4 {
+    0%,
+    36%,
+    52%,
+    100% {
+      box-shadow:
+        inset 0 0 0 1px rgba(150, 112, 62, 0.6),
+        0 4px 10px -4px rgba(0, 0, 0, 0.7);
+    }
+    40% {
+      box-shadow:
+        inset 0 0 0 2px #c0533f,
+        0 0 16px rgba(192, 83, 63, 0.6);
+    }
   }
   .hpn {
     position: relative;
-    height: 30px;
-    font-family: var(--font-serif);
-    font-weight: 700;
-    font-size: 26px;
-    line-height: 30px;
+    height: 22px;
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 22px;
   }
-  .hpn span {
+  .hpn .a,
+  .hpn .b {
     position: absolute;
     left: 0;
   }
-  .hpn small {
-    position: absolute;
-    left: 38px;
-    font-size: 13px;
-    color: var(--ink2);
-  }
   .hpn .a {
-    animation-name: hpA;
+    animation-name: a4;
   }
   .hpn .b {
-    animation-name: hpB;
-    color: #9b3a28;
+    color: #b8412c;
+    opacity: 0;
+    animation-name: b4;
   }
-  @keyframes hpA {
+  .hpn small {
+    margin-left: 32px;
+    font-size: 10px;
+    color: var(--ink2);
+  }
+  @keyframes a4 {
     0%,
-    66% {
+    38% {
       opacity: 1;
     }
-    70%,
-    96% {
+    42%,
+    94% {
       opacity: 0;
     }
-  }
-  @keyframes hpB {
-    0%,
-    66% {
-      opacity: 0;
-    }
-    70%,
-    96% {
+    98%,
+    100% {
       opacity: 1;
     }
+  }
+  @keyframes b4 {
+    0%,
+    38% {
+      opacity: 0;
+    }
+    42%,
+    94% {
+      opacity: 1;
+    }
+    98%,
     100% {
       opacity: 0;
     }
   }
-  .bar {
-    height: 6px;
+  .bar4 {
+    height: 5px;
     border-radius: 3px;
-    background: rgba(42, 31, 23, 0.15);
     overflow: hidden;
-    margin-top: 4px;
+    background: rgba(107, 90, 72, 0.25);
   }
-  .bar span {
+  .bar4 i {
     display: block;
     height: 100%;
+    width: 81%;
     background: var(--good);
     animation-name: bar4;
   }
   @keyframes bar4 {
     0%,
-    66% {
+    38% {
       width: 81%;
     }
-    74%,
-    96% {
+    46%,
+    94% {
       width: 65%;
     }
     100% {
       width: 81%;
     }
   }
+  .disp4 {
+    position: absolute;
+    left: 5%;
+    top: 44%;
+    width: 44%;
+    height: 20%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #f0dcb6;
+    background: rgba(0, 0, 0, 0.35);
+    box-shadow: inset 0 0 0 1px rgba(214, 170, 110, 0.3);
+  }
+  .disp4 span {
+    opacity: 0;
+    animation-name: disp4;
+  }
+  @keyframes disp4 {
+    0%,
+    12% {
+      opacity: 0;
+    }
+    15%,
+    38% {
+      opacity: 1;
+    }
+    42%,
+    100% {
+      opacity: 0;
+    }
+  }
+  .dmg4 {
+    left: 5%;
+    width: 44%;
+    top: 70%;
+    color: #fff0ea;
+    background: radial-gradient(ellipse 120% 90% at 50% 0%, #d6604a, #a3382a 45%, #5a160e);
+    animation-name: dmg4;
+  }
+  @keyframes dmg4 {
+    0%,
+    33%,
+    38%,
+    100% {
+      transform: none;
+    }
+    35% {
+      transform: scale(0.93);
+    }
+  }
   .pad4 {
     position: absolute;
-    right: 6%;
-    top: 10%;
+    right: 5%;
+    top: 8%;
     width: 42%;
+    height: 62%;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 4px;
+    grid-template-rows: repeat(3, 1fr);
+    gap: 3px;
   }
-  .key {
-    text-align: center;
-    padding: 4px 0;
-    border-radius: 6px;
-    background: #f5ecda;
-    box-shadow: inset 0 0 0 1px var(--edge);
+  .key4 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2px;
     font-weight: 700;
+    font-size: 11px;
+    color: var(--ink);
+    background: linear-gradient(180deg, #fffaf0, #e8d6b0);
+    box-shadow: inset 0 0 0 1px #c89a4e;
   }
   .k7 {
     animation-name: k7;
   }
   @keyframes k7 {
     0%,
-    20% {
-      background: #f5ecda;
-    }
-    22%,
-    28% {
-      background: var(--edge);
-      transform: scale(0.92);
-    }
-    32%,
-    100% {
-      background: #f5ecda;
-      transform: none;
-    }
-  }
-  .disp4 {
-    position: absolute;
-    left: 6%;
-    top: 52%;
-    width: 40%;
-    text-align: center;
-    padding: 4px 0;
-    border-radius: 8px;
-    font-weight: 800;
-    font-size: 20px;
-    color: var(--parch);
-    background: rgba(0, 0, 0, 0.35);
-    animation-name: disp4;
-  }
-  @keyframes disp4 {
-    0%,
-    24% {
-      color: rgba(234, 220, 192, 0.2);
-    }
-    28%,
-    64% {
-      color: var(--parch);
-    }
-    70%,
-    100% {
-      color: rgba(234, 220, 192, 0.2);
-    }
-  }
-  .dmg4 {
-    position: absolute;
-    left: 6%;
-    bottom: 8%;
-    width: 40%;
-    text-align: center;
-    padding: 6px 0;
-    border-radius: 8px;
-    font-weight: 700;
-    color: #fff;
-    background: var(--bad);
-    animation-name: dmg4;
-  }
-  @keyframes dmg4 {
-    0%,
-    54% {
-      transform: none;
-    }
-    58%,
-    62% {
-      transform: scale(0.92);
-      filter: brightness(1.2);
-    }
-    66%,
+    9%,
+    15%,
     100% {
       transform: none;
+      background: linear-gradient(180deg, #fffaf0, #e8d6b0);
+    }
+    11% {
+      transform: scale(0.9);
+      background: #e6b450;
     }
   }
   .f4 {
@@ -1060,365 +1233,420 @@
   @keyframes f4 {
     0% {
       left: 80%;
-      top: 92%;
+      top: 108%;
     }
-    18%,
-    30% {
-      left: 64%;
-      top: 44%;
+    8%,
+    14% {
+      left: 60%;
+      top: 60%;
     }
-    50%,
-    64% {
-      left: 22%;
-      top: 82%;
+    30%,
+    38% {
+      left: 27%;
+      top: 77%;
     }
-    80%,
+    70%,
     100% {
-      left: 50%;
-      top: 96%;
+      left: 22%;
+      top: 110%;
     }
   }
   @keyframes rip4 {
     0%,
-    20% {
+    9%,
+    15%,
+    33%,
+    39%,
+    100% {
       opacity: 0;
       transform: scale(0.6);
     }
-    22% {
+    11%,
+    35% {
       opacity: 1;
       transform: scale(1);
     }
-    30%,
-    55% {
-      opacity: 0;
-      transform: scale(1.8);
-    }
-    58% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    66%,
-    100% {
+    14%,
+    38% {
       opacity: 0;
       transform: scale(1.8);
     }
   }
 
-  /* 5 — библиотека → снаряжение, налаштування */
-  .lib5 {
+  /* 5 — «Додати» → бібліотека → заповнена картка → у списку */
+  .list5 {
     left: 5%;
     top: 8%;
-    width: 46%;
+    bottom: 8%;
+    width: 40%;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 3px;
+    white-space: normal;
   }
-  .li,
   .gi {
-    display: flex;
-    justify-content: space-between;
-    gap: 4px;
-    padding: 3px 0;
-    border-bottom: 1px solid rgba(107, 90, 72, 0.2);
-    font-family: var(--font-serif);
-    font-weight: 700;
-    white-space: nowrap;
-    overflow: hidden;
+    padding: 3px 5px;
+    border-radius: 2px;
+    font-size: 10px;
+    background: rgba(42, 31, 23, 0.06);
   }
-  .li b {
-    font-family: var(--font-sans);
-    font-weight: 700;
-    color: var(--ink2);
-    font-size: 9.5px;
+  .gi.new {
+    opacity: 0;
+    animation-name: new5;
   }
-  .li.hl {
-    animation-name: hl5;
-    border-radius: 4px;
-  }
-  @keyframes hl5 {
+  @keyframes new5 {
     0%,
-    14% {
-      background: transparent;
-    }
-    18%,
-    30% {
-      background: rgba(232, 116, 59, 0.22);
-    }
-    34%,
-    100% {
-      background: transparent;
-    }
-  }
-  .fly5 {
-    left: 8%;
-    top: 34%;
-    font-family: var(--font-serif);
-    font-weight: 700;
-    padding: 3px 7px;
-    animation-name: fly5;
-    z-index: 3;
-  }
-  @keyframes fly5 {
-    0%,
-    24% {
+    66% {
       opacity: 0;
+      transform: translateX(10px);
+    }
+    72%,
+    94% {
+      opacity: 1;
+      transform: none;
+      background: rgba(230, 180, 80, 0.3);
+      box-shadow: inset 0 0 0 1px #c89a4e;
+    }
+    98%,
+    100% {
+      opacity: 0;
+    }
+  }
+  .add5 {
+    right: 6%;
+    top: 8%;
+    animation-name: press5;
+  }
+  @keyframes press5 {
+    0%,
+    6%,
+    11%,
+    100% {
       transform: none;
     }
+    8% {
+      transform: scale(0.9);
+    }
+  }
+  .ch5 {
+    position: absolute;
+    right: 6%;
+    top: 30%;
+    width: 44%;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    opacity: 0;
+    animation-name: ch5;
+  }
+  .ch5 .pp {
+    position: relative;
+  }
+  @keyframes ch5 {
+    0%,
+    10% {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    14%,
     28% {
       opacity: 1;
       transform: none;
     }
-    46% {
-      opacity: 1;
-      transform: translate(150px, 34px) scale(0.95);
-    }
-    50%,
+    32%,
     100% {
       opacity: 0;
-      transform: translate(150px, 34px);
     }
   }
-  .gear5 {
-    right: 5%;
-    top: 30%;
-    width: 42%;
+  .w5.lib {
+    animation-name: lib5;
   }
-  .gi.new {
-    animation-name: new5;
-    align-items: center;
-  }
-  @keyframes new5 {
+  @keyframes lib5 {
     0%,
-    46% {
-      opacity: 0;
-      max-height: 0;
-      padding: 0;
-    }
-    50%,
-    96% {
-      opacity: 1;
-      max-height: 30px;
-      padding: 3px 0;
-    }
+    22%,
+    30%,
     100% {
-      opacity: 0;
+      box-shadow: inset 0 0 0 1px rgba(150, 112, 62, 0.6);
+    }
+    24%,
+    28% {
+      box-shadow:
+        inset 0 0 0 1.5px #e3bd73,
+        0 0 10px rgba(240, 190, 100, 0.6);
     }
   }
-  .att {
-    font-family: var(--font-sans);
-    font-size: 8.5px;
-    padding: 1px 4px;
-    border-radius: 4px;
-    border: 1px solid var(--edge);
+  .card5 {
+    right: 6%;
+    top: 24%;
+    bottom: 20%;
+    width: 44%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+    white-space: normal;
+    opacity: 0;
+    animation-name: card5;
+  }
+  .card5 b {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: 12px;
+  }
+  .st5 {
+    font-size: 10px;
     color: var(--ink2);
-    animation-name: att5;
   }
-  @keyframes att5 {
+  .bt5 {
+    display: flex;
+    gap: 4px;
+    margin-top: auto;
+  }
+  .bt5 .pl {
+    position: static;
+    flex: 1;
+    padding: 3px 4px;
+    font-size: 9px;
+  }
+  @keyframes card5 {
     0%,
+    30% {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    34%,
     62% {
-      background: transparent;
-      color: var(--ink2);
+      opacity: 1;
+      transform: none;
     }
     66%,
     100% {
-      background: var(--ink);
-      color: var(--parch);
-      border-color: var(--ink);
-    }
-  }
-  .ac5 {
-    position: absolute;
-    right: 8%;
-    bottom: 10%;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 4px 9px;
-    border-radius: 9px;
-    color: var(--parch);
-    font-family: var(--font-serif);
-    font-weight: 700;
-    font-size: 16px;
-    background: var(--leather);
-    background-size: var(--leather-size);
-    box-shadow: var(--leather-shadow), inset 0 -2px 0 -1px #e0703f;
-  }
-  .ac5 span {
-    display: inline-block;
-    width: 18px;
-  }
-  .ac5 .a {
-    animation-name: ac5a;
-  }
-  .ac5 .b {
-    position: absolute;
-    right: 9px;
-    color: var(--gold);
-    animation-name: ac5b;
-  }
-  @keyframes ac5a {
-    0%,
-    66% {
-      opacity: 1;
-    }
-    70%,
-    96% {
       opacity: 0;
     }
   }
-  @keyframes ac5b {
+  .f5 {
+    animation-name: f5;
+  }
+  .f5 .ripple {
+    animation-name: rip5;
+  }
+  @keyframes f5 {
+    0% {
+      left: 80%;
+      top: 108%;
+    }
+    5%,
+    10% {
+      left: 86%;
+      top: 15%;
+    }
+    20%,
+    27% {
+      left: 74%;
+      top: 36%;
+    }
+    50%,
+    58% {
+      left: 84%;
+      top: 72%;
+    }
+    80%,
+    100% {
+      left: 90%;
+      top: 110%;
+    }
+  }
+  @keyframes rip5 {
     0%,
-    66% {
+    6%,
+    11%,
+    22%,
+    28%,
+    52%,
+    59%,
+    100% {
       opacity: 0;
       transform: scale(0.6);
     }
-    72%,
-    96% {
+    8%,
+    24%,
+    54% {
       opacity: 1;
       transform: scale(1);
     }
-    100% {
+    10%,
+    27%,
+    58% {
       opacity: 0;
+      transform: scale(1.8);
     }
   }
 
-  /* 6 — быстрая заметка голосом */
-  .fab6 {
+  /* 6 — печатка-перо → нотатка → запис у журналі */
+  .seal6 {
     position: absolute;
     left: 6%;
     bottom: 10%;
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--ember-ink);
-    background: linear-gradient(160deg, #f39a62, var(--ember) 50%, #c9562a);
-    box-shadow: 0 0 18px var(--ember-glow);
-    animation-name: fab6;
+    border-radius: 47% 53% 50% 50% / 52% 46% 54% 48%;
+    color: #4a1606;
+    background:
+      radial-gradient(circle at 50% 50%, transparent 52%, rgba(90, 24, 6, 0.35) 56%, transparent 60%),
+      radial-gradient(circle at 36% 28%, #ffb27c, var(--ember) 42%, #b4481c 72%, #7a2a10);
+    box-shadow:
+      0 3px 0 #6a240c,
+      0 6px 10px rgba(0, 0, 0, 0.5);
+    animation-name: seal6;
   }
-  @keyframes fab6 {
+  @keyframes seal6 {
     0%,
-    10% {
-      transform: none;
-    }
-    13% {
-      transform: scale(0.88);
-    }
-    18%,
+    6%,
+    11%,
     100% {
       transform: none;
+    }
+    8% {
+      transform: translateY(3px) rotate(-6deg);
     }
   }
   .note6 {
     left: 26%;
     right: 5%;
-    bottom: 8%;
-    top: 16%;
+    top: 10%;
+    bottom: 10%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    white-space: normal;
+    opacity: 0;
     animation-name: note6;
   }
   @keyframes note6 {
     0%,
-    14% {
-      transform: translateY(120%);
+    10% {
+      opacity: 0;
+      transform: translateY(20%);
     }
-    22%,
-    92% {
+    15%,
+    60% {
+      opacity: 1;
       transform: none;
     }
+    64%,
     100% {
-      transform: translateY(120%);
+      opacity: 0;
+      transform: scale(0.92);
     }
   }
-  .txt {
-    font-size: 11.5px;
-    line-height: 1.5;
+  .txt6 {
+    font-size: 11px;
+    line-height: 1.4;
   }
-  .type {
+  .type6 {
     display: inline-block;
-    vertical-align: bottom;
+    max-width: 0;
     overflow: hidden;
     white-space: nowrap;
-    max-width: 0;
+    vertical-align: bottom;
     animation-name: type6;
     animation-timing-function: steps(24);
   }
   @keyframes type6 {
     0%,
-    30% {
+    16% {
       max-width: 0;
     }
-    64%,
+    36%,
     100% {
-      max-width: 160px;
+      max-width: 14em;
     }
   }
-  .men {
-    margin-left: 4px;
-    padding: 1px 5px;
-    border-radius: 5px;
+  .men6 {
+    display: inline-block;
+    margin-left: 3px;
+    padding: 0 4px;
+    border-radius: 3px;
     font-weight: 700;
-    color: #7a2e45;
-    background: rgba(143, 58, 83, 0.16);
+    color: #8e2f20;
+    background: rgba(184, 65, 44, 0.15);
+    opacity: 0;
     animation-name: men6;
+  }
+  .men6.on {
+    opacity: 1;
+    animation: none;
   }
   @keyframes men6 {
     0%,
-    66% {
+    38% {
       opacity: 0;
     }
-    72%,
+    42%,
     100% {
       opacity: 1;
     }
   }
-  .mic {
-    position: absolute;
-    right: 10px;
-    bottom: 8px;
-    display: flex;
-    align-items: center;
-    gap: 3px;
-    padding: 4px 8px;
-    border-radius: 14px;
-    color: #fff;
-    background: var(--bad);
-    animation-name: mic6;
+  .sv6 {
+    position: static;
+    align-self: flex-end;
+    margin-top: auto;
+    animation-name: sv6;
   }
-  @keyframes mic6 {
+  @keyframes sv6 {
     0%,
-    26% {
-      box-shadow: none;
+    54%,
+    59%,
+    100% {
+      transform: none;
     }
-    30%,
-    64% {
-      box-shadow: 0 0 0 4px rgba(192, 83, 63, 0.3);
+    56% {
+      transform: scale(0.9);
     }
-    46% {
-      box-shadow: 0 0 0 8px rgba(192, 83, 63, 0.15);
+  }
+  .row6 {
+    left: 26%;
+    right: 5%;
+    top: 32%;
+    gap: 7px;
+    white-space: normal;
+    opacity: 0;
+    animation-name: row6;
+  }
+  @keyframes row6 {
+    0%,
+    62% {
+      opacity: 0;
+      transform: translateY(6px);
     }
     68%,
+    94% {
+      opacity: 1;
+      transform: none;
+    }
+    98%,
     100% {
-      box-shadow: none;
+      opacity: 0;
     }
   }
-  .w {
-    width: 3px;
-    height: 10px;
+  .sn6 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2px 4px;
     border-radius: 2px;
-    background: #fff;
-    animation-name: wave6;
-    animation-duration: 0.6s !important;
+    font-size: 7.5px;
+    letter-spacing: 0.1em;
+    color: var(--ink2);
+    box-shadow: inset 0 0 0 1px rgba(150, 112, 62, 0.5);
   }
-  .w + .w {
-    animation-delay: 0.2s;
-  }
-  @keyframes wave6 {
-    0%,
-    100% {
-      transform: scaleY(0.4);
-    }
-    50% {
-      transform: scaleY(1);
-    }
+  .sn6 b {
+    margin: 0;
+    font-size: 13px;
+    color: var(--ink);
   }
   .f6 {
     animation-name: f6;
@@ -1428,285 +1656,350 @@
   }
   @keyframes f6 {
     0% {
-      left: 40%;
-      top: 96%;
+      left: 30%;
+      top: 108%;
     }
-    10%,
-    14% {
-      left: 11%;
-      top: 78%;
+    4%,
+    10% {
+      left: 13%;
+      top: 79%;
     }
-    26%,
-    100% {
+    30% {
+      left: 50%;
+      top: 104%;
+    }
+    50%,
+    58% {
       left: 86%;
-      top: 82%;
+      top: 80%;
+    }
+    80%,
+    100% {
+      left: 74%;
+      top: 110%;
     }
   }
   @keyframes rip6 {
     0%,
-    10% {
+    5%,
+    11%,
+    53%,
+    59%,
+    100% {
       opacity: 0;
       transform: scale(0.6);
     }
-    12% {
+    7%,
+    55% {
       opacity: 1;
       transform: scale(1);
     }
-    18%,
-    26% {
-      opacity: 0;
-      transform: scale(1.8);
-    }
-    28% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    34%,
-    100% {
+    10%,
+    58% {
       opacity: 0;
       transform: scale(1.8);
     }
   }
 
-  /* 7 — заметка → ИИ → список изменений */
+  /* 7 — нотатки → ШІ → список змін */
   .n7 {
     left: 5%;
-    top: 14%;
+    top: 22%;
     width: 26%;
+    height: 56%;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    gap: 0;
+    padding: 6px;
     color: var(--ink2);
   }
-  .arrow7 {
+  .ar7 {
     position: absolute;
-    left: 33%;
-    top: 26%;
+    left: 34%;
+    top: 50%;
     display: flex;
-    gap: 5px;
+    gap: 2px;
+    transform: translateY(-50%);
   }
-  .arrow7 span {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--ember);
-    animation-name: dot7;
+  .ar7 span {
+    width: 7px;
+    height: 7px;
+    transform: rotate(45deg);
+    border-top: 2px solid #e3bd73;
+    border-right: 2px solid #e3bd73;
+    opacity: 0.2;
+    animation-name: ar7;
   }
-  .arrow7 span:nth-child(2) {
-    animation-delay: 0.15s;
+  .ar7 span:nth-child(2) {
+    animation-name: ar7b;
   }
-  .arrow7 span:nth-child(3) {
-    animation-delay: 0.3s;
+  .ar7 span:nth-child(3) {
+    animation-name: ar7c;
   }
-  @keyframes dot7 {
+  @keyframes ar7 {
     0%,
-    6% {
-      opacity: 0.15;
+    6%,
+    22%,
+    100% {
+      opacity: 0.2;
     }
-    12%,
-    26% {
+    12% {
       opacity: 1;
     }
-    32%,
+  }
+  @keyframes ar7b {
+    0%,
+    10%,
+    26%,
     100% {
-      opacity: 0.15;
+      opacity: 0.2;
+    }
+    16% {
+      opacity: 1;
+    }
+  }
+  @keyframes ar7c {
+    0%,
+    14%,
+    30%,
+    100% {
+      opacity: 0.2;
+    }
+    20% {
+      opacity: 1;
     }
   }
   .ai7 {
     position: absolute;
-    left: 45%;
-    top: 12%;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
+    left: 50%;
+    top: 50%;
+    width: 38px;
+    height: 38px;
+    margin: -19px 0 0 -19px;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    color: var(--gold);
-    background: radial-gradient(circle at 40% 35%, #3a2a20, #1d140f);
-    box-shadow: 0 0 0 1.5px rgba(214, 170, 110, 0.5), 0 0 22px rgba(230, 180, 80, 0.35);
+    border-radius: 50%;
+    color: #fff0d6;
+    background: radial-gradient(circle at 50% 35%, #f39a5c, #b0481c);
+    box-shadow:
+      0 0 0 2px #e3bd73,
+      0 0 14px rgba(232, 116, 59, 0.5);
     animation-name: ai7;
-  }
-  .code {
-    font-family: monospace;
-    font-size: 9px;
-    color: #e6d6bb;
   }
   @keyframes ai7 {
     0%,
-    20% {
-      transform: scale(0.9);
-    }
-    28% {
-      transform: scale(1.08) rotate(8deg);
-    }
+    18%,
     34%,
     100% {
       transform: none;
     }
+    26% {
+      transform: scale(1.15) rotate(20deg);
+    }
   }
   .list7 {
-    left: 26%;
     right: 5%;
-    bottom: 7%;
-    animation-name: list7;
+    top: 18%;
+    bottom: 18%;
+    width: 34%;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    gap: 5px;
   }
-  @keyframes list7 {
-    0%,
-    32% {
-      opacity: 0;
-      transform: translateY(14px);
-    }
-    38%,
-    94% {
-      opacity: 1;
-      transform: none;
-    }
-    100% {
-      opacity: 0;
-    }
-  }
-  .ck {
+  .ck7 {
     display: flex;
     align-items: center;
     gap: 5px;
-    padding: 2px 0;
-    font-weight: 600;
+    font-size: 10px;
+    opacity: 0;
   }
-  .ck .cb {
+  .ck7 .cb {
+    flex-shrink: 0;
     width: 11px;
     height: 11px;
-    border-radius: 3px;
-    border: 1.5px solid var(--ink);
-    animation-name: ck7;
+    border-radius: 2px;
+    box-shadow: inset 0 0 0 1.5px var(--ink2);
+  }
+  .c1 {
+    animation-name: ck1;
+  }
+  .c2 {
+    animation-name: ck2;
+  }
+  .c3 {
+    animation-name: ck3;
+  }
+  .c1 .cb {
+    animation-name: cb1;
   }
   .c2 .cb {
-    animation-delay: 0.35s;
+    animation-name: cb2;
   }
   .c3 .cb {
-    animation-delay: 0.7s;
+    animation-name: cb3;
   }
-  @keyframes ck7 {
+  @keyframes ck1 {
     0%,
-    46% {
+    32% {
+      opacity: 0;
+    }
+    36%,
+    94% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+  @keyframes ck2 {
+    0%,
+    38% {
+      opacity: 0;
+    }
+    42%,
+    94% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+  @keyframes ck3 {
+    0%,
+    44% {
+      opacity: 0;
+    }
+    48%,
+    94% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+  @keyframes cb1 {
+    0%,
+    54% {
       background: transparent;
     }
-    50%,
+    58%,
     100% {
-      background: var(--ink);
-      box-shadow: inset 0 0 0 2px #f1e3c6;
+      background: var(--good);
+    }
+  }
+  @keyframes cb2 {
+    0%,
+    62% {
+      background: transparent;
+    }
+    66%,
+    100% {
+      background: var(--good);
+    }
+  }
+  @keyframes cb3 {
+    0%,
+    70% {
+      background: transparent;
+    }
+    74%,
+    100% {
+      background: var(--good);
     }
   }
 
-  /* 8 — данные на устройстве, перенос файлом, язык */
+  /* 8 — дані на пристрої, перенесення файлом, мова */
   .dev8 {
     position: absolute;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 4px;
-    color: var(--gold);
-    border-radius: 12px;
-    background: linear-gradient(180deg, #2b211b, #17110e);
-    box-shadow: inset 0 0 0 2px #4a3828, 0 8px 16px -6px rgba(0, 0, 0, 0.7);
+    gap: 3px;
+    border-radius: 6px;
+    font-family: var(--font-sc);
+    font-weight: 700;
+    font-size: 10px;
+    color: #e3c48a;
+    background: linear-gradient(180deg, #2c1f18, #150e0b);
+    box-shadow: inset 0 0 0 1.5px #8a6434;
   }
-  .lbl {
-    font-size: 9px;
-    color: var(--muted);
-    font-weight: 600;
+  .dev8.tab {
+    left: 6%;
+    top: 12%;
+    width: 46%;
+    height: 54%;
   }
-  .tab {
-    left: 8%;
-    top: 16%;
-    width: 34%;
-    height: 56%;
-  }
-  .ph {
-    right: 12%;
-    top: 22%;
-    width: 18%;
-    height: 50%;
-    border-radius: 10px;
+  .dev8.ph {
+    right: 10%;
+    top: 8%;
+    width: 17%;
+    height: 62%;
   }
   .zip8 {
     position: absolute;
-    left: 30%;
-    top: 40%;
+    left: 24%;
+    top: 34%;
     display: flex;
     align-items: center;
     gap: 3px;
-    padding: 3px 7px;
-    border-radius: 7px;
-    font-weight: 800;
-    color: var(--ember-ink);
-    background: var(--ember);
-    box-shadow: 0 0 14px var(--ember-glow);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 700;
+    font-size: 10px;
+    color: #fff1dc;
+    background: radial-gradient(ellipse 120% 90% at 50% 0%, #c9682f, #9a3f18 45%, #5e200b);
+    box-shadow: inset 0 0 0 1px #e3bd73;
+    opacity: 0;
     animation-name: zip8;
   }
   @keyframes zip8 {
     0%,
-    10% {
+    12% {
+      left: 24%;
       opacity: 0;
-      transform: none;
     }
-    16% {
+    18% {
+      left: 24%;
       opacity: 1;
-      transform: none;
     }
-    34% {
-      transform: translate(60px, -40px);
-    }
-    52%,
-    60% {
+    52% {
+      left: 74%;
       opacity: 1;
-      transform: translate(118px, 0);
     }
-    66%,
+    60%,
     100% {
+      left: 74%;
       opacity: 0;
-      transform: translate(118px, 0);
     }
   }
   .lang8 {
-    position: absolute;
     left: 50%;
     bottom: 7%;
+    width: 74px;
     transform: translateX(-50%);
-    display: flex;
-    padding: 2px;
-    border-radius: 8px;
-    background: rgba(0, 0, 0, 0.4);
-    font-weight: 800;
-    color: #f6e7cc;
-  }
-  .lang8 span {
-    position: relative;
-    z-index: 1;
-    width: 34px;
-    text-align: center;
-    padding: 3px 0;
   }
   .lang8 i {
-    position: absolute;
-    top: 2px;
     left: 2px;
-    width: 34px;
-    bottom: 2px;
-    border-radius: 6px;
-    background: var(--ember);
-    box-shadow: 0 0 10px var(--ember-glow);
+    width: calc(50% - 2px);
     animation-name: lang8;
   }
   @keyframes lang8 {
     0%,
-    70% {
-      transform: none;
+    68% {
+      left: 2px;
     }
-    76%,
+    74%,
     94% {
-      transform: translateX(34px);
+      left: 50%;
+    }
+    100% {
+      left: 2px;
     }
   }
-
 
   /* 9 — кубики й привал */
   .s9 {
@@ -1944,14 +2237,19 @@
     .stage * {
       animation: none !important;
     }
-    .prompt3,
-    .res3,
-    .list7,
+    .w1,
+    .win3,
+    .r3,
+    .card5,
+    .gi.new,
     .note6,
-    .ta,
-    .gi.new {
+    .ck7,
+    .ta {
       opacity: 1;
       transform: none;
+    }
+    .type6 {
+      max-width: none;
     }
   }
 </style>
