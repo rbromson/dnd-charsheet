@@ -33,7 +33,7 @@ const POWER: ItemPower = { id: '', name: '', cost: 0, costMax: null, consume: fa
 const RISK_KINDS = ['destroy', 'mundane', 'partial', 'gain'];
 const EXTRA: ExtraDamage = { id: '', dice: '', type: '', when: '', crit: false };
 const TOGGLE: ItemToggle = { id: '', name: '', on: false, mods: [], extra: [], note: '' };
-const EFFECT: ActiveEffect = { id: '', name: '', source: '', mods: [], duration: '' };
+const EFFECT: ActiveEffect = { id: '', name: '', source: '', mods: [], duration: '', conc: false };
 function mods(raw: unknown): ItemMod[] {
   return (Array.isArray(raw) ? raw.filter(isPlain) : []).map((m) => {
     const md = mergeDefaults(MOD, m);
@@ -51,7 +51,7 @@ function extras(raw: unknown): ExtraDamage[] {
 }
 const MOD: ItemMod = { id: '', t: 'check', op: 'add', v: 0, cap: null, perLevel: false, when: '' };
 const RESULTS = ['heal', 'temp', 'damage', 'info'];
-const SPELL: Spell = { id: '', level: 0, name: '', prepared: false, text: '' };
+const SPELL: Spell = { id: '', level: 0, name: '', prepared: false, text: '', ref: null };
 const ITEM: Item = {
   id: '', name: '', qty: 1, text: '', magic: false, ref: null, en: '', equipped: false, attune: false, attuned: false, rarity: '',
   weapon: null, armor: null, bonus: 0, acBonus: 0, saveBonus: 0, setAbility: null, setValue: 0, noArmor: false, resourceId: null, deckId: null, powers: [], draft: false, mods: [], toggles: [], extra: [],

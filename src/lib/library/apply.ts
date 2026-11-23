@@ -167,7 +167,7 @@ export function spellText(s: LibSpell): string {
 }
 
 export function spellFromLib(s: LibSpell): Spell {
-  return { id: uid(), level: s.l, name: s.n, prepared: true, text: spellText(s) };
+  return { id: uid(), level: s.l, name: s.n, prepared: true, text: spellText(s), ref: s.id };
 }
 
 /** Атака для заклинания со шкодою: кидок атаки заклинанням или рятунок цілі. */

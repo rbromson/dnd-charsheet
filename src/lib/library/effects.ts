@@ -98,7 +98,7 @@ export function togglesFor(id: string): ItemToggle[] {
   }));
 }
 /** Эффект зелья для действия «Випити» (null — у зелья нет длительного эффекта). */
-export function potionEffect(id: string, name: string): Omit<ActiveEffect, 'id' | 'source'> | null {
+export function potionEffect(id: string, name: string): Omit<ActiveEffect, 'id' | 'source' | 'conc'> | null {
   const p = POTIONS[id];
   return p ? { name, mods: p.mods.map(makeMod), duration: L(...p.dur) } : null;
 }

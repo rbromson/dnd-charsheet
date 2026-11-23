@@ -165,7 +165,7 @@ export default {
   'dmg.slashing': "рубана",
   'dmg.thunder': "звук",
   'dmg.nonmagical': "немагічна зброя",
-  'mod.title': "Від предметів",
+  'mod.title': "Ефекти",
   'mod.edTitle': "Пасивні ефекти",
   'mod.add': "Ефект",
   'mod.target': "На що",

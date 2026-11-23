@@ -5,7 +5,7 @@
   import TextField from '../../components/TextField.svelte';
   import { charStore } from '../../lib/stores/characters.svelte';
   import { ui } from '../../lib/stores/ui.svelte';
-  import { CONDITIONS, type Condition } from '../../lib/rules/conditions';
+  import { CONDITIONS, endConcentration, type Condition } from '../../lib/rules/conditions';
   import { t } from '../../lib/i18n';
   import { toggleCondition } from './conditions';
 
@@ -43,10 +43,10 @@
       <span class="label">{t('cond.conc')}</span>
       <div class="crow">
         <div class="grow">
-          <TextField bind:value={() => c.concentration ?? '', (v) => (c.concentration = v.trim() ? v : null)} placeholder={t('cond.concPh')} />
+          <TextField bind:value={() => c.concentration ?? '', (v) => (v.trim() ? (c.concentration = v) : endConcentration(c))} placeholder={t('cond.concPh')} />
         </div>
         {#if c.concentration}
-          <button class="btn btn-outline" onclick={() => (c.concentration = null)}>{t('cond.concEnd')}</button>
+          <button class="btn btn-outline" onclick={() => endConcentration(c)}>{t('cond.concEnd')}</button>
         {/if}
       </div>
     </div>

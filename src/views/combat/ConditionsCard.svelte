@@ -7,7 +7,7 @@
   import ConditionsSheet from './ConditionsSheet.svelte';
   import { charStore } from '../../lib/stores/characters.svelte';
   import { ui } from '../../lib/stores/ui.svelte';
-  import type { Condition } from '../../lib/rules/conditions';
+  import { endConcentration, type Condition } from '../../lib/rules/conditions';
   import { t } from '../../lib/i18n';
   import { toggleCondition } from './conditions';
 
@@ -46,7 +46,7 @@
         {#if c.concentration}
           <span class="chip conc">
             <button class="lbl" onclick={open}>{t('cond.concOn', { s: c.concentration })}</button>
-            <button class="x" aria-label={t('cond.concEnd')} onclick={() => charStore.update((ch) => void (ch.concentration = null), { undo: t('cond.concEnded', { s: c.concentration ?? '' }) })}
+            <button class="x" aria-label={t('cond.concEnd')} onclick={() => charStore.update((ch) => endConcentration(ch), { undo: t('cond.concEnded', { s: c.concentration ?? '' }) })}
               ><Icon name="close" size={14} stroke={2.4} /></button
             >
           </span>

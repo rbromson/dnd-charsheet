@@ -165,7 +165,7 @@ export default {
   'dmg.slashing': "slashing",
   'dmg.thunder': "thunder",
   'dmg.nonmagical': "nonmagical weapons",
-  'mod.title': "From items",
+  'mod.title': "Effects",
   'mod.edTitle': "Passive effects",
   'mod.add': "Effect",
   'mod.target': "Applies to",

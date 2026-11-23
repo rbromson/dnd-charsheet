@@ -43,7 +43,7 @@ describe('switchable effects', () => {
     const c = newCharacter();
     c.abilities.str = 12;
     const fx = potionEffect('m:potion-of-giant-strength-hill', 'Зілля сили')!;
-    c.effects.push({ id: 'e', source: 'Зілля сили', ...fx });
+    c.effects.push({ id: 'e', source: 'Зілля сили', ...fx, conc: false });
     expect(abilityScore(c, 'str')).toBe(21);
     applyRest(c, 'long');
     expect(c.effects).toHaveLength(0);

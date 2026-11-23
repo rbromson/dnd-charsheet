@@ -159,6 +159,8 @@ export interface Spell {
   name: string;
   prepared: boolean;
   text: string;
+  /** id заклинання в бібліотеці (концентрація, тривалість, ефект на себе) */
+  ref?: string | null;
 }
 
 export interface WeaponStats {
@@ -265,6 +267,8 @@ export interface ActiveEffect {
   mods: ItemMod[];
   /** «1 година» — подсказка, игровое время не считаем */
   duration: string;
+  /** тримається на концентрації: обірвалась — ефект знято */
+  conc: boolean;
 }
 
 /**

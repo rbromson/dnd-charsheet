@@ -2,7 +2,7 @@
 import { charStore } from '../../lib/stores/characters.svelte';
 import { dice } from '../../lib/stores/dice.svelte';
 import { ui } from '../../lib/stores/ui.svelte';
-import { concentrationDc, incapacitated, type Condition } from '../../lib/rules/conditions';
+import { concentrationDc, endConcentration, incapacitated, type Condition } from '../../lib/rules/conditions';
 import { saveBonus } from '../../lib/rules/calc';
 import { t } from '../../lib/i18n';
 
@@ -15,7 +15,7 @@ export function toggleCondition(k: Condition) {
     (ch) => {
       ch.conditions = on ? [...ch.conditions, k] : ch.conditions.filter((x) => x !== k);
       // недієздатний — концентрація обривається
-      if (on && ch.concentration && incapacitated(ch)) ch.concentration = null;
+      if (on && ch.concentration && incapacitated(ch)) endConcentration(ch);
     },
     { undo: () => `${t(`cond.${k}`)}${on ? ' ✓' : ' ✗'}${on && conc && !charStore.current?.concentration ? ` · ${t('cond.concIncap', { s: conc })}` : ''}` },
   );
@@ -28,9 +28,7 @@ export function concentrationCheck(damage: number) {
   const s = c.concentration;
   if (c.hp.current === 0) {
     charStore.update(
-      (ch) => {
-        ch.concentration = null;
-      },
+      (ch) => endConcentration(ch),
       { undo: t('cond.concIncap', { s }) },
     );
     return;
@@ -50,7 +48,7 @@ export function concentrationCheck(damage: number) {
           }
           charStore.update(
             (ch) => {
-              if (ch.concentration === s) ch.concentration = null;
+              if (ch.concentration === s) endConcentration(ch);
             },
             { undo: t('cond.concLost', { dc }) },
           );

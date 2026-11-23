@@ -82,3 +82,9 @@ export function speedAfter(c: Character, v: number): { v: number; why: string[] 
 
 /** СК рятунку концентрації після шкоди: 10 або половина шкоди. */
 export const concentrationDc = (damage: number): number => Math.max(10, Math.floor(damage / 2));
+
+/** Концентрація обірвалась: прибрати і її ефекти (Прискорення, Щит віри). */
+export function endConcentration(c: Character): void {
+  c.concentration = null;
+  c.effects = (c.effects ?? []).filter((e) => !e.conc);
+}

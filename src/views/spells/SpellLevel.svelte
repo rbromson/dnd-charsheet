@@ -4,6 +4,7 @@
   import Stepper from '../../components/Stepper.svelte';
   import RowActions from '../../components/RowActions.svelte';
   import SpellSheet from './SpellSheet.svelte';
+  import SpellCast from './SpellCast.svelte';
   import { charStore } from '../../lib/stores/characters.svelte';
   import { ui, buzz } from '../../lib/stores/ui.svelte';
   import { press } from '../../lib/actions/press';
@@ -149,6 +150,7 @@
           </div>
           {#if open[s.id] && !ui.editing}
             <div class="desc serif">{s.text.trim() || t('spells.noText')}</div>
+            <SpellCast spell={s} />
           {/if}
         </li>
       {/each}

@@ -158,7 +158,7 @@
         }
         if (total != null && p.self && p.result === 'temp') ch.hp.temp = Math.max(ch.hp.temp, total);
         // зілля з тривалим ефектом — ефект на персонажі, доки його не знімуть
-        if (p.effect) ch.effects.push({ id: uid(), source: name, name: p.effect.name || name, mods: $state.snapshot(p.effect.mods) as ItemMod[], duration: p.effect.duration });
+        if (p.effect) ch.effects.push({ id: uid(), source: name, name: p.effect.name || name, mods: $state.snapshot(p.effect.mods) as ItemMod[], duration: p.effect.duration, conc: false });
       },
       {
         undo: () => {
