@@ -20,6 +20,8 @@
   import ProfileView from './views/profile/ProfileView.svelte';
   import JournalView from './views/journal/JournalView.svelte';
   import { ui } from './lib/stores/ui.svelte';
+  import { loadItems } from './lib/library';
+  import { migrateMechanics, MECH_VERSION } from './lib/library/migrate';
   import { charStore } from './lib/stores/characters.svelte';
   import { journal } from './lib/stores/journal.svelte';
   import { codex } from './lib/stores/codex.svelte';
@@ -47,6 +49,19 @@
       document.removeEventListener('visibilitychange', onVis);
       window.removeEventListener('pagehide', flush);
     };
+  });
+
+  // старые предметы из библиотеки получают действия и заряды (один раз на персонажа)
+  $effect(() => {
+    const c = charStore.current;
+    if (!c || c.rules.mech >= MECH_VERSION) return;
+    const id = c.id;
+    loadItems()
+      .then((lib) => {
+        const cur = charStore.current;
+        if (cur && cur.id === id) migrateMechanics(cur, lib);
+      })
+      .catch(() => {});
   });
 
   $effect(() => {

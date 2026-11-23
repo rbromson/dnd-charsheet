@@ -1,0 +1,46 @@
+/**
+ * Механика зарядов SRD: сколько восстанавливается «на світанку» и что бывает на последнем заряде.
+ * Сгенерировано из текстов предметов (scripts: разбор items.en.json); ключ — id записи библиотеки.
+ */
+import type { Risk } from '../model/types';
+
+export const CHARGES: Record<string, { rg?: string; empty?: Risk }> = {
+  'm:cubic-gate': { rg: '1d3' },
+  'm:gem-of-seeing': { rg: '1d3' },
+  'm:hammer-of-thunderbolts': { rg: '1d4+1' },
+  'm:mace-of-terror': { rg: '1d3' },
+  'm:medallion-of-thoughts': { rg: '1d3' },
+  'm:ring-of-animal-influence': { rg: '1d3' },
+  'm:ring-of-elemental-command': { rg: '1d4+1' },
+  'm:ring-of-elemental-command-air': { rg: '1d4+1' },
+  'm:ring-of-elemental-command-earth': { rg: '1d4+1' },
+  'm:ring-of-elemental-command-fire': { rg: '1d4+1' },
+  'm:ring-of-elemental-command-water': { rg: '1d4+1' },
+  'm:ring-of-evasion': { rg: '1d3' },
+  'm:ring-of-shooting-stars': { rg: '1d6' },
+  'm:ring-of-the-ram': { rg: '1d3' },
+  'm:robe-of-scintillating-colors': { rg: '1d3' },
+  'm:staff-of-fire': { rg: '1d6+4', empty: { die: 20, on: [1], kind: 'destroy', gain: '' } },
+  'm:staff-of-frost': { rg: '1d6+4', empty: { die: 20, on: [1], kind: 'destroy', gain: '' } },
+  'm:staff-of-healing': { rg: '1d6+4', empty: { die: 20, on: [1], kind: 'destroy', gain: '' } },
+  'm:staff-of-power': { rg: '2d8+4', empty: { die: 20, on: [1], kind: 'partial', gain: '' } },
+  'm:staff-of-striking': { rg: '1d6+4', empty: { die: 20, on: [1], kind: 'mundane', gain: '' } },
+  'm:staff-of-swarming-insects': { rg: '1d6+4', empty: { die: 20, on: [1], kind: 'destroy', gain: '' } },
+  'm:staff-of-the-magi': { rg: '4d6+2', empty: { die: 20, on: [20], kind: 'gain', gain: '1d12+1' } },
+  'm:staff-of-the-woodlands': { rg: '1d6+4', empty: { die: 20, on: [1], kind: 'mundane', gain: '' } },
+  'm:staff-of-withering': { rg: '1d3' },
+  'm:trident-of-fish-command': { rg: '1d3' },
+  'm:wand-of-binding': { rg: '1d6+1', empty: { die: 20, on: [1], kind: 'destroy', gain: '' } },
+  'm:wand-of-enemy-detection': { rg: '1d6+1', empty: { die: 20, on: [1], kind: 'destroy', gain: '' } },
+  'm:wand-of-fear': { rg: '1d6+1', empty: { die: 20, on: [1], kind: 'destroy', gain: '' } },
+  'm:wand-of-fireballs': { rg: '1d6+1', empty: { die: 20, on: [1], kind: 'destroy', gain: '' } },
+  'm:wand-of-lightning-bolts': { rg: '1d6+1', empty: { die: 20, on: [1], kind: 'destroy', gain: '' } },
+  'm:wand-of-magic-detection': { rg: '1d3' },
+  'm:wand-of-magic-missiles': { rg: '1d6+1', empty: { die: 20, on: [1], kind: 'destroy', gain: '' } },
+  'm:wand-of-paralysis': { rg: '1d6+1', empty: { die: 20, on: [1], kind: 'destroy', gain: '' } },
+  'm:wand-of-polymorph': { rg: '1d6+1', empty: { die: 20, on: [1], kind: 'destroy', gain: '' } },
+  'm:wand-of-secrets': { rg: '1d3' },
+  'm:wand-of-web': { rg: '1d6+1', empty: { die: 20, on: [1], kind: 'destroy', gain: '' } },
+  'm:wand-of-wonder': { rg: '1d6+1', empty: { die: 20, on: [1], kind: 'destroy', gain: '' } },
+  'm:orb-of-dragonkind': { rg: '1d4+3' },
+};

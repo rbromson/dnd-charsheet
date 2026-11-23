@@ -94,13 +94,15 @@ class CharStore {
    * Изменение листа. Для заметных действий передайте undo — появится тост «Скасувати».
    * Простые правки полей можно делать и через bind: — автосохранение увидит их.
    */
-  update(fn: (c: Character) => void, opts: { undo?: string } = {}) {
+  /** undo — текст подсказки «Скасувати»; функцией, если текст зависит от результата fn (броски). */
+  update(fn: (c: Character) => void, opts: { undo?: string | (() => string) } = {}) {
     const c = this.current;
     if (!c) return;
     if (opts.undo) {
       const before = $state.snapshot(c) as Character;
       fn(c);
-      ui.toast(opts.undo, () => {
+      const msg = typeof opts.undo === 'function' ? opts.undo() : opts.undo;
+      ui.toast(msg, () => {
         if (this.current?.id === before.id) this.current = before;
       });
     } else {

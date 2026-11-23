@@ -158,7 +158,7 @@ export function fridoCommoner(): SeedCharacter {
   c.skills.persuasion.minD20 = 8;
   c.skills.persuasion.note = 'Сільська гостинність: 7 і менше на к20 вважається 8';
 
-  c.resources = [{ id: uid(), name: 'Кубики завзятості', max: 3, current: 3, die: 'd4', recharge: 'short', maxPerRoll: 2 }];
+  c.resources = [{ id: uid(), name: 'Кубики завзятості', max: 3, current: 3, die: 'd4', recharge: 'short', maxPerRoll: 2, regain: null, onEmpty: null }];
 
   const pan = linked('club', { name: 'Пательня', text: 'Правила палиці: легка, дробильна. З 2 рівня — «Стара вірна»: 1к6 + Мудрість.' }, 'Frying pan (club)');
   const dagger = linked('dagger', { name: 'Кинджал', qty: 2, text: 'Фехтувальна й метальна зброя (20/60 фт).' });
@@ -242,8 +242,8 @@ export function fridoVampire(): SeedCharacter {
   c.skills.stealth.prof = 1;
 
   c.resources = [
-    { id: uid(), name: 'Очки крові', max: 3, current: 3, die: null, recharge: 'manual', maxPerRoll: null },
-    { id: uid(), name: 'Вампірське зачарування', max: 3, current: 3, die: null, recharge: 'long', maxPerRoll: null },
+    { id: uid(), name: 'Очки крові', max: 3, current: 3, die: null, recharge: 'manual', maxPerRoll: null, regain: null, onEmpty: null },
+    { id: uid(), name: 'Вампірське зачарування', max: 3, current: 3, die: null, recharge: 'long', maxPerRoll: null, regain: null, onEmpty: null },
   ];
 
   const pan = linked('club', { name: 'Пательня', text: 'Правила палиці: легка, дробильна.' }, 'Frying pan (club)');

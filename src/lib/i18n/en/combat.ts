@@ -54,6 +54,8 @@ export default {
   'combat.resDie': 'Resource die',
   'combat.resNoDie': 'none',
   'combat.resRecharge': 'Recharge',
+  'combat.resRegain': 'How much comes back on a long rest',
+  'combat.resRegainPh': 'e.g. 1d6+1; empty — back to max',
   'combat.resMaxPerRoll': 'Max per roll',
   'combat.resNoLimit': 'no limit',
   'combat.resNew': 'New resource',
@@ -106,5 +108,6 @@ export default {
   'rest.restores': 'Will restore',
   'rest.hpNow': 'HP {cur} of {max}',
   'rest.roll': 'Roll {f}',
+  'rest.regained': '{name} +{n} ({f})',
   'rest.go': 'Rest',
 } satisfies Record<string, string>;

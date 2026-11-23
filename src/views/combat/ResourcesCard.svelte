@@ -45,7 +45,7 @@
 
   function add() {
     const id = uid();
-    c.resources.push({ id, name: t('combat.resNew'), max: 1, current: 1, die: null, recharge: 'long', maxPerRoll: null });
+    c.resources.push({ id, name: t('combat.resNew'), max: 1, current: 1, die: null, recharge: 'long', maxPerRoll: null, regain: null, onEmpty: null });
     open(id);
   }
 

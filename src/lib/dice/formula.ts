@@ -10,9 +10,9 @@ export interface ParsedFormula {
   flat: number;
 }
 
-/** Терпимый разбор: «1d6+3», «2Д8 - 1», «d20», «+5», пустая строка. Непонятные куски игнорируются. */
+/** Терпимый разбор: «1d6+3», «2Д8 - 1», «1к6+1», «d20», «+5», пустая строка. Непонятные куски игнорируются. */
 export function parseFormula(input: string): ParsedFormula {
-  const s = (input ?? '').replace(/\s+/g, '').replace(/[дД]/g, 'd').replace(/−/g, '-').toLowerCase();
+  const s = (input ?? '').replace(/\s+/g, '').replace(/[дДкК]/g, 'd').replace(/−/g, '-').toLowerCase();
   const out: ParsedFormula = { dice: [], flat: 0 };
   const re = /([+-]?)(\d*)d(\d+)|([+-]?)(\d+)/g;
   let m: RegExpExecArray | null;

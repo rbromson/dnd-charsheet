@@ -65,6 +65,9 @@
       <span class="label">{t('combat.resRecharge')}</span>
       <div class="wrap-seg"><Segmented bind:value={r.recharge} options={rechargeOptions} /></div>
     </div>
+    {#if r.recharge === 'long'}
+      <TextField label={t('combat.resRegain')} bind:value={() => r!.regain ?? '', (v) => (r!.regain = v.trim() || null)} placeholder={t('combat.resRegainPh')} />
+    {/if}
     <NumberField label={t('combat.resMaxPerRoll')} bind:value={r.maxPerRoll} nullable min={1} max={99} placeholder={t('combat.resNoLimit')} />
 
     {#snippet footer()}

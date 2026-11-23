@@ -15,7 +15,10 @@
   let confirmed = false;
   // черновик: в списке не показываем, пока не нажали «Додати»
   untrack(() => {
-    if (fresh) ui.draft = id;
+    if (!fresh) return;
+    ui.draft = id;
+    const sp = charStore.current?.spells.find((x) => x.id === id);
+    if (sp) sp.draft = true;
   });
 
   onDestroy(() => {
@@ -28,6 +31,7 @@
 
   function confirmAdd() {
     confirmed = true;
+    if (s) delete s.draft;
     ui.toast(t('add.added', { name: s?.name.trim() || t('spells.unnamed') }));
     ui.closeSheet();
   }

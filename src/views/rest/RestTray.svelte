@@ -14,7 +14,7 @@
   import { applyRest, restPreview, type RestKind } from '../../lib/rules/rest';
   import { applyHeal } from '../../lib/rules/hp';
   import { mod } from '../../lib/rules/calc';
-  import { has, t } from '../../lib/i18n';
+  import { dieText, has, t } from '../../lib/i18n';
 
   let kind = $state<RestKind>('short');
 
@@ -31,7 +31,7 @@
     c
       ? restPreview(c, kind).map(([k, v]) => {
           const key = `combat.restKey.${k}`;
-          return { name: ['hp', 'temp', 'hitDice', 'slots'].includes(k) && has(key) ? t(key) : k, value: v };
+          return { name: ['hp', 'temp', 'hitDice', 'slots'].includes(k) && has(key) ? t(key) : k, value: dieText(v) };
         })
       : [],
   );
@@ -81,7 +81,15 @@
 
   function rest() {
     const k = kind;
-    charStore.update((ch) => applyRest(ch, k), { undo: t(k === 'short' ? 'combat.restDoneShort' : 'combat.restDoneLong') });
+    let rolls: { name: string; regain: string; got: number }[] = [];
+    const done = t(k === 'short' ? 'combat.restDoneShort' : 'combat.restDoneLong');
+    charStore.update(
+      (ch) => {
+        rolls = applyRest(ch, k);
+      },
+      // заряды «на світанку» бросаются — показываем, сколько вернулось
+      { undo: () => (rolls.length ? `${done} · ${rolls.map((r) => t('rest.regained', { name: r.name, n: r.got, f: dieText(r.regain) })).join(' · ')}` : done) },
+    );
     buzz([15, 40, 15]);
     close();
   }

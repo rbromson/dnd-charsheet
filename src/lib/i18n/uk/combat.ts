@@ -54,6 +54,8 @@ export default {
   'combat.resDie': 'Кістка ресурсу',
   'combat.resNoDie': 'немає',
   'combat.resRecharge': 'Відновлення',
+  'combat.resRegain': 'Скільки повертається на довгому відпочинку',
+  'combat.resRegainPh': 'напр. 1к6+1; порожньо — до максимуму',
   'combat.resMaxPerRoll': 'Максимум за кидок',
   'combat.resNoLimit': 'без обмеження',
   'combat.resNew': 'Новий ресурс',
@@ -106,5 +108,6 @@ export default {
   'rest.restores': 'Відновиться',
   'rest.hpNow': 'здоров’я {cur} з {max}',
   'rest.roll': 'Кинути {f}',
+  'rest.regained': '{name} +{n} ({f})',
   'rest.go': 'Відпочити',
 } satisfies Record<string, string>;

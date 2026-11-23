@@ -5,6 +5,7 @@
   import NumberField from '../../components/NumberField.svelte';
   import ItemSheet from './ItemSheet.svelte';
   import ItemLibrary from './ItemLibrary.svelte';
+  import ItemPowers from './ItemPowers.svelte';
   import AddChooser from '../../components/AddChooser.svelte';
   import { attunedCount, itemActive } from '../../lib/rules/calc';
   import { removeItem as removeItemWithAttack } from '../../lib/rules/weapons';
@@ -104,8 +105,12 @@
                   {#if it.equipped && (it.armor || it.acBonus || it.saveBonus || it.setAbility)}
                     <span class="badge" class:on={itemActive(it)}><Icon name="shield" size={12} stroke={2.2} />{t('gear.equippedShort')}</span>
                   {/if}
+                  {#if it.resourceId}
+                    {@const r = c.resources.find((x) => x.id === it.resourceId)}
+                    {#if r}<span class="badge chg num" title={t('pw.charges', { n: r.current, max: r.max })}><Icon name="sparkle" size={12} />{r.current}/{r.max}</span>{/if}
+                  {/if}
                   <span class="qty num" class:zero={it.qty === 0}>×{it.qty}</span>
-                  {#if !ui.editing && it.text.trim()}
+                  {#if !ui.editing && (it.text.trim() || it.powers.length)}
                     <span class="chev"><Icon name="down" size={18} /></span>
                   {/if}
                 </button>
@@ -117,8 +122,10 @@
                   />
                 {/if}
               </div>
-              {#if open[it.id] && !ui.editing && it.text.trim()}
-                <div class="desc serif">{it.text}</div>
+              {#if open[it.id] && !ui.editing}
+                <!-- дії предмета (випити, заряди) — одразу під назвою, опис нижче -->
+                {#if it.powers.length}<div class="pwbox"><ItemPowers itemId={it.id} /></div>{/if}
+                {#if it.text.trim()}<div class="desc serif">{it.text}</div>{/if}
               {/if}
             </li>
           {/each}
@@ -169,6 +176,12 @@
 {/if}
 
 <style>
+  .pwbox {
+    padding: 0 4px 8px;
+  }
+  .chg {
+    gap: 3px;
+  }
   .en {
     display: block;
     font-family: var(--font-sans);

@@ -80,6 +80,43 @@ export interface Resource {
   recharge: Recharge;
   /** Сколько единиц можно потратить на один бросок; null — без ограничения */
   maxPerRoll: number | null;
+  /** сколько восстанавливается на длинном отдыхе («на світанку»): '1d6+1'; null — до максимума */
+  regain: string | null;
+  /** что бывает, когда потрачен последний заряд (жезлы, посохи) */
+  onEmpty: Risk | null;
+}
+
+/** Бросок риска: «на 1 з d20 предмет руйнується». */
+export interface Risk {
+  die: number;
+  on: number[];
+  /** destroy — предмет зникає; mundane — стає звичайним; partial — втрачає властивості, крім бонусу; gain — отримує заряди */
+  kind: 'destroy' | 'mundane' | 'partial' | 'gain';
+  /** для gain: скільки зарядів, формула */
+  gain: string;
+}
+
+/** Действие предмета: выпить зелье, потратить заряды жезла, бросить бусину. */
+export interface ItemPower {
+  id: string;
+  name: string;
+  /** сколько зарядов предмета (item.resourceId) стоит; 0 — без зарядов */
+  cost: number;
+  /** можно потратить больше (усиление): до скольких; null — ровно cost */
+  costMax: number | null;
+  /** тратит штуку предмета (qty − 1 за каждую единицу цены) */
+  consume: boolean;
+  /** кубики результата: '2d4+2'; '' — без броска */
+  dice: string;
+  /** добавка за каждую единицу сверх cost: '1d6' */
+  extra: string;
+  /** heal/temp применяются к себе, если self */
+  result: 'heal' | 'temp' | 'damage' | 'info';
+  self: boolean;
+  /** СК рятунку предмета (жезл вогняних куль — 15) */
+  dc: number | null;
+  save: Ability | null;
+  note: string;
 }
 
 export interface SpellSlot {
@@ -88,6 +125,8 @@ export interface SpellSlot {
 }
 
 export interface Spell {
+  /** черновик после «Додати» — ещё не подтверждён */
+  draft?: boolean;
   id: string;
   level: number; // 0..9
   name: string;
@@ -156,6 +195,10 @@ export interface Item {
   resourceId: string | null;
   /** колода карт предмета (Колода ілюзій тощо) — тянуть случайную карту */
   deckId: string | null;
+  /** действия: выпить, использовать, потратить заряды */
+  powers: ItemPower[];
+  /** черновик после «Додати» — ещё не подтверждён; при загрузке такие выбрасываются */
+  draft: boolean;
 }
 
 export interface Feature {
@@ -258,7 +301,8 @@ export interface Character {
   gallery: string[];
   secret: string;
 
-  rules: { rerollOnes: boolean };
+  /** mech — версия разметки действий/зарядов из библиотеки (одноразовое обновление старых предметов) */
+  rules: { rerollOnes: boolean; mech: number };
 }
 
 export interface CharacterSummary {

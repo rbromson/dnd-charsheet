@@ -91,7 +91,7 @@ describe('rest', () => {
   it('short rest restores short resources only', () => {
     const c = frido();
     c.resources[0].current = 2;
-    c.resources.push({ id: 'x', name: 'Long', max: 2, current: 0, die: null, recharge: 'long', maxPerRoll: null });
+    c.resources.push({ id: 'x', name: 'Long', max: 2, current: 0, die: null, recharge: 'long', maxPerRoll: null, regain: null, onEmpty: null });
     c.hp.current = 10;
     applyRest(c, 'short');
     expect(c.resources[0].current).toBe(8);
@@ -101,8 +101,8 @@ describe('rest', () => {
   it('long rest restores everything', () => {
     const c = frido();
     c.resources[0].current = 0;
-    c.resources.push({ id: 'x', name: 'Long', max: 2, current: 0, die: null, recharge: 'long', maxPerRoll: null });
-    c.resources.push({ id: 'y', name: 'Manual', max: 2, current: 0, die: null, recharge: 'manual', maxPerRoll: null });
+    c.resources.push({ id: 'x', name: 'Long', max: 2, current: 0, die: null, recharge: 'long', maxPerRoll: null, regain: null, onEmpty: null });
+    c.resources.push({ id: 'y', name: 'Manual', max: 2, current: 0, die: null, recharge: 'manual', maxPerRoll: null, regain: null, onEmpty: null });
     c.hp = { max: 43, current: 10, temp: 4 };
     c.hitDice.used = 4;
     c.deathSaves = { success: 1, fail: 2 };

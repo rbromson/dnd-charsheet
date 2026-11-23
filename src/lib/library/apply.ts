@@ -5,6 +5,9 @@ import { uid } from '../model/ids';
 import { addWeaponAttack } from '../rules/weapons';
 import type { LibItem, LibSpell, LibWeapon, LibArmor } from './types';
 import { t } from '../i18n';
+import { CHARGES, QTY, powersFor } from './powers';
+import { rollFormula } from '../dice/formula';
+import { cryptoRng } from '../dice/rng';
 
 const GENERIC_PLUS = new Set(['m:weapon', 'm:armor', 'm:ammunition']);
 
@@ -94,9 +97,25 @@ export function addLibItem(c: Character, e: LibItem, base?: LibItem): Item {
   const x = e.x ?? {};
   if (x.ch) {
     const rid = uid();
-    c.resources.push({ id: rid, name: item.name, max: x.ch, current: x.ch, die: null, recharge: x.rc === 'dawn' ? 'long' : 'manual', maxPerRoll: null });
+    // сколько возвращается «на світанку» и что бывает на последнем заряде — из текста SRD (charges.ts)
+    const cm = CHARGES[e.id] ?? (e.of ? CHARGES[e.of] : undefined);
+    c.resources.push({
+      id: rid,
+      name: item.name,
+      max: x.ch,
+      current: x.ch,
+      die: null,
+      recharge: x.rc === 'dawn' ? 'long' : 'manual',
+      maxPerRoll: null,
+      regain: cm?.rg ?? null,
+      onEmpty: cm?.empty ? { ...cm.empty, on: [...cm.empty.on] } : null,
+    });
     item.resourceId = rid;
   }
+  // действия (выпить, потратить заряды…) — только тем, кому нужны
+  item.powers = powersFor(e);
+  const qf = QTY[e.id];
+  if (qf) item.qty = Math.max(1, rollFormula(qf, { rng: cryptoRng }).total);
   // колоды (ілюзій, багатьох речей) — сразу с колодой карт; карты вписываются в её настройках
   if (DECK_ITEMS.has(e.id)) {
     const did = uid();

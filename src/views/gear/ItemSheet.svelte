@@ -8,11 +8,14 @@
   import { onDestroy, untrack } from 'svelte';
   import { charStore } from '../../lib/stores/characters.svelte';
   import { ui } from '../../lib/stores/ui.svelte';
-  import { t } from '../../lib/i18n';
+  import { t, dieText } from '../../lib/i18n';
+  import { powerFormula } from '../../lib/rules/powers';
   import { linkedAttack, addWeaponAttack, removeWeaponAttack, removeItem, syncWeaponName } from '../../lib/rules/weapons';
   import { attackBonus, resolveDamageFormula, fmt, itemActive, attunedCount } from '../../lib/rules/calc';
   import AttackSheet from '../combat/AttackSheet.svelte';
   import DeckSheet from './DeckSheet.svelte';
+  import ItemPowers from './ItemPowers.svelte';
+  import ItemPowersEditor from './ItemPowersEditor.svelte';
   import { uid } from '../../lib/model/ids';
 
   /** fresh — только что созданный (вручну или из библиотеки): «Скасувати» / «Додати»; закрыли без «Додати» — предмета нет */
@@ -20,7 +23,10 @@
   let confirmed = false;
   // черновик: в списке не показываем, пока не нажали «Додати»
   untrack(() => {
-    if (fresh) ui.draft = id;
+    if (!fresh) return;
+    ui.draft = id;
+    const it = charStore.current?.equipment.find((x) => x.id === id);
+    if (it) it.draft = true;
   });
 
   onDestroy(() => {
@@ -31,12 +37,16 @@
 
   function confirmAdd() {
     confirmed = true;
+    if (item) item.draft = false;
     ui.toast(t('add.added', { name: item?.name.trim() || t('gear.unnamed') }));
     ui.closeSheet();
   }
 
   const item = $derived(charStore.current?.equipment.find((x) => x.id === id));
   const atk = $derived(charStore.current ? linkedAttack(charStore.current, id) : undefined);
+  /** свой предмет (не из библиотеки) в правке/новый — тогда видны редакторы зарядов, действий и колоды */
+  const custom = $derived(!!item && (ui.editing || (fresh && !item.ref)));
+  const charges = $derived(item?.resourceId ? charStore.current?.resources.find((r) => r.id === item.resourceId) : undefined);
   /** у предмета есть механика, которая что-то считает */
   const hasEffect = $derived(!!item && !!(item.armor || item.bonus || item.acBonus || item.saveBonus || item.setAbility));
   const showMech = $derived(!!item && (hasEffect || !!item.weapon || item.attune || !!item.resourceId));
@@ -149,7 +159,8 @@
       {/if}
     {/if}
     <Toggle bind:checked={item.magic} label={t('gear.magicToggle')} />
-    {#if item.magic || item.deckId}
+    <!-- колода — лише свій чарівний предмет у правці, або якщо вона вже є -->
+    {#if (item.magic && custom) || item.deckId}
       <Toggle checked={!!item.deckId} label={t('gear.deckToggle')} onchange={setDeck} />
       {#if item.deckId}
         <div class="weapon">
@@ -168,6 +179,22 @@
         <button class="btn btn-outline" onclick={() => ui.openSheet(AttackSheet, { id: atk.id })}><Icon name="combat" size={18} />{t('gear.weaponSetup')}</button>
       </div>
     {/if}
+    {#if custom}
+      <!-- заряди й дії свого предмета (з бібліотеки вже заповнені) -->
+      <ItemPowersEditor itemId={item.id} />
+    {:else if fresh && item.powers.length}
+      <div class="sum">
+        {#each item.powers as p (p.id)}
+          <span><b>{p.name}</b>{#if p.dice} · {dieText(powerFormula(p, Math.max(1, p.cost)))}{/if}{#if p.costMax} · {t('pw.upTo', { n: p.costMax })}{/if}</span>
+        {/each}
+        {#if charges}<span class="muted">{t('pw.charges', { n: charges.current, max: charges.max })}{#if charges.regain} · {t('pw.regain', { f: dieText(charges.regain) })}{/if}</span>{/if}
+      </div>
+    {:else if item.powers.length}
+      <section>
+        <span class="label">{t('pw.title')}</span>
+        <ItemPowers itemId={item.id} />
+      </section>
+    {/if}
     <TextField bind:value={item.text} label={t('gear.itemText')} placeholder={t('gear.itemTextPlaceholder')} multiline rows={6} serif />
 
     {#snippet footer()}
@@ -184,6 +211,20 @@
 {/if}
 
 <style>
+  .sum {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 8px 12px;
+    border-radius: 3px;
+    font-size: 14px;
+    background: rgba(42, 31, 23, 0.05);
+    box-shadow: inset 0 0 0 1px rgba(150, 112, 62, 0.35);
+  }
+  .sum .muted {
+    color: var(--ink2);
+    font-size: 13px;
+  }
   .weapon {
     display: flex;
     align-items: center;

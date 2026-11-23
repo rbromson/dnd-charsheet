@@ -33,7 +33,7 @@ export function fridoSeed(): { character: Character; codex: Omit<CodexEntry, 'ch
   c.skills.perception.prof = 1;
 
   c.resources = [
-    { id: uid(), name: 'Кубики завзятості', max: 8, current: 8, die: 'd4', recharge: 'short', maxPerRoll: 3 },
+    { id: uid(), name: 'Кубики завзятості', max: 8, current: 8, die: 'd4', recharge: 'short', maxPerRoll: 3, regain: null, onEmpty: null },
   ];
   const panId = uid();
   c.attacks = [

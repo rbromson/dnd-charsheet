@@ -33,6 +33,21 @@ class DiceStore {
   seq = $state(0);
   /** seq броска, чья анимация уже закончилась (кость приземлилась) — чтобы применять результат без спойлеров */
   landed = $state(0);
+  #waiters: { seq: number; fn: () => void }[] = [];
+
+  /** Кость броска seq приземлилась: применить отложенные результаты (лечение, риск последнего заряда). */
+  markLanded(seq: number) {
+    if (seq > this.landed) this.landed = seq;
+    const ready = this.#waiters.filter((w) => w.seq <= this.landed);
+    this.#waiters = this.#waiters.filter((w) => w.seq > this.landed);
+    for (const w of ready) w.fn();
+  }
+
+  /** Выполнить fn, когда приземлится бросок seq (сразу, если уже). */
+  whenLanded(seq: number, fn: () => void) {
+    if (this.landed >= seq) fn();
+    else this.#waiters.push({ seq, fn });
+  }
   /**
    * Бросок, который ждёт подтверждения: тап по стату открывает «подготовку» —
    * там выбирается перевага/перешкода, и кость бросается вторым нажатием.

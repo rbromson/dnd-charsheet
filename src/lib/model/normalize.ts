@@ -1,4 +1,4 @@
-import type { ArmorStats, Attack, Character, CodexEntry, Deck, Feature, Item, JournalEntry, Resource, Spell, SpellSlot, WeaponStats } from './types';
+import type { ArmorStats, Attack, Character, CodexEntry, Deck, Feature, Item, ItemPower, JournalEntry, Resource, Risk, Spell, SpellSlot, WeaponStats } from './types';
 import { newCharacter } from './defaults';
 import { uid, nowIso, todayDate } from './ids';
 
@@ -26,11 +26,15 @@ export function mergeDefaults<T>(defaults: T, raw: unknown): T {
 }
 
 const ATTACK: Attack = { id: '', name: '', ability: 'str', prof: true, bonus: 0, override: null, damage: '1d6+МОД', damageType: '', note: '', itemId: null, save: null, saveDc: null };
-const RESOURCE: Resource = { id: '', name: '', max: 1, current: 1, die: null, recharge: 'long', maxPerRoll: null };
+const RESOURCE: Resource = { id: '', name: '', max: 1, current: 1, die: null, recharge: 'long', maxPerRoll: null, regain: null, onEmpty: null };
+const RISK: Risk = { die: 20, on: [1], kind: 'destroy', gain: '' };
+const POWER: ItemPower = { id: '', name: '', cost: 0, costMax: null, consume: false, dice: '', extra: '', result: 'info', self: true, dc: null, save: null, note: '' };
+const RISK_KINDS = ['destroy', 'mundane', 'partial', 'gain'];
+const RESULTS = ['heal', 'temp', 'damage', 'info'];
 const SPELL: Spell = { id: '', level: 0, name: '', prepared: false, text: '' };
 const ITEM: Item = {
   id: '', name: '', qty: 1, text: '', magic: false, ref: null, en: '', equipped: false, attune: false, attuned: false, rarity: '',
-  weapon: null, armor: null, bonus: 0, acBonus: 0, saveBonus: 0, setAbility: null, setValue: 0, noArmor: false, resourceId: null, deckId: null,
+  weapon: null, armor: null, bonus: 0, acBonus: 0, saveBonus: 0, setAbility: null, setValue: 0, noArmor: false, resourceId: null, deckId: null, powers: [], draft: false,
 };
 const WEAPON: WeaponStats = { dice: '', type: '', props: [], finesse: false, ranged: false, versatile: '', range: '', martial: false };
 const ARMOR: ArmorStats = { kind: 'light', base: 10, dexMax: null, strMin: 0, stealthDis: false };
@@ -57,6 +61,14 @@ export function normalizeCharacter(raw: unknown): Character {
   c.schema = 1;
   c.attacks = list(r.attacks, ATTACK);
   c.resources = list(r.resources, RESOURCE);
+  // вложенный onEmpty mergeDefaults не берёт (по умолчанию null) — переносим вручную
+  const rawRes = Array.isArray(r.resources) ? r.resources.filter(isPlain) : [];
+  c.resources.forEach((res, i) => {
+    const raw = rawRes[i] ?? {};
+    res.onEmpty = isPlain(raw.onEmpty) ? mergeDefaults(RISK, raw.onEmpty) : null;
+    if (res.onEmpty && !RISK_KINDS.includes(res.onEmpty.kind)) res.onEmpty.kind = 'destroy';
+    if (res.onEmpty) res.onEmpty.on = res.onEmpty.on.filter((x) => typeof x === 'number');
+  });
   c.spells = list(r.spells, SPELL);
   c.equipment = list(r.equipment, ITEM);
   // вложенные объекты оружия/доспеха mergeDefaults не берёт (по умолчанию null) — переносим вручную
@@ -67,7 +79,19 @@ export function normalizeCharacter(raw: unknown): Character {
     it.armor = isPlain(raw.armor) ? mergeDefaults(ARMOR, raw.armor) : null;
     if (it.armor && !KINDS.includes(it.armor.kind)) it.armor.kind = 'light';
     if (it.setAbility && !ABIL.includes(it.setAbility)) it.setAbility = null;
+    it.powers = (Array.isArray(raw.powers) ? raw.powers.filter(isPlain) : []).map((p) => {
+      const pw = mergeDefaults(POWER, p);
+      if (!pw.id) pw.id = uid();
+      if (!RESULTS.includes(pw.result)) pw.result = 'info';
+      if (pw.save && !ABIL.includes(pw.save)) pw.save = null;
+      return pw;
+    });
   });
+  // черновики «Додати», які так і не підтвердили (закрили застосунок посеред картки)
+  c.equipment = c.equipment.filter((it) => !it.draft);
+  const rawSpells = Array.isArray(r.spells) ? r.spells.filter(isPlain) : [];
+  const draftSpells = new Set(rawSpells.filter((s) => s.draft === true).map((s) => s.id));
+  c.spells = c.spells.filter((s) => !draftSpells.has(s.id));
   c.features = list(r.features, FEATURE);
   c.decks = list(r.decks, DECK);
   // колода живёт у предмета: старые «отдельные» колоды привязываем к предмету с тем же именем или заводим предмет

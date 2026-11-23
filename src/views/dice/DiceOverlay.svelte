@@ -81,7 +81,7 @@
       addFrom = -1;
       if (fresh) {
         popKey++;
-        dice.landed = seq;
+        dice.markLanded(seq);
       }
       return;
     }
@@ -98,7 +98,7 @@
         finishSpin = null;
         phase = 'idle';
         popKey++;
-        dice.landed = seq;
+        dice.markLanded(seq);
         if (e.type === 'd20' && (e.roll.crit || e.roll.fumble)) flashKey++;
         else buzz(8);
       };
@@ -129,7 +129,7 @@
         phase = 'idle';
         addFrom = -1;
         popKey++;
-        dice.landed = seq;
+        dice.markLanded(seq);
         if (!isAdd && e.type === 'd20' && (e.roll.crit || e.roll.fumble)) flashKey++;
         else buzz(8);
       },
