@@ -4,6 +4,7 @@
    * Узкий экран: список → запись (кнопка «Назад»), карточки справочника — в боковой панели.
    */
   import { untrack } from 'svelte';
+  import NewSessionSheet from './NewSessionSheet.svelte';
   import TopBar from '../../components/TopBar.svelte';
   import Icon from '../../components/Icon.svelte';
   import JournalList from './JournalList.svelte';
@@ -61,10 +62,15 @@
     }
   }
 
+  /** «+ Сесія»: вибір — звичайний запис чи «Режим сесії» (запис голосу). */
   function newSession() {
+    ui.openSheet(NewSessionSheet, { oncreate: createSession });
+  }
+  function createSession(voice: boolean) {
     const e = journal.create('session');
     jv.q = '';
-    jv.freshId = e.id;
+    jv.freshId = voice ? null : e.id;
+    jv.sessionMode = voice ? e.id : null;
     pick({ kind: 'entry', id: e.id }, true);
   }
 

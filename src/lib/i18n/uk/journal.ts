@@ -1,5 +1,8 @@
 export default {
   'journal.newSession': 'Сесія',
+  'journal.newPlain': 'Звичайний запис',
+  'journal.newPlainSub': 'Порожня сесія — пишіть нотатки самі, @згадуйте NPC, місця й завдання.',
+  'journal.newVoiceSub': 'Запис голосу за столом із розшифровкою в текст. Покладіть телефон чи планшет поруч.',
   'journal.newSessionAria': 'Нова сесія',
   'journal.search': 'Пошук у журналі',
   'journal.searchCodex': 'Пошук у довіднику',

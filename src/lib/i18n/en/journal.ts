@@ -1,5 +1,8 @@
 export default {
   'journal.newSession': 'Session',
+  'journal.newPlain': 'Plain entry',
+  'journal.newPlainSub': 'An empty session — write notes yourself, @mention NPCs, places and quests.',
+  'journal.newVoiceSub': 'Record the table and transcribe it to text. Put your phone or tablet nearby.',
   'journal.newSessionAria': 'New session',
   'journal.search': 'Search journal',
   'journal.searchCodex': 'Search codex',

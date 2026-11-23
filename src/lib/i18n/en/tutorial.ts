@@ -52,7 +52,7 @@ export default {
   'tut.6.title': 'Journal',
   'tut.6.p1': 'The quill seal — a quick note into today’s session; dictating works too.',
   'tut.6.p2': '@Name in text links an NPC, place or quest; that is how they gather in the codex.',
-  'tut.6.p3': '“Session” in the journal is a full game entry; session mode can record and transcribe speech.',
+  'tut.6.p3': '“+ Session” → “Session mode” records the table and transcribes it to text.',
 
   'tut.7.title': 'Let AI do the chores',
   'tut.7.p1': 'Dictate notes after the game → “Via AI” → Claude or ChatGPT sorts them into categories.',
@@ -91,7 +91,7 @@ export default {
   'tips.profile.1': "Tap the portrait to change the picture.",
   'tips.profile.2': "Long-press a card to edit its text: backstory, traits, allies, treasure.",
   'tips.profile.3': "The character’s secret hides under a seal — visible only when you open it.",
-  'tips.journal.1': "“Session” — a new game entry. The quill — a quick note into today’s session, voice works too.",
+  'tips.journal.1': '“+ Session” — a plain entry or “Session mode” (records the table). The quill — a quick note into today’s session.',
   'tips.journal.2': "@Name in text links an NPC, place or quest; they collect in the codex.",
   'tips.journal.3': "“AI → sheet” — give your post-game notes to your AI and apply the changes to the sheet.",
   'tips.journal.4': "Search looks through the journal and the codex at once.",

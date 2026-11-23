@@ -16,6 +16,7 @@
   import type { EntryKind, JournalEntry, TranscriptSegment } from '../../lib/model/types';
   import { entryKicker, entryLabel, timeOf } from './format';
   import { jv } from './state.svelte';
+  import { recorder } from '../../lib/session/recorder.svelte';
 
   let { entry: entryProp, autoEdit = false, onopen }: { entry: JournalEntry; autoEdit?: boolean; onopen: (codexId: string) => void } = $props();
 
@@ -58,6 +59,11 @@
     if (ok) await journal.remove(entry.id);
   }
 
+  const showPanel = $derived(
+    entry.kind === 'session' &&
+      (jv.sessionMode === entry.id || entry.transcript.length > 0 || (recorder.status !== 'idle' && recorder.entryId === entry.id)),
+  );
+
   function segText(s: TranscriptSegment): string {
     if (s.text.trim()) return s.text;
     if (s.status === 'pending') return t('journal.seg.pending');
@@ -66,7 +72,8 @@
   }
 </script>
 
-{#if entry.kind === 'session'}
+<!-- панель записи — лише в режимі сесії, з уже записаною розшифровкою або під час запису -->
+{#if showPanel}
   <SessionPanel {entry} />
 {/if}
 
@@ -89,6 +96,9 @@
         title={entry.pinned ? t('journal.unpin') : t('journal.pin')}
         onclick={togglePin}><Icon name="star" fill={entry.pinned} /></button
       >
+      {#if entry.kind === 'session' && !showPanel}
+        <button class="btn btn-ghost pin" aria-label={t('session.title')} title={t('session.title')} onclick={() => (jv.sessionMode = entry.id)}><Icon name="mic" /></button>
+      {/if}
       {#if !ui.editing}
         {#if localEdit}
           <button class="btn btn-ink" onclick={finish}><Icon name="check" size={20} />{t('journal.done')}</button>
@@ -179,7 +189,8 @@
   }
   .eh {
     display: flex;
-    gap: 12px;
+    flex-wrap: wrap;
+    gap: 8px 12px;
     /* кнопки — по центру шапки (рядок «вид · дата» + заголовок), а не прилипшие к верху */
     align-items: center;
   }
@@ -206,6 +217,12 @@
     gap: 6px;
     flex-shrink: 0;
     align-items: center;
+    margin-left: auto;
+  }
+  /* заголовок не сжимается в столбик: на узком экране кнопки уходят строкой ниже */
+  .eh > .grow {
+    flex: 1 1 220px;
+    min-width: 0;
   }
   .pin {
     color: var(--ink2);
