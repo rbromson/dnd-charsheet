@@ -53,6 +53,7 @@ export function removeWeaponAttack(c: Character, itemId: string): void {
 export function removeItem(c: Character, itemId: string): void {
   const it = c.equipment.find((x) => x.id === itemId);
   if (it?.resourceId) c.resources = c.resources.filter((r) => r.id !== it.resourceId);
+  if (it?.deckId) c.decks = c.decks.filter((d) => d.id !== it.deckId);
   c.equipment = c.equipment.filter((x) => x.id !== itemId);
   removeWeaponAttack(c, itemId);
 }

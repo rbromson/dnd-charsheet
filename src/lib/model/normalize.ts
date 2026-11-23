@@ -30,7 +30,7 @@ const RESOURCE: Resource = { id: '', name: '', max: 1, current: 1, die: null, re
 const SPELL: Spell = { id: '', level: 0, name: '', prepared: false, text: '' };
 const ITEM: Item = {
   id: '', name: '', qty: 1, text: '', magic: false, ref: null, en: '', equipped: false, attune: false, attuned: false, rarity: '',
-  weapon: null, armor: null, bonus: 0, acBonus: 0, saveBonus: 0, setAbility: null, setValue: 0, noArmor: false, resourceId: null,
+  weapon: null, armor: null, bonus: 0, acBonus: 0, saveBonus: 0, setAbility: null, setValue: 0, noArmor: false, resourceId: null, deckId: null,
 };
 const WEAPON: WeaponStats = { dice: '', type: '', props: [], finesse: false, ranged: false, versatile: '', range: '', martial: false };
 const ARMOR: ArmorStats = { kind: 'light', base: 10, dexMax: null, strMin: 0, stealthDis: false };
@@ -70,6 +70,15 @@ export function normalizeCharacter(raw: unknown): Character {
   });
   c.features = list(r.features, FEATURE);
   c.decks = list(r.decks, DECK);
+  // колода живёт у предмета: старые «отдельные» колоды привязываем к предмету с тем же именем или заводим предмет
+  for (const d of c.decks) {
+    if (c.equipment.some((it) => it.deckId === d.id)) continue;
+    const key = d.name.trim().toLowerCase();
+    const owner = c.equipment.find((it) => !it.deckId && key && it.name.trim().toLowerCase() === key);
+    if (owner) owner.deckId = d.id;
+    else c.equipment.push({ ...ITEM, id: uid(), name: d.name, magic: true, deckId: d.id });
+  }
+  for (const it of c.equipment) if (it.deckId && !c.decks.some((d) => d.id === it.deckId)) it.deckId = null;
   const sc = isPlain(r.spellcasting) ? r.spellcasting : {};
   const slots = Array.isArray(sc.slots) ? sc.slots : [];
   c.spellcasting.slots = Array.from({ length: 10 }, (_, i) => mergeDefaults(SLOT, slots[i]));

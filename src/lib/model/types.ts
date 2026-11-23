@@ -154,6 +154,8 @@ export interface Item {
   noArmor: boolean;
   /** ресурс с зарядами предмета */
   resourceId: string | null;
+  /** колода карт предмета (Колода ілюзій тощо) — тянуть случайную карту */
+  deckId: string | null;
 }
 
 export interface Feature {

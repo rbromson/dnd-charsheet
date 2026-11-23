@@ -9,7 +9,6 @@
   import { attunedCount, itemActive } from '../../lib/rules/calc';
   import { removeItem as removeItemWithAttack } from '../../lib/rules/weapons';
   import CoinSheet from './CoinSheet.svelte';
-  import DeckSheet from './DeckSheet.svelte';
   import DeckCard from './DeckCard.svelte';
   import DeckReveal from './DeckReveal.svelte';
   import CoinDisc from './CoinDisc.svelte';
@@ -68,11 +67,7 @@
     ui.openSheet(CoinSheet, { coin });
   }
 
-  function addDeck() {
-    const id = uid();
-    c.decks.push({ id, name: t('gear.newDeck'), cards: [], drawn: [] });
-    ui.openSheet(DeckSheet, { id });
-  }
+  const itemDecks = $derived(c.decks.filter((d) => c.equipment.some((i) => i.deckId === d.id && i.id !== ui.draft)));
 </script>
 
 <TopBar title={t('nav.gear')}>
@@ -158,14 +153,12 @@
         <div class="total muted">{t('gear.coinsTotal', { v: total.toLocaleString('uk-UA') })}</div>
       </section>
 
-      <h2 class="section sc">{t('gear.decks')}</h2>
-      {#each c.decks as d (d.id)}
-        <DeckCard id={d.id} onReveal={(r) => (reveal = r)} />
-      {:else}
-        <div class="nodecks">{t('gear.emptyDecks')}</div>
-      {/each}
-      {#if ui.editing}
-        <button class="btn btn-outline" onclick={addDeck}><Icon name="plus" size={20} />{t('gear.addDeck')}</button>
+      <!-- колоды — только у особых предметов (переключатель «Колода карт» в картке предмета) -->
+      {#if itemDecks.length}
+        <h2 class="section sc">{t('gear.decks')}</h2>
+        {#each itemDecks as d (d.id)}
+          <DeckCard id={d.id} onReveal={(r) => (reveal = r)} />
+        {/each}
       {/if}
     </div>
   </div>
@@ -343,11 +336,5 @@
     text-transform: uppercase;
     color: var(--muted);
     margin: 6px 2px -4px;
-  }
-  .nodecks {
-    font-size: 13.5px;
-    color: var(--muted);
-    line-height: 1.5;
-    padding: 4px 2px;
   }
 </style>

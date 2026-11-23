@@ -85,6 +85,8 @@ export function itemFromLib(e: LibItem, base?: LibItem): Item {
  * Добавляет предмет из библиотеки: сам предмет, атаку (если это оружие) и ресурс с зарядами.
  * Мутирует персонажа; возвращает созданный предмет.
  */
+const DECK_ITEMS = new Set(['m:deck-of-illusions', 'm:deck-of-many-things']);
+
 export function addLibItem(c: Character, e: LibItem, base?: LibItem): Item {
   const item = itemFromLib(e, base);
   // боеприпасы и дротики — пачкой
@@ -94,6 +96,12 @@ export function addLibItem(c: Character, e: LibItem, base?: LibItem): Item {
     const rid = uid();
     c.resources.push({ id: rid, name: item.name, max: x.ch, current: x.ch, die: null, recharge: x.rc === 'dawn' ? 'long' : 'manual', maxPerRoll: null });
     item.resourceId = rid;
+  }
+  // колоды (ілюзій, багатьох речей) — сразу с колодой карт; карты вписываются в её настройках
+  if (DECK_ITEMS.has(e.id)) {
+    const did = uid();
+    c.decks.push({ id: did, name: item.name, cards: [], drawn: [] });
+    item.deckId = did;
   }
   c.equipment.push(item);
   const stored = c.equipment[c.equipment.length - 1];

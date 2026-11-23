@@ -35,6 +35,7 @@
     charStore.update(
       (ch) => {
         ch.decks = ch.decks.filter((x) => x.id !== id);
+        for (const it of ch.equipment) if (it.deckId === id) it.deckId = null;
       },
       { undo: t('gear.deckDeleted') },
     );

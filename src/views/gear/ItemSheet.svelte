@@ -12,6 +12,8 @@
   import { linkedAttack, addWeaponAttack, removeWeaponAttack, removeItem, syncWeaponName } from '../../lib/rules/weapons';
   import { attackBonus, resolveDamageFormula, fmt, itemActive, attunedCount } from '../../lib/rules/calc';
   import AttackSheet from '../combat/AttackSheet.svelte';
+  import DeckSheet from './DeckSheet.svelte';
+  import { uid } from '../../lib/model/ids';
 
   /** fresh — только что созданный (вручну или из библиотеки): «Скасувати» / «Додати»; закрыли без «Додати» — предмета нет */
   let { id, fresh = false }: { id: string; fresh?: boolean } = $props();
@@ -50,6 +52,35 @@
   $effect(() => {
     void item?.name;
     if (charStore.current && atk) syncWeaponName(charStore.current, id);
+  });
+
+  /** Колода карт предмета: появляется в «Спорядженні» рядом с ним, тянуть карты — там. */
+  async function setDeck(on: boolean) {
+    const c = charStore.current;
+    if (!c || !item) return;
+    if (on) {
+      const did = uid();
+      c.decks.push({ id: did, name: item.name, cards: [], drawn: [] });
+      item.deckId = did;
+      return;
+    }
+    const did = item.deckId;
+    charStore.update(
+      (ch) => {
+        ch.decks = ch.decks.filter((d) => d.id !== did);
+        const it = ch.equipment.find((x) => x.id === id);
+        if (it) it.deckId = null;
+      },
+      { undo: t('gear.deckDeleted') },
+    );
+  }
+
+  // имя колоды следует за именем предмета
+  $effect(() => {
+    const name = item?.name;
+    const did = item?.deckId;
+    const d = did ? charStore.current?.decks.find((x) => x.id === did) : undefined;
+    if (d && name !== undefined && d.name !== name) d.name = name;
   });
 
   function setWeapon(on: boolean) {
@@ -118,6 +149,15 @@
       {/if}
     {/if}
     <Toggle bind:checked={item.magic} label={t('gear.magicToggle')} />
+    {#if item.magic || item.deckId}
+      <Toggle checked={!!item.deckId} label={t('gear.deckToggle')} onchange={setDeck} />
+      {#if item.deckId}
+        <div class="weapon">
+          <span class="grow"><span class="wl">{t('gear.deckIn')}</span></span>
+          <button class="btn btn-outline" onclick={() => item?.deckId && ui.openSheet(DeckSheet, { id: item.deckId })}><Icon name="edit" size={18} />{t('gear.deckSetup')}</button>
+        </div>
+      {/if}
+    {/if}
     <Toggle checked={!!atk} label={t('gear.weaponToggle')} onchange={setWeapon} />
     {#if atk && charStore.current}
       <div class="weapon">
