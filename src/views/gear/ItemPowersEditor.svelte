@@ -60,6 +60,7 @@
       upcast: false,
       dcUser: false,
       attack: null,
+      effect: null,
     });
   }
 </script>

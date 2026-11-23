@@ -4,12 +4,15 @@
   import { fly, fade } from 'svelte/transition';
 
   // Последнее открытое значение: пока карточка анимированно закрывается, ui.sheet уже null.
-  let shown = $state(ui.sheet);
+  // Важно: новая карточка берётся из ui.sheet сразу (derived), а не через эффект — иначе на один
+  // такт заново монтировалась бы предыдущая карточка (и черновик «Додати» удалял бы предмет).
+  let last = $state(ui.sheet);
+  const shown = $derived(ui.sheet ?? last);
   let openedAt = 0;
-  $effect(() => {
-    if (ui.sheet) {
-      if (ui.sheet !== shown) openedAt = performance.now();
-      shown = ui.sheet;
+  $effect.pre(() => {
+    if (ui.sheet && ui.sheet !== last) {
+      openedAt = performance.now();
+      last = ui.sheet;
     }
   });
   /** Защита от «призрачного» клика сразу после открытия. */

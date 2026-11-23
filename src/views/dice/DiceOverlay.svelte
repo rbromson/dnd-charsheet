@@ -237,11 +237,23 @@
     entry?.type === 'd20' && entry.request.kind === 'attack' && entry.request.damage ? entry.request.damage : null,
   );
   const damageCrit = $derived(entry?.type === 'd20' && entry.roll.crit);
-  const damagePreview = $derived(damage ? pretty(formatFormula(parseFormula(damage), damageCrit)) : '');
+  /** доп. урон: по выбору — отметками, на критичному — сам */
+  const extras = $derived(entry?.type === 'd20' ? (entry.request.extras ?? []) : []);
+  let picked = $state<Record<string, boolean>>({});
+  $effect(() => {
+    void entry?.id;
+    picked = {};
+  });
+  const damageFull = $derived.by(() => {
+    if (!damage) return '';
+    const add = extras.filter((x) => (x.crit ? damageCrit : picked[x.id])).map((x) => x.dice.replace(/\s+/g, ''));
+    return [damage, ...add].join('+');
+  });
+  const damagePreview = $derived(damageFull ? pretty(formatFormula(parseFormula(damageFull), damageCrit)) : '');
 
   function rollDamage() {
     if (entry?.type !== 'd20' || !damage) return;
-    dice.rollDamage(entry.request.damageLabel ?? entry.label, damage, damageCrit);
+    dice.rollDamage(entry.request.damageLabel ?? entry.label, damageFull, damageCrit);
   }
 
   function again() {
@@ -427,6 +439,15 @@
       {/if}
 
       <div class="acts">
+        {#if damage && extras.length}
+          <div class="xtras">
+            {#each extras as x (x.id)}
+              {#if !x.crit || damageCrit}
+                <button class="xt" class:on={x.crit || picked[x.id]} disabled={x.crit || !landed} aria-pressed={x.crit || !!picked[x.id]} onclick={() => (picked[x.id] = !picked[x.id])}>{x.label}</button>
+              {/if}
+            {/each}
+          </div>
+        {/if}
         {#if damage}
           <button class="act pri" class:gold={damageCrit} disabled={!landed} onclick={rollDamage}>
             <span>{damageCrit ? t('dice.damageCrit') : t('dice.damage')}</span>
@@ -676,6 +697,28 @@
   .res-note {
     font-size: 12.5px;
     color: var(--muted);
+  }
+  .xtras {
+    flex-basis: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+  }
+  .xt {
+    padding: 6px 10px;
+    border-radius: 3px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #e3c48a;
+    box-shadow: inset 0 0 0 1px rgba(214, 170, 110, 0.45);
+  }
+  .xt.on {
+    color: #2a1206;
+    background: radial-gradient(ellipse 120% 100% at 50% 0%, #ffe39a, #e6b450 55%, #b8861e);
+  }
+  .xt:disabled {
+    opacity: 1;
   }
   .acts {
     display: flex;

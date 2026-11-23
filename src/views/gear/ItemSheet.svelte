@@ -15,6 +15,7 @@
   import AttackSheet from '../combat/AttackSheet.svelte';
   import DeckSheet from './DeckSheet.svelte';
   import ItemPowers from './ItemPowers.svelte';
+  import ItemToggles from './ItemToggles.svelte';
   import ItemPowersEditor from './ItemPowersEditor.svelte';
   import ItemModsEditor from './ItemModsEditor.svelte';
   import { modText } from './modText';
@@ -31,10 +32,15 @@
     if (it) it.draft = true;
   });
 
+  // id и fresh — на момент открытия: пропсы могут смениться, а удалять надо именно свой черновик
+  const ownId = untrack(() => id);
+  const ownFresh = untrack(() => fresh);
   onDestroy(() => {
-    if (ui.draft === id) ui.draft = null;
+    if (ui.draft === ownId) ui.draft = null;
     const c = charStore.current;
-    if (fresh && !confirmed && c?.equipment.some((x) => x.id === id)) removeItem(c, id);
+    const it = c?.equipment.find((x) => x.id === ownId);
+    // удаляем только неподтверждённый черновик (флаг draft снимается кнопкой «Додати»)
+    if (ownFresh && !confirmed && it?.draft) removeItem(c!, ownId);
   });
 
   function confirmAdd() {
@@ -51,7 +57,8 @@
   const charges = $derived(item?.resourceId ? charStore.current?.resources.find((r) => r.id === item.resourceId) : undefined);
   /** у предмета есть механика, которая что-то считает */
   const hasEffect = $derived(!!item && !!(item.armor || item.bonus || item.acBonus || item.saveBonus || item.setAbility || item.mods.length));
-  const showMech = $derived(!!item && (hasEffect || !!item.weapon || item.attune || !!item.resourceId));
+  const hasExtra = $derived(!!item && item.extra.length > 0);
+  const showMech = $derived(!!item && (hasEffect || hasExtra || !!item.weapon || item.attune || !!item.resourceId));
 
   function armorLine(): string {
     const a = item!.armor!;
@@ -138,6 +145,7 @@
         {#if item.saveBonus}<div class="ln">{t('gear.effSave')}: +{item.saveBonus}</div>{/if}
         {#if item.setAbility}<div class="ln">{t('gear.effSet', { a: t(`ability.${item.setAbility}`), n: item.setValue })}</div>{/if}
         {#each item.mods as m (m.id)}<div class="ln" class:muted={!!m.when}>{modText(m)}</div>{/each}
+        {#each item.extra as x (x.id)}<div class="ln">+{dieText(x.dice)} {x.type}{x.when ? ` · ${x.when}` : x.crit ? ` · ${t('combat.extraCrit')}` : ''}</div>{/each}
         {#if item.resourceId}<div class="ln muted">{t('gear.effCharges')}</div>{/if}
         {#if item.armor && !charStore.current?.acAuto}<div class="ln muted small">{t('gear.armorAcHint')}</div>{/if}
         {#if hasEffect && !itemActive(item)}
@@ -197,9 +205,10 @@
         {#if item.powers.some((p) => p.spell === '')}<ItemPowers itemId={item.id} pickOnly />{/if}
         {#if charges}<span class="muted">{t('pw.charges', { n: charges.current, max: charges.max })}{#if charges.regain} · {t('pw.regain', { f: dieText(charges.regain) })}{/if}</span>{/if}
       </div>
-    {:else if item.powers.length}
+    {:else if item.powers.length || item.toggles.length}
       <section>
         <span class="label">{t('pw.title')}</span>
+        <ItemToggles itemId={item.id} />
         <ItemPowers itemId={item.id} />
       </section>
     {/if}

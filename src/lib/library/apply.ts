@@ -7,6 +7,7 @@ import type { LibItem, LibSpell, LibWeapon, LibArmor } from './types';
 import { t } from '../i18n';
 import { CHARGES, QTY, powersFor } from './powers';
 import { modsFor } from './mods';
+import { extraFor, potionEffect, togglesFor } from './effects';
 import { rollFormula } from '../dice/formula';
 import { cryptoRng } from '../dice/rng';
 
@@ -116,6 +117,11 @@ export function addLibItem(c: Character, e: LibItem, base?: LibItem, spells: Lib
   // действия (выпить, потратить заряды…) — только тем, кому нужны
   item.powers = powersFor(e, spells);
   item.mods = modsFor(e.id, e.of);
+  item.extra = extraFor(e.id);
+  item.toggles = togglesFor(e.id);
+  // зілля з тривалим ефектом: «Випити» вмикає ефект на персонажі
+  const fx = potionEffect(e.id, item.name);
+  if (fx) for (const p of item.powers) if (p.consume) p.effect = fx;
   // предмет із пасивними ефектами одразу «надітий» (як перстень захисту)
   if (item.mods.some((m) => !m.when)) item.equipped = true;
   const qf = QTY[e.id];

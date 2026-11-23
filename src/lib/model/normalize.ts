@@ -1,4 +1,4 @@
-import type { ArmorStats, Attack, Character, CodexEntry, Deck, Feature, Item, ItemMod, ItemPower, JournalEntry, Resource, Risk, Spell, SpellSlot, WeaponStats } from './types';
+import type { ActiveEffect, ArmorStats, Attack, Character, CodexEntry, Deck, ExtraDamage, Feature, Item, ItemMod, ItemPower, ItemToggle, JournalEntry, Resource, Risk, Spell, SpellSlot, WeaponStats } from './types';
 import { newCharacter } from './defaults';
 import { uid, nowIso, todayDate } from './ids';
 
@@ -28,14 +28,32 @@ export function mergeDefaults<T>(defaults: T, raw: unknown): T {
 const ATTACK: Attack = { id: '', name: '', ability: 'str', prof: true, bonus: 0, override: null, damage: '1d6+МОД', damageType: '', note: '', itemId: null, save: null, saveDc: null };
 const RESOURCE: Resource = { id: '', name: '', max: 1, current: 1, die: null, recharge: 'long', maxPerRoll: null, regain: null, onEmpty: null };
 const RISK: Risk = { die: 20, on: [1], kind: 'destroy', gain: '' };
-const POWER: ItemPower = { id: '', name: '', cost: 0, costMax: null, consume: false, dice: '', extra: '', result: 'info', self: true, dc: null, save: null, note: '', spell: null, level: 0, upcast: false, dcUser: false, attack: null };
+const POWER: ItemPower = { id: '', name: '', cost: 0, costMax: null, consume: false, dice: '', extra: '', result: 'info', self: true, dc: null, save: null, note: '', spell: null, level: 0, upcast: false, dcUser: false, attack: null, effect: null };
 const RISK_KINDS = ['destroy', 'mundane', 'partial', 'gain'];
+const EXTRA: ExtraDamage = { id: '', dice: '', type: '', when: '', crit: false };
+const TOGGLE: ItemToggle = { id: '', name: '', on: false, mods: [], extra: [], note: '' };
+const EFFECT: ActiveEffect = { id: '', name: '', source: '', mods: [], duration: '' };
+function mods(raw: unknown): ItemMod[] {
+  return (Array.isArray(raw) ? raw.filter(isPlain) : []).map((m) => {
+    const md = mergeDefaults(MOD, m);
+    if (!md.id) md.id = uid();
+    if (!['add', 'set', 'min', 'mul'].includes(md.op)) md.op = 'add';
+    return md;
+  });
+}
+function extras(raw: unknown): ExtraDamage[] {
+  return (Array.isArray(raw) ? raw.filter(isPlain) : []).map((x) => {
+    const e = mergeDefaults(EXTRA, x);
+    if (!e.id) e.id = uid();
+    return e;
+  });
+}
 const MOD: ItemMod = { id: '', t: 'check', op: 'add', v: 0, cap: null, perLevel: false, when: '' };
 const RESULTS = ['heal', 'temp', 'damage', 'info'];
 const SPELL: Spell = { id: '', level: 0, name: '', prepared: false, text: '' };
 const ITEM: Item = {
   id: '', name: '', qty: 1, text: '', magic: false, ref: null, en: '', equipped: false, attune: false, attuned: false, rarity: '',
-  weapon: null, armor: null, bonus: 0, acBonus: 0, saveBonus: 0, setAbility: null, setValue: 0, noArmor: false, resourceId: null, deckId: null, powers: [], draft: false, mods: [],
+  weapon: null, armor: null, bonus: 0, acBonus: 0, saveBonus: 0, setAbility: null, setValue: 0, noArmor: false, resourceId: null, deckId: null, powers: [], draft: false, mods: [], toggles: [], extra: [],
 };
 const WEAPON: WeaponStats = { dice: '', type: '', props: [], finesse: false, ranged: false, versatile: '', range: '', martial: false };
 const ARMOR: ArmorStats = { kind: 'light', base: 10, dexMax: null, strMin: 0, stealthDis: false };
@@ -87,11 +105,20 @@ export function normalizeCharacter(raw: unknown): Character {
       if (pw.save && !ABIL.includes(pw.save)) pw.save = null;
       return pw;
     });
-    it.mods = (Array.isArray(raw.mods) ? raw.mods.filter(isPlain) : []).map((m) => {
-      const md = mergeDefaults(MOD, m);
-      if (!md.id) md.id = uid();
-      if (!['add', 'set', 'min'].includes(md.op)) md.op = 'add';
-      return md;
+    it.mods = mods(raw.mods);
+    it.extra = extras(raw.extra);
+    it.toggles = (Array.isArray(raw.toggles) ? raw.toggles.filter(isPlain) : []).map((tg) => {
+      const x = mergeDefaults(TOGGLE, tg);
+      if (!x.id) x.id = uid();
+      x.mods = mods(tg.mods);
+      x.extra = extras(tg.extra);
+      return x;
+    });
+    // эффект зелья (вложенный объект) — вручную
+    const rawPw = Array.isArray(raw.powers) ? raw.powers.filter(isPlain) : [];
+    it.powers.forEach((pw, j) => {
+      const e = rawPw[j]?.effect;
+      pw.effect = isPlain(e) ? { name: typeof e.name === 'string' ? e.name : '', mods: mods(e.mods), duration: typeof e.duration === 'string' ? e.duration : '' } : null;
     });
   });
   // черновики «Додати», які так і не підтвердили (закрили застосунок посеред картки)
@@ -99,6 +126,12 @@ export function normalizeCharacter(raw: unknown): Character {
   const rawSpells = Array.isArray(r.spells) ? r.spells.filter(isPlain) : [];
   const draftSpells = new Set(rawSpells.filter((s) => s.draft === true).map((s) => s.id));
   c.spells = c.spells.filter((s) => !draftSpells.has(s.id));
+  c.effects = (Array.isArray(r.effects) ? r.effects.filter(isPlain) : []).map((e) => {
+    const x = mergeDefaults(EFFECT, e);
+    if (!x.id) x.id = uid();
+    x.mods = mods(e.mods);
+    return x;
+  });
   c.features = list(r.features, FEATURE);
   c.decks = list(r.decks, DECK);
   // колода живёт у предмета: старые «отдельные» колоды привязываем к предмету с тем же именем или заводим предмет

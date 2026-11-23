@@ -31,7 +31,7 @@
     c
       ? restPreview(c, kind).map(([k, v]) => {
           const key = `combat.restKey.${k}`;
-          return { name: ['hp', 'temp', 'hitDice', 'slots'].includes(k) && has(key) ? t(key) : k, value: dieText(v) };
+          return { name: ['hp', 'temp', 'hitDice', 'slots', 'effects'].includes(k) && has(key) ? t(key) : k, value: dieText(v) };
         })
       : [],
   );

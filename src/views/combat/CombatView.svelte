@@ -7,6 +7,7 @@
   import ResourcesCard from './ResourcesCard.svelte';
   import AttacksCard from './AttacksCard.svelte';
   import ItemPowersCard from './ItemPowersCard.svelte';
+  import ItemEffectsCard from '../sheet/ItemEffectsCard.svelte';
   import { charStore } from '../../lib/stores/characters.svelte';
   import { t } from '../../lib/i18n';
 
@@ -28,6 +29,7 @@
       <ResourcesCard />
       <AttacksCard />
       <ItemPowersCard />
+      <ItemEffectsCard />
     </div>
   </div>
 </div>

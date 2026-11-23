@@ -6,14 +6,14 @@
   import { charStore } from '../../lib/stores/characters.svelte';
   import { dice } from '../../lib/stores/dice.svelte';
   import { ui } from '../../lib/stores/ui.svelte';
-  import { abilityMod, fmt } from '../../lib/rules/calc';
+  import { abilityCheck, abilityScore, fmt, mod } from '../../lib/rules/calc';
   import { t } from '../../lib/i18n';
 
   const c = $derived(charStore.current!);
 
   const open = (a: Ability) => ui.openSheet(AbilitySheet, { ability: a });
   function roll(a: Ability) {
-    dice.askCheck({ kind: 'ability', label: t('sheet.checkLabel', { ability: t(`ability.${a}`) }), bonus: abilityMod(c.abilities[a]) });
+    dice.askCheck({ kind: 'ability', label: t('sheet.checkLabel', { ability: t(`ability.${a}`) }), bonus: abilityCheck(c, a) });
   }
 </script>
 
@@ -23,21 +23,26 @@
     <button
       class="sh"
       class:editing={ui.editing}
-      aria-label={`${t(`ability.${a}`)} ${fmt(abilityMod(c.abilities[a]))}`}
+      aria-label={`${t(`ability.${a}`)} ${fmt(mod(c, a))}`}
       use:press={{ onTap: () => (ui.editing ? open(a) : roll(a)), onLong: () => open(a) }}
     >
       <svg viewBox="0 0 130 112" preserveAspectRatio="none" aria-hidden="true">
         <path d="M8 5h114v62c0 20-30 36-57 41C38 103 8 87 8 67z" />
       </svg>
       <span class="l">{t(`ability.${a}`)}</span>
-      <span class="m">{fmt(abilityMod(c.abilities[a]))}</span>
-      <span class="s">{c.abilities[a]}</span>
+      <!-- з урахуванням предметів і зілль (Рукавиці огра, Зілля сили) — золотом, якщо змінено -->
+      <span class="m">{fmt(mod(c, a))}</span>
+      <span class="s" class:boost={abilityScore(c, a) !== c.abilities[a]}>{abilityScore(c, a)}</span>
     </button>
   {/each}
 </div>
 </div>
 
 <style>
+  .s.boost {
+    background: linear-gradient(180deg, #e6b450, #9a6a2a) !important;
+    color: #1a1206 !important;
+  }
   .wrap {
     container-type: inline-size;
   }

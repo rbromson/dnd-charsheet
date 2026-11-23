@@ -127,6 +127,8 @@ export interface ItemPower {
   dcUser: boolean;
   /** бонус атаки предмета (сувій: +5…+11); null — ваш или нет атаки */
   attack: number | null;
+  /** выпить/нанести — и на персонаже появляется временный эффект (зілля сили, польоту…) */
+  effect: { name: string; mods: ItemMod[]; duration: string } | null;
 }
 
 export interface SpellSlot {
@@ -211,6 +213,43 @@ export interface Item {
   draft: boolean;
   /** пассивные модификаторы, пока предмет действует (надет/налаштований) */
   mods: ItemMod[];
+  /** переключатели: «Запалити» (Вогняний язик), «Клацнути підборами» (Чоботи швидкості) */
+  toggles: ItemToggle[];
+  /** доп. урон зброї: завжди, проти виду істот або лише на критичному */
+  extra: ExtraDamage[];
+}
+
+/** Доп. урон к атакам предметом. */
+export interface ExtraDamage {
+  id: string;
+  dice: string;
+  type: string;
+  /** условие («проти драконів»); '' — завжди */
+  when: string;
+  /** только при критическом попадании */
+  crit: boolean;
+}
+
+/** Переключатель предмета: пока включён — его модификаторы и доп. урон действуют. */
+export interface ItemToggle {
+  id: string;
+  name: string;
+  on: boolean;
+  mods: ItemMod[];
+  extra: ExtraDamage[];
+  /** «10 хв на день», «4 год польоту» */
+  note: string;
+}
+
+/** Временный эффект персонажа (выпитое зелье): действует, пока его не снимут. */
+export interface ActiveEffect {
+  id: string;
+  name: string;
+  /** откуда: «Зілля сили пагорбового велетня» */
+  source: string;
+  mods: ItemMod[];
+  /** «1 година» — подсказка, игровое время не считаем */
+  duration: string;
 }
 
 /**
@@ -222,7 +261,7 @@ export interface Item {
 export interface ItemMod {
   id: string;
   t: string;
-  op: 'add' | 'set' | 'min';
+  op: 'add' | 'set' | 'min' | 'mul';
   v: number;
   /** предел: «+2, але не вище 20» */
   cap: number | null;
@@ -332,6 +371,8 @@ export interface Character {
 
   /** mech — версия разметки действий/зарядов из библиотеки (одноразовое обновление старых предметов) */
   rules: { rerollOnes: boolean; mech: number };
+  /** временные эффекты (выпитые зелья) */
+  effects: ActiveEffect[];
 }
 
 export interface CharacterSummary {

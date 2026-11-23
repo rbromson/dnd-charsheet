@@ -11,7 +11,8 @@
   import { charStore } from '../../lib/stores/characters.svelte';
   import { dice } from '../../lib/stores/dice.svelte';
   import { ui } from '../../lib/stores/ui.svelte';
-  import { attackAuto, attackBonus, attackSaveDc, fmt, resolveDamageFormula } from '../../lib/rules/calc';
+  import { attackAuto, attackBonus, attackSaveDc, fmt, resolveDamageFormula, fullDamageFormula } from '../../lib/rules/calc';
+  import { requestExtras } from './extras';
   import Segmented from '../../components/Segmented.svelte';
   import { t } from '../../lib/i18n';
 
@@ -24,7 +25,7 @@
 
   function rollAttack() {
     if (!atk) return;
-    const damage = atk.damage.trim() ? resolveDamageFormula(c, atk) : undefined;
+    const damage = atk.damage.trim() ? fullDamageFormula(c, atk) : undefined;
     dice.askCheck({
       kind: 'attack',
       attackId: atk.id,
@@ -32,12 +33,13 @@
       bonus: attackBonus(c, atk),
       damage,
       damageLabel: t('combat.atkDamageLabel', { name: atk.name }),
+      extras: requestExtras(c, atk),
     });
     ui.closeSheet();
   }
   function rollDamage() {
     if (!atk) return;
-    dice.rollDamage(t('combat.atkDamageLabel', { name: atk.name }), resolveDamageFormula(c, atk));
+    dice.rollDamage(t('combat.atkDamageLabel', { name: atk.name }), fullDamageFormula(c, atk));
     ui.closeSheet();
   }
 </script>
@@ -107,7 +109,7 @@
         <button class="btn btn-ink grow" onclick={rollAttack}><Icon name="combat" size={20} />{t('combat.atkRoll')} {fmt(attackBonus(c, atk!))}</button>
       {/if}
       {#if atk!.damage.trim()}
-        <button class="btn btn-outline grow" onclick={rollDamage}><Icon name="dice" size={20} />{resolveDamageFormula(c, atk!)}</button>
+        <button class="btn btn-outline grow" onclick={rollDamage}><Icon name="dice" size={20} />{fullDamageFormula(c, atk!)}</button>
       {/if}
     {/snippet}
   </SheetFrame>

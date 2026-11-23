@@ -5,7 +5,8 @@
    * Последний заряд жезла/посоха — бросок d20 с исходом из SRD.
    */
   import Icon from '../../components/Icon.svelte';
-  import type { ItemPower } from '../../lib/model/types';
+  import type { ItemMod, ItemPower } from '../../lib/model/types';
+  import { uid } from '../../lib/model/ids';
   import { charStore } from '../../lib/stores/characters.svelte';
   import { dice } from '../../lib/stores/dice.svelte';
   import { ui } from '../../lib/stores/ui.svelte';
@@ -121,6 +122,8 @@
           if (from === 0 && next.current > 0) ch.deathSaves = { success: 0, fail: 0 };
         }
         if (total != null && p.self && p.result === 'temp') ch.hp.temp = Math.max(ch.hp.temp, total);
+        // зілля з тривалим ефектом — ефект на персонажі, доки його не знімуть
+        if (p.effect) ch.effects.push({ id: uid(), source: name, name: p.effect.name || name, mods: $state.snapshot(p.effect.mods) as ItemMod[], duration: p.effect.duration });
       },
       {
         undo: () => {
@@ -129,6 +132,7 @@
           if (total != null && p.self && p.result === 'heal') bits.push(t('pw.healed', { n: healed, from, to: from + healed }));
           else if (total != null && p.self && p.result === 'temp') bits.push(t('pw.temp', { n: total }));
           if (p.cost > 0 && charges) bits.push(t('pw.chargesLeft', { n: res.emptied ? 0 : (charStore.current?.resources.find((r) => r.id === charges.id)?.current ?? 0) }));
+          if (p.effect) bits.push(t('pw.effectOn', { name: p.effect.name || name, dur: p.effect.duration }));
           if (res.usedUp) bits.push(t('pw.usedUp'));
           return bits.join(' · ');
         },

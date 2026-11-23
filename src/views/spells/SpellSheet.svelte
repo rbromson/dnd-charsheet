@@ -21,12 +21,17 @@
     if (sp) sp.draft = true;
   });
 
+  const ownId = untrack(() => id);
+  const ownFresh = untrack(() => fresh);
+  const ownAttack = untrack(() => attackId);
   onDestroy(() => {
-    if (ui.draft === id) ui.draft = null;
+    if (ui.draft === ownId) ui.draft = null;
     const ch = charStore.current;
-    if (!fresh || confirmed || !ch) return;
-    ch.spells = ch.spells.filter((x) => x.id !== id);
-    if (attackId) ch.attacks = ch.attacks.filter((a) => a.id !== attackId);
+    if (!ownFresh || confirmed || !ch) return;
+    // только неподтверждённый черновик
+    if (!ch.spells.find((x) => x.id === ownId)?.draft) return;
+    ch.spells = ch.spells.filter((x) => x.id !== ownId);
+    if (ownAttack) ch.attacks = ch.attacks.filter((a) => a.id !== ownAttack);
   });
 
   function confirmAdd() {

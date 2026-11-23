@@ -68,6 +68,7 @@ export default {
   'combat.restKey.hp': 'Current HP',
   'combat.restKey.temp': 'Temporary HP',
   'combat.restKey.hitDice': 'Hit Dice',
+  'combat.restKey.effects': 'Potion effects end',
   'combat.restKey.slots': 'Spell slots used',
 
   // attacks
@@ -96,6 +97,7 @@ export default {
   'combat.atkNew': 'New attack',
   'combat.atkEmpty': 'No attacks. Add some in Edit mode.',
   'combat.atkRoll': 'Attack',
+  'combat.extraCrit': 'on a crit',
   'combat.atkDamageLabel': '{name}: damage',
 
   // привал

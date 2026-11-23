@@ -11,14 +11,14 @@
   import { charStore } from '../../lib/stores/characters.svelte';
   import { dice } from '../../lib/stores/dice.svelte';
   import { ui } from '../../lib/stores/ui.svelte';
-  import { abilityMod, fmt, saveAuto, saveBonus } from '../../lib/rules/calc';
+  import { abilityMod, fmt, saveAuto, saveBonus, abilityCheck } from '../../lib/rules/calc';
   import { t } from '../../lib/i18n';
 
   let { ability }: { ability: Ability } = $props();
 
   const c = $derived(charStore.current!);
   const name = $derived(t(`ability.${ability}`));
-  const m = $derived(c ? abilityMod(c.abilities[ability]) : 0);
+  const m = $derived(c ? abilityCheck(c, ability) : 0);
 
   function rollCheck() {
     dice.askCheck({ kind: 'ability', label: t('sheet.checkLabel', { ability: name }), bonus: m });

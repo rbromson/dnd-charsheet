@@ -17,6 +17,8 @@ export interface CheckRequest {
   /** формула урона, уже с подставленным МОД (для атаки) */
   damage?: string;
   damageLabel?: string;
+  /** доп. урон на выбор (проти драконів) и на критичному — отметки у окна броска */
+  extras?: { id: string; label: string; dice: string; crit: boolean }[];
 }
 
 export type RollEntry =

@@ -1,4 +1,4 @@
-import type { Ability, Attack, Character, Item, ItemMod, SkillKey } from '../model/types';
+import type { Ability, Attack, Character, ExtraDamage, Item, ItemMod, SkillKey } from '../model/types';
 import { t } from '../i18n';
 
 export const abilityMod = (score: number): number => Math.floor((score - 10) / 2);
@@ -10,11 +10,23 @@ export const profBonus = (c: Character): number => (c.profBonusOverride ?? profB
 /** Предмет действует: надет и, если требует, налаштований. */
 export const itemActive = (i: Item): boolean => i.equipped && (!i.attune || i.attuned);
 
-/** Безусловные модификаторы действующих предметов на цель t (с условием when — только подсказки). */
-export function activeMods(c: Character, target: string): { m: ItemMod; i: Item }[] {
-  const out: { m: ItemMod; i: Item }[] = [];
-  for (const i of c.equipment) if (itemActive(i)) for (const m of i.mods ?? []) if (m.t === target && !m.when) out.push({ m, i });
+/** Переключатель предмета работает, если предмет налаштований (когда требует) — надевать оружие не нужно. */
+export const toggleReady = (i: Item): boolean => !i.attune || i.attuned;
+
+/** Все действующие модификаторы с источником: надетые предметы, включённые переключатели, выпитые зелья. */
+export function allMods(c: Character): { m: ItemMod; name: string }[] {
+  const out: { m: ItemMod; name: string }[] = [];
+  for (const i of c.equipment) {
+    if (itemActive(i)) for (const m of i.mods ?? []) out.push({ m, name: i.name });
+    if (toggleReady(i)) for (const tg of i.toggles ?? []) if (tg.on) for (const m of tg.mods) out.push({ m, name: `${i.name}: ${tg.name}` });
+  }
+  for (const e of c.effects ?? []) for (const m of e.mods) out.push({ m, name: e.name });
   return out;
+}
+
+/** Безусловные модификаторы на цель t (с условием when — только подсказки). */
+export function activeMods(c: Character, target: string): { m: ItemMod; name: string }[] {
+  return allMods(c).filter(({ m }) => m.t === target && !m.when);
 }
 /** Сумма «+N» на цель (perLevel — за рівень персонажа). */
 export function modAdd(c: Character, target: string): number {
@@ -41,6 +53,8 @@ export function abilityScore(c: Character, a: Ability): number {
 }
 
 export const mod = (c: Character, a: Ability): number => abilityMod(abilityScore(c, a));
+/** Проверка характеристики: модификатор + бонусы предметов ко всем проверкам (Камінь удачі). */
+export const abilityCheck = (c: Character, a: Ability): number => mod(c, a) + modAdd(c, 'check');
 
 /** Сумма бонусов к рятункам от действующих предметов. */
 export const itemSaveBonus = (c: Character): number => c.equipment.reduce((s, i) => s + (itemActive(i) ? i.saveBonus : 0), 0);
@@ -72,7 +86,7 @@ export function acFromGear(c: Character): { total: number; parts: AcPart[] } {
   } else {
     // «базовий КО 15 + Вправність без обладунку» (Мантія верховних магів)
     const base = activeMods(c, 'acBase').sort((x, y) => y.m.v - x.m.v)[0];
-    parts.push(base ? { label: base.i.name, value: base.m.v } : { label: t('calc.unarmored'), value: 10 });
+    parts.push(base ? { label: base.name, value: base.m.v } : { label: t('calc.unarmored'), value: 10 });
     parts.push({ label: t('calc.dex'), value: dex });
   }
   if (shield) parts.push({ label: shield.name, value: shield.armor!.base + shield.bonus });
@@ -81,7 +95,7 @@ export function acFromGear(c: Character): { total: number; parts: AcPart[] } {
     if (i.noArmor && (body || shield)) continue;
     parts.push({ label: i.name, value: i.acBonus });
   }
-  for (const { m, i } of activeMods(c, 'ac')) if (m.op === 'add') parts.push({ label: i.name, value: m.v });
+  for (const { m, name } of activeMods(c, 'ac')) if (m.op === 'add') parts.push({ label: name, value: m.v });
   return { total: parts.reduce((s, p) => s + p.value, 0), parts };
 }
 
@@ -91,7 +105,7 @@ export function itemAcBonusParts(c: Character): AcPart[] {
   return c.equipment
     .filter((i) => i.acBonus && itemActive(i) && !i.armor && !(i.noArmor && wearingArmor))
     .map((i) => ({ label: i.name, value: i.acBonus }))
-    .concat(activeMods(c, 'ac').filter(({ m }) => m.op === 'add').map(({ m, i }) => ({ label: i.name, value: m.v })));
+    .concat(activeMods(c, 'ac').filter(({ m }) => m.op === 'add').map(({ m, name }) => ({ label: name, value: m.v })));
 }
 
 /** Швидкість ходьби з предметами: «+N» і «не менше N» (чоботи ходьби). Текст поля — якщо в ньому не число. */
@@ -100,12 +114,15 @@ export function walkSpeed(c: Character): { value: number | null; text: string; f
   if (!m) return { value: null, text: c.speed, from: [] };
   let v = Number(m[1]);
   const from: string[] = [];
-  for (const { m: md, i } of activeMods(c, 'speed')) {
+  const ms = activeMods(c, 'speed');
+  // сначала «+N», «= N», «не менше N», потом «×2» (чоботи швидкості, зілля швидкості)
+  for (const { m: md, name } of [...ms.filter(({ m }) => m.op !== 'mul'), ...ms.filter(({ m }) => m.op === 'mul')]) {
     const before = v;
     if (md.op === 'add') v += md.v;
     else if (md.op === 'min') v = Math.max(v, md.v);
     else if (md.op === 'set') v = md.v;
-    if (v !== before) from.push(i.name);
+    else if (md.op === 'mul') v = Math.floor(v * md.v);
+    if (v !== before) from.push(name);
   }
   return { value: v, text: String(v), from };
 }
@@ -115,16 +132,16 @@ export function itemSenses(c: Character): { key: 'fly' | 'swim' | 'climb' | 'dar
   const out: { key: 'fly' | 'swim' | 'climb' | 'darkvision'; v: number; item: string }[] = [];
   for (const key of ['fly', 'swim', 'climb', 'darkvision'] as const) {
     const best = activeMods(c, key).sort((x, y) => y.m.v - x.m.v)[0];
-    if (best) out.push({ key, v: best.m.v, item: best.i.name });
+    if (best) out.push({ key, v: best.m.v, item: best.name });
   }
   return out;
 }
 
 /** Модификаторы с условием — подсказки «+2 до шкоди дистанційною зброєю (Наручі стрільця)». */
 export function itemHints(c: Character): { text: string; item: string }[] {
-  const out: { text: string; item: string }[] = [];
-  for (const i of c.equipment) if (itemActive(i)) for (const m of i.mods ?? []) if (m.when) out.push({ text: m.when, item: i.name });
-  return out;
+  return allMods(c)
+    .filter(({ m }) => m.when)
+    .map(({ m, name }) => ({ text: m.when, item: name }));
 }
 
 /** Итоговый КО: от снаряжения или вручную (+ бонусы предметов). */
@@ -176,3 +193,25 @@ export const spellAttackAuto = (c: Character): number => profBonus(c) + mod(c, c
 export const spellAttack = (c: Character): number => c.spellcasting.attackOverride ?? spellAttackAuto(c);
 
 export const fmt = (n: number): string => (n >= 0 ? `+${n}` : `−${Math.abs(n)}`);
+
+/** Доп. урон атаки от её предмета: всегда, по выбору (проти виду істот) и только на критичному. */
+export function attackExtras(c: Character, atk: Attack): { always: ExtraDamage[]; options: ExtraDamage[]; crit: ExtraDamage[] } {
+  const item = atk.itemId ? c.equipment.find((i) => i.id === atk.itemId) : undefined;
+  const all: ExtraDamage[] = [];
+  if (item && toggleReady(item)) {
+    all.push(...(item.extra ?? []));
+    for (const tg of item.toggles ?? []) if (tg.on) all.push(...tg.extra);
+  }
+  return {
+    always: all.filter((x) => !x.when && !x.crit),
+    options: all.filter((x) => x.when && !x.crit),
+    crit: all.filter((x) => x.crit),
+  };
+}
+
+/** Формула урона атаки вместе с постоянным доп. уроном предмета (Морозне лезо, запалений Вогняний язик). */
+export function fullDamageFormula(c: Character, atk: Attack): string {
+  const base = resolveDamageFormula(c, atk);
+  const extra = attackExtras(c, atk).always.map((x) => x.dice.replace(/\s+/g, ''));
+  return [base, ...extra].filter(Boolean).join('+');
+}

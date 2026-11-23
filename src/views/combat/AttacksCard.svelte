@@ -8,10 +8,11 @@
   import { charStore } from '../../lib/stores/characters.svelte';
   import { dice } from '../../lib/stores/dice.svelte';
   import { ui } from '../../lib/stores/ui.svelte';
-  import { attackBonus, attackSaveDc, fmt, resolveDamageFormula } from '../../lib/rules/calc';
+  import { attackBonus, attackSaveDc, fmt, fullDamageFormula } from '../../lib/rules/calc';
+  import { requestExtras } from './extras';
   import { uid } from '../../lib/model/ids';
   import { move } from '../../lib/list';
-  import { MOD_WORD, t } from '../../lib/i18n';
+  import { MOD_WORD, dieText, t } from '../../lib/i18n';
 
   const c = $derived(charStore.current!);
 
@@ -30,12 +31,13 @@
       attackId: a.id,
       label: a.name,
       bonus: attackBonus(c, a),
-      damage: a.damage.trim() ? resolveDamageFormula(c, a) : undefined,
+      damage: a.damage.trim() ? fullDamageFormula(c, a) : undefined,
       damageLabel: t('combat.atkDamageLabel', { name: a.name }),
+      extras: requestExtras(c, a),
     });
   }
   function rollDamage(a: Attack) {
-    dice.rollDamage(t('combat.atkDamageLabel', { name: a.name }), resolveDamageFormula(c, a));
+    dice.rollDamage(t('combat.atkDamageLabel', { name: a.name }), fullDamageFormula(c, a));
   }
 
   function add() {
@@ -93,7 +95,7 @@
           {/if}
           {#if a.damage.trim()}
             <button class="btn btn-outline dmg" onclick={() => rollDamage(a)}
-              >{t('combat.damage')}<span class="v num">{resolveDamageFormula(c, a)}</span></button
+              >{t('combat.damage')}<span class="v num">{dieText(fullDamageFormula(c, a))}</span></button
             >
           {/if}
         </div>

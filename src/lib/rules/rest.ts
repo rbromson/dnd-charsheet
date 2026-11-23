@@ -21,6 +21,9 @@ export function applyRest(c: Character, kind: RestKind): { name: string; regain:
     c.hitDice.used = Math.max(0, c.hitDice.used - regain);
     c.deathSaves = { success: 0, fail: 0 };
     for (const s of c.spellcasting.slots) s.used = 0;
+    // 8 годин минули: дія зілль закінчилась, перемикачі (чоботи, крила, клинок) вимкнені
+    c.effects = [];
+    for (const it of c.equipment) for (const tg of it.toggles ?? []) tg.on = false;
   }
   return rolls;
 }
@@ -41,6 +44,7 @@ export function restPreview(c: Character, kind: RestKind): [string, string][] {
     if (after !== left) out.push(['hitDice', `${left} → ${after}`]);
     const usedSlots = c.spellcasting.slots.reduce((s, x) => s + x.used, 0);
     if (usedSlots > 0) out.push(['slots', `−${usedSlots} → 0`]);
+    if (c.effects?.length) out.push(['effects', String(c.effects.length)]);
   }
   return out;
 }

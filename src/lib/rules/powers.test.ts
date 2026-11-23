@@ -8,7 +8,7 @@ import { powersFor, CHARGES } from '../library/powers';
 import type { LibItem } from '../library/types';
 
 const P = (p: Partial<ItemPower>): ItemPower => ({
-  id: 'p', name: 'x', cost: 0, costMax: null, consume: false, dice: '', extra: '', result: 'info', self: true, dc: null, save: null, note: '', spell: null, level: 0, upcast: false, dcUser: false, attack: null, ...p,
+  id: 'p', name: 'x', cost: 0, costMax: null, consume: false, dice: '', extra: '', result: 'info', self: true, dc: null, save: null, note: '', spell: null, level: 0, upcast: false, dcUser: false, attack: null, effect: null, ...p,
 });
 
 describe('item powers', () => {

@@ -157,6 +157,7 @@ function make(d: Def): ItemPower {
     upcast: d.upcast ?? false,
     dcUser: d.dcUser ?? false,
     attack: d.attack ?? null,
+    effect: d.effect ?? null,
   };
 }
 

@@ -7,11 +7,12 @@ import type { ItemMod } from '../model/types';
 import { uid } from '../model/ids';
 import { lang } from '../i18n';
 
-type Def = Omit<Partial<ItemMod>, 'id' | 'when'> & { t: string; when?: [string, string] };
+export type ModDef = Omit<Partial<ItemMod>, 'id' | 'when'> & { t: string; when?: [string, string] };
+type Def = ModDef;
 
-const add = (t: string, v: number, cap: number | null = null): Def => ({ t, op: 'add', v, cap });
-const set = (t: string, v: number): Def => ({ t, op: 'set', v });
-const hint = (uk: string, en: string): Def => ({ t: 'hint', when: [uk, en] });
+export const add = (t: string, v: number, cap: number | null = null): Def => ({ t, op: 'add', v, cap });
+export const set = (t: string, v: number): Def => ({ t, op: 'set', v });
+export const hint = (uk: string, en: string): Def => ({ t: 'hint', when: [uk, en] });
 
 const MODS: Record<string, Def[]> = {
   'm:goggles-of-night': [set('darkvision', 60)],
@@ -52,7 +53,7 @@ const MODS: Record<string, Def[]> = {
   'm:boots-of-speed': [hint('Клацнути підборами: швидкість ×2 на 10 хв на день', 'Click the heels: double speed for 10 minutes a day')],
 };
 
-function make(d: Def): ItemMod {
+export function makeMod(d: Def): ItemMod {
   return {
     id: uid(),
     t: d.t,
@@ -66,7 +67,7 @@ function make(d: Def): ItemMod {
 
 /** Пассивные модификаторы для предмета из библиотеки ([] — ему не нужны). */
 export function modsFor(id: string, parent?: string): ItemMod[] {
-  return (MODS[id] ?? (parent ? MODS[parent] : undefined) ?? []).map(make);
+  return (MODS[id] ?? (parent ? MODS[parent] : undefined) ?? []).map(makeMod);
 }
 
 export const hasMods = (id: string): boolean => id in MODS;

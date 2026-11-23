@@ -68,6 +68,7 @@ export default {
   'combat.restKey.hp': "Поточне здоров'я",
   'combat.restKey.temp': "Тимчасове здоров'я",
   'combat.restKey.hitDice': "Кубики здоров'я",
+  'combat.restKey.effects': 'Дія зілль закінчиться',
   'combat.restKey.slots': 'Витрачено слотів',
 
   // атаки
@@ -96,6 +97,7 @@ export default {
   'combat.atkNew': 'Нова атака',
   'combat.atkEmpty': 'Атак немає. Додайте в режимі правки.',
   'combat.atkRoll': 'Атака',
+  'combat.extraCrit': 'на критичному',
   'combat.atkDamageLabel': '{name}: шкода',
 
   // привал

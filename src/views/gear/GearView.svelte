@@ -6,6 +6,7 @@
   import ItemSheet from './ItemSheet.svelte';
   import ItemLibrary from './ItemLibrary.svelte';
   import ItemPowers from './ItemPowers.svelte';
+  import ItemToggles from './ItemToggles.svelte';
   import AddChooser from '../../components/AddChooser.svelte';
   import { attunedCount, itemActive } from '../../lib/rules/calc';
   import { removeItem as removeItemWithAttack } from '../../lib/rules/weapons';
@@ -110,7 +111,7 @@
                     {#if r}<span class="badge chg num" title={t('pw.charges', { n: r.current, max: r.max })}><Icon name="sparkle" size={12} />{r.current}/{r.max}</span>{/if}
                   {/if}
                   <span class="qty num" class:zero={it.qty === 0}>×{it.qty}</span>
-                  {#if !ui.editing && (it.text.trim() || it.powers.length)}
+                  {#if !ui.editing && (it.text.trim() || it.powers.length || it.toggles.length)}
                     <span class="chev"><Icon name="down" size={18} /></span>
                   {/if}
                 </button>
@@ -124,7 +125,7 @@
               </div>
               {#if open[it.id] && !ui.editing}
                 <!-- дії предмета (випити, заряди) — одразу під назвою, опис нижче -->
-                {#if it.powers.length}<div class="pwbox"><ItemPowers itemId={it.id} /></div>{/if}
+                {#if it.powers.length || it.toggles.length}<div class="pwbox"><ItemToggles itemId={it.id} /><ItemPowers itemId={it.id} /></div>{/if}
                 {#if it.text.trim()}<div class="desc serif">{it.text}</div>{/if}
               {/if}
             </li>
