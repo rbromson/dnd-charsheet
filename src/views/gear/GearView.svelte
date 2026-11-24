@@ -144,7 +144,6 @@
       {:else}
         <div class="empty">{t('gear.emptyItems')}</div>
       {/if}
-      <button class="btn btn-ghost addbtn" onclick={addItem}><Icon name="plus" size={20} />{t('gear.addItem')}</button>
       {#if !ui.editing && c.equipment.length}
         <p class="foot muted">{t('gear.itemHint')}</p>
       {/if}
@@ -338,9 +337,6 @@
     font-size: 15.5px;
     line-height: 1.55;
     padding: 0 4px 12px;
-  }
-  .addbtn {
-    margin-left: -10px;
   }
   .foot {
     font-size: 12.5px;

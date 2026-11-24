@@ -178,8 +178,11 @@
       </div>
       {#if hasEffect}<Toggle bind:checked={item.equipped} label={t('gear.equipped')} />{/if}
       {#if item.attune && charStore.current}
-        <Toggle bind:checked={item.attuned} label={`${t('gear.attuned')} · ${t('gear.attuneCount', { n: attunedCount(charStore.current) })}`} />
-        {#if attunedCount(charStore.current) > 3}<div class="warn">{t('gear.attuneTooMany')}</div>{/if}
+        <!-- налаштування: зв'язок з предметом (коротка перерва); одночасно — не більше трьох -->
+        <Toggle bind:checked={item.attuned} label={t('gear.attuned')} />
+        <div class="ahint" class:warn={attunedCount(charStore.current) > 3}>
+          {attunedCount(charStore.current) > 3 ? t('gear.attuneTooMany') : t('gear.attuneHint', { n: attunedCount(charStore.current) })}
+        </div>
       {/if}
       {#if ui.editing}
         <div class="steps">
@@ -315,6 +318,15 @@
   }
   .small {
     font-size: 12.5px;
+  }
+  .ahint {
+    margin-top: -6px;
+    font-size: 12.5px;
+    line-height: 1.4;
+    color: var(--ink2);
+  }
+  .ahint.warn {
+    color: #a3382a;
   }
   .warn {
     font-size: 13px;
